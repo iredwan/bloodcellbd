@@ -7,7 +7,8 @@ const divisionalTeamSchema = new mongoose.Schema({
   },
   position: {
     type: String,
-    required: [true, "Position is required"]
+    required: [true, "Position is required"],
+    default: "Divisional Coordinator"
   },
   division: {
     type: String,
