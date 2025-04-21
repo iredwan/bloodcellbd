@@ -14,6 +14,7 @@ import carouselRoutes from './src/routes/CarouselRoutes.js';
 import eventRoutes from './src/routes/EventRoutes.js';
 import sponsorRoutes from './src/routes/SponsorRoutes.js';
 import goodwillAmbassadorRoutes from './src/routes/GoodwillAmbassadorRoutes.js';
+import boardTeamRoutes from './src/routes/BoardTeamRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -56,6 +57,7 @@ app.use('/api/carousel', carouselRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/sponsors', sponsorRoutes);
 app.use('/api/ambassadors', goodwillAmbassadorRoutes);
+app.use('/api/board-team', boardTeamRoutes);
 // Root route
 app.get('/', (req, res) => {
   res.send('Blood Cell BD API is running');
