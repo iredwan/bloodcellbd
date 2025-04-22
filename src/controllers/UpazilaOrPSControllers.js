@@ -20,8 +20,7 @@ export const CreateUpazilaOrPS = async (req, res) => {
 // Get Upazilas or Police Stations by District ID
 export const GetUpazilasOrPSByDistrict = async (req, res) => {
   try {
-    const { districtId } = req.params;
-    const result = await GetUpazilaOrPSByDistrict(districtId);
+    const result = await GetUpazilaOrPSByDistrict(req);
     return res.status(result.status ? 200 : 400).json(result);
   } catch (error) {
     return res.status(500).json({

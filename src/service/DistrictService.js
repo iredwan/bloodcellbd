@@ -1,8 +1,8 @@
 import DistrictModel from "../models/DistrictModel.js";
 
-export const CreateDistrictService = async (req) => {
+export const CreateDistrictService = async (body) => {
   try {
-    const { name, bengaliName, order } = req.body;
+    const { name, bengaliName, order } = body;
 
     // Check if required fields are provided
     if (!name || !bengaliName) {
@@ -44,7 +44,7 @@ export const CreateDistrictService = async (req) => {
 
 export const GetAllDistrictsService = async () => {
   try {
-    const districts = await DistrictModel.find().sort({ order: 1 });
+    const districts = await DistrictModel.find({}, { order: 0, createdAt: 0, updatedAt: 0 }).sort({ order: 1 });
     return {
       status: true,
       message: "All districts retrieved successfully.",

@@ -53,8 +53,9 @@ export const CreateUpazilaOrPSService = async (data) => {
   }
 };
 
-export const GetUpazilaOrPSByDistrict = async (districtId) => {
+export const GetUpazilaOrPSByDistrict = async (req  ) => {
   try {
+    const { districtId } = req.params;
     // Validate district ID
     if (!districtId) {
       return {
@@ -72,14 +73,18 @@ export const GetUpazilaOrPSByDistrict = async (districtId) => {
       };
     }
 
+
     // Get all upazilas/PS for the district
-    const upazilas = await UpazilaOrPSModel.find({ district: districtId })
-      .sort({ order: 1 })
-      .populate('district', 'name bengaliName');
+    const upazilas = await UpazilaOrPSModel.find({ district: districtId }, 
+      { order: 0, createdAt: 0, updatedAt: 0 })
+      .sort({ order: 1 });
+    
+    const count = await UpazilaOrPSModel.countDocuments({ district: districtId });
 
     return {
       status: true,
       message: "Upazilas/PS retrieved successfully.",
+      total: count,
       data: upazilas
     };
   } catch (e) {
