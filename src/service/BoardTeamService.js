@@ -2,13 +2,24 @@ import BoardTeam from "../models/BoardTeamModel.js";
 import mongoose from "mongoose";
 import { deleteFile } from "../utility/fileUtils.js";
 import path from "path";
-
+import UserModel from "../models/UserModel.js";
 const ObjectId = mongoose.Types.ObjectId;
 
 // Create Board Team Member
 export const CreateBoardTeamService = async (req) => {
   try {
     const reqBody = req.body;
+    const userId = reqBody.userId;
+
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return { status: false, message: "User not found." };
+    }
+    
+    const boardTeam = await BoardTeam.findOne({ userId });
+    if (boardTeam) {
+      return { status: false, message: "Board team member already exists." };
+    }
     
     // Create new board team member
     const newMember = new BoardTeam(reqBody);
@@ -43,7 +54,9 @@ export const GetAllBoardTeamService = async (req) => {
     }
     
     // Get all board team members with filters
-    const members = await BoardTeam.find(filter).sort({ order: 1 });
+    const members = await BoardTeam.find(filter)
+      .populate('userId', 'name email avatar district upazila phone')
+      .sort({ order: 1 });
     
     if (!members || members.length === 0) {
       return { status: false, message: "No board team members found." };
@@ -68,7 +81,8 @@ export const GetBoardTeamByIdService = async (req) => {
   try {
     const memberId = new ObjectId(req.params.id);
     
-    const member = await BoardTeam.findById(memberId);
+    const member = await BoardTeam.findById(memberId)
+      .populate('userId', 'name email avatar district upazila phone');
     
     if (!member) {
       return { status: false, message: "Board team member not found." };
@@ -95,7 +109,8 @@ export const UpdateBoardTeamService = async (req) => {
     const reqBody = req.body;
     
     // Check if board team member exists
-    const currentMember = await BoardTeam.findById(memberId);
+    const currentMember = await BoardTeam.findById(memberId)
+      .populate('userId', 'name email avatar district upazila phone');
     
     if (!currentMember) {
       return { status: false, message: "Board team member not found." };
@@ -138,7 +153,8 @@ export const DeleteBoardTeamService = async (req) => {
     }
     
     // Get member before deletion to access image
-    const member = await BoardTeam.findById(memberId);
+    const member = await BoardTeam.findById(memberId)
+      .populate('userId', 'name email avatar district upazila phone');
     
     if (!member) {
       return { status: false, message: "Board team member not found or already deleted." };
@@ -173,7 +189,8 @@ export const ToggleBoardTeamActiveService = async (req) => {
     const memberId = new ObjectId(req.params.id);
     
     // Get current board team member
-    const member = await BoardTeam.findById(memberId);
+    const member = await BoardTeam.findById(memberId)
+      .populate('userId', 'name email avatar district upazila phone');
     
     if (!member) {
       return { status: false, message: "Board team member not found." };
@@ -206,7 +223,8 @@ export const ToggleBoardTeamFeaturedService = async (req) => {
     const memberId = new ObjectId(req.params.id);
     
     // Get current board team member
-    const member = await BoardTeam.findById(memberId);
+    const member = await BoardTeam.findById(memberId)
+      .populate('userId', 'name email avatar district upazila phone');
     
     if (!member) {
       return { status: false, message: "Board team member not found." };
@@ -244,7 +262,8 @@ export const UpdateBoardTeamOrderService = async (req) => {
     }
     
     // Get current board team member
-    const member = await BoardTeam.findById(memberId);
+    const member = await BoardTeam.findById(memberId)
+      .populate('userId', 'name email avatar district upazila phone');
     
     if (!member) {
       return { status: false, message: "Board team member not found." };

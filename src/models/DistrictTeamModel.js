@@ -2,34 +2,21 @@ import mongoose from "mongoose";
 
 const districtTeamSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: [true, "Name is required"],
-      trim: true
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "User is required"]
     },
     designation: {
       type: String,
       required: [true, "Designation is required"],
-      trim: true,
-      default: "District Coordinator"
-    },
-    district: {
-      type: String,
-      required: [true, "District is required"],
       trim: true
     },
-    phoneNumber: {
-      type: String,
-      required: [true, "Phone number is required"],
-      trim: true
-    },
-    email: {
-      type: String,
-      trim: true
-    },
-    image: {
-      type: String,
-      trim: true
+    socialLinks: {
+      facebook: String,
+      whatsapp: String,
+      linkedin: String,
+      instagram: String
     },
     bio: {
       type: String,

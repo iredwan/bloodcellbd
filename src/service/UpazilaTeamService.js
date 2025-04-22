@@ -1,12 +1,23 @@
 import UpazilaTeam from "../models/UpazilaTeamModel.js";
 import mongoose from "mongoose";
-
+import UserModel from "../models/UserModel.js";
 const ObjectId = mongoose.Types.ObjectId;
 
 // Create Upazila Team Member
 export const CreateUpazilaTeamService = async (req) => {
   try {
     const reqBody = req.body;
+    const userId = reqBody.userId;
+
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return { status: false, message: "User not found." };
+    }
+
+    const upazilaTeam = await UpazilaTeam.findOne({ userId });
+    if (upazilaTeam) {
+      return { status: false, message: "Upazila team member already exists." };
+    }
     
     // Create new upazila team member
     const newMember = new UpazilaTeam(reqBody);
@@ -52,7 +63,7 @@ export const GetAllUpazilaTeamService = async (req) => {
     
     // Get all upazila team members with filters
     const members = await UpazilaTeam.find(filter)
-      .populate('userId', 'name email profilePicture')
+      .populate('userId', 'name email avatar district upazila phone')
       .sort({ order: 1 });
     
     if (!members || members.length === 0) {
@@ -79,7 +90,7 @@ export const GetUpazilaTeamByIdService = async (req) => {
     const memberId = new ObjectId(req.params.id);
     
     const member = await UpazilaTeam.findById(memberId)
-      .populate('userId', 'name email profilePicture');
+      .populate('userId', 'name email avatar district upazila phone');
     
     if (!member) {
       return { status: false, message: "Upazila team member not found." };
@@ -116,7 +127,7 @@ export const GetUpazilaTeamByDistrictService = async (req) => {
     }
     
     const members = await UpazilaTeam.find(filter)
-      .populate('userId', 'name email profilePicture')
+      .populate('userId', 'name email avatar district upazila phone')
       .sort({ order: 1 });
     
     if (!members || members.length === 0) {
@@ -154,7 +165,7 @@ export const GetUpazilaTeamByUpazilaService = async (req) => {
     }
     
     const members = await UpazilaTeam.find(filter)
-      .populate('userId', 'name email profilePicture')
+      .populate('userId', 'name email avatar district upazila phone')
       .sort({ order: 1 });
     
     if (!members || members.length === 0) {
@@ -193,7 +204,7 @@ export const UpdateUpazilaTeamService = async (req) => {
       memberId,
       { $set: reqBody },
       { new: true, runValidators: true }
-    ).populate('userId', 'name email profilePicture');
+    ).populate('userId', 'name email avatar district upazila phone');
     
     return {
       status: true,
@@ -259,7 +270,7 @@ export const ToggleUpazilaTeamActiveService = async (req) => {
       memberId,
       { $set: { active: !member.active } },
       { new: true }
-    ).populate('userId', 'name email profilePicture');
+    ).populate('userId', 'name email avatar district upazila phone');
     
     return {
       status: true,
@@ -292,7 +303,7 @@ export const ToggleUpazilaTeamFeaturedService = async (req) => {
       memberId,
       { $set: { featured: !member.featured } },
       { new: true }
-    ).populate('userId', 'name email profilePicture');
+    ).populate('userId', 'name email avatar district upazila phone');
     
     return {
       status: true,
@@ -330,7 +341,7 @@ export const UpdateUpazilaTeamOrderService = async (req) => {
       memberId,
       { $set: { order } },
       { new: true }
-    ).populate('userId', 'name email profilePicture');
+    ).populate('userId', 'name email avatar district upazila phone');
     
     return {
       status: true,

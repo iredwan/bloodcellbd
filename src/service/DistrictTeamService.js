@@ -2,13 +2,24 @@ import DistrictTeam from "../models/DistrictTeamModel.js";
 import mongoose from "mongoose";
 import { deleteFile } from "../utility/fileUtils.js";
 import path from "path";
-
+import UserModel from "../models/UserModel.js";
 const ObjectId = mongoose.Types.ObjectId;
 
 // Create District Team Member
 export const CreateDistrictTeamService = async (req) => {
   try {
     const reqBody = req.body;
+    const userId = reqBody.userId;
+
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return { status: false, message: "User not found." };
+    }
+
+    const districtTeam = await DistrictTeam.findOne({ userId });
+    if (districtTeam) {
+      return { status: false, message: "District team member already exists." };
+    }
     
     // Create new district team member
     const newMember = new DistrictTeam(reqBody);
@@ -48,7 +59,9 @@ export const GetAllDistrictTeamService = async (req) => {
     }
     
     // Get all district team members with filters
-    const members = await DistrictTeam.find(filter).sort({ order: 1 });
+    const members = await DistrictTeam.find(filter)
+      .populate('userId', 'name email avatar district upazila phone')
+      .sort({ order: 1 });
     
     if (!members || members.length === 0) {
       return { status: false, message: "No district team members found." };
@@ -73,7 +86,8 @@ export const GetDistrictTeamByIdService = async (req) => {
   try {
     const memberId = new ObjectId(req.params.id);
     
-    const member = await DistrictTeam.findById(memberId);
+    const member = await DistrictTeam.findById(memberId)
+      .populate('userId', 'name email avatar district upazila phone');
     
     if (!member) {
       return { status: false, message: "District team member not found." };
@@ -109,7 +123,9 @@ export const GetDistrictTeamByDistrictService = async (req) => {
       filter.active = true;
     }
     
-    const members = await DistrictTeam.find(filter).sort({ order: 1 });
+    const members = await DistrictTeam.find(filter)
+      .populate('userId', 'name email avatar district upazila phone')
+      .sort({ order: 1 });
     
     if (!members || members.length === 0) {
       return { status: false, message: `No district team members found for ${district} district.` };
@@ -136,7 +152,8 @@ export const UpdateDistrictTeamService = async (req) => {
     const reqBody = req.body;
     
     // Check if district team member exists
-    const currentMember = await DistrictTeam.findById(memberId);
+    const currentMember = await DistrictTeam.findById(memberId)
+      .populate('userId', 'name email avatar district upazila phone');
     
     if (!currentMember) {
       return { status: false, message: "District team member not found." };
@@ -179,7 +196,8 @@ export const DeleteDistrictTeamService = async (req) => {
     }
     
     // Get member before deletion to access image
-    const member = await DistrictTeam.findById(memberId);
+    const member = await DistrictTeam.findById(memberId)
+      .populate('userId', 'name email avatar district upazila phone');
     
     if (!member) {
       return { status: false, message: "District team member not found or already deleted." };
@@ -214,7 +232,8 @@ export const ToggleDistrictTeamActiveService = async (req) => {
     const memberId = new ObjectId(req.params.id);
     
     // Get current district team member
-    const member = await DistrictTeam.findById(memberId);
+      const member = await DistrictTeam.findById(memberId)
+      .populate('userId', 'name email avatar district upazila phone');
     
     if (!member) {
       return { status: false, message: "District team member not found." };
@@ -247,7 +266,8 @@ export const ToggleDistrictTeamFeaturedService = async (req) => {
     const memberId = new ObjectId(req.params.id);
     
     // Get current district team member
-    const member = await DistrictTeam.findById(memberId);
+      const member = await DistrictTeam.findById(memberId)
+      .populate('userId', 'name email avatar district upazila phone');
     
     if (!member) {
       return { status: false, message: "District team member not found." };
@@ -285,7 +305,8 @@ export const UpdateDistrictTeamOrderService = async (req) => {
     }
     
     // Get current district team member
-    const member = await DistrictTeam.findById(memberId);
+    const member = await DistrictTeam.findById(memberId)
+      .populate('userId', 'name email avatar district upazila phone');
     
     if (!member) {
       return { status: false, message: "District team member not found." };

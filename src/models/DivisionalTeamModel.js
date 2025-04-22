@@ -1,25 +1,19 @@
 import mongoose from "mongoose";
 
 const divisionalTeamSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, "Name is required"]
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: [true, "User is required"]
   },
-  position: {
+  designation: {
     type: String,
-    required: [true, "Position is required"],
+    required: [true, "Designation is required"],
     default: "Divisional Coordinator"
-  },
-  division: {
-    type: String,
-    required: [true, "Division is required"]
   },
   bio: {
     type: String,
     required: [true, "Bio is required"]
-  },
-  image: {
-    type: String
   },
   socialLinks: {
     facebook: String,

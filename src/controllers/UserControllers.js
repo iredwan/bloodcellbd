@@ -1,4 +1,4 @@
-import { UserRegisterService, UserLoginService, UserLogoutService, GetUserByIdService, UpdateUserByIdService, GetAllUserService, EligibleUserService, DeleteUserService, GetUserByBloodGroupService, GetUserByUpazilaService, GetPendingUserService, GetApprovedUserService, GetBannedUserService, GetUserByDistrictService, GetUserByNameService } from "../service/UserService.js";
+import { UserRegisterService, UserLoginService, UserLogoutService, GetUserByIdService, UpdateUserByIdService, GetAllUserService, EligibleUserService, DeleteUserService, GetUserByBloodGroupService, GetUserByUpazilaService, GetPendingUserService, GetApprovedUserService, GetBannedUserService, GetUserByDistrictService, GetUserByNameService, GetUserByGmailService } from "../service/UserService.js";
 
 // Profile Register
 export const ProfileRegister = async (req, res) => {
@@ -149,6 +149,17 @@ export const GetUserByName = async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 };
+
+// Get User By Gmail
+export const GetUserByGmail = async (req, res) => {
+  try {
+    const result = await GetUserByGmailService(req);
+    return res.status(200).json(result);
+  } catch (error) {   
+    return res.status(500).json({ error: error.message });
+  }
+};
+
 
 
 

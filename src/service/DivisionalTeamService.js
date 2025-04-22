@@ -2,13 +2,24 @@ import DivisionalTeam from "../models/DivisionalTeamModel.js";
 import mongoose from "mongoose";
 import { deleteFile } from "../utility/fileUtils.js";
 import path from "path";
-
+import UserModel from "../models/UserModel.js";
 const ObjectId = mongoose.Types.ObjectId;
 
 // Create Divisional Team Member
 export const CreateDivisionalTeamService = async (req) => {
   try {
     const reqBody = req.body;
+    const userId = reqBody.userId;
+
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return { status: false, message: "User not found." };
+    }
+
+    const divisionalTeam = await DivisionalTeam.findOne({ userId });
+    if (divisionalTeam) {
+      return { status: false, message: "Divisional team member already exists." };
+    }
     
     // Create new divisional team member
     const newMember = new DivisionalTeam(reqBody);
@@ -48,7 +59,9 @@ export const GetAllDivisionalTeamService = async (req) => {
     }
     
     // Get all divisional team members with filters
-    const members = await DivisionalTeam.find(filter).sort({ order: 1 });
+    const members = await DivisionalTeam.find(filter)
+      .populate('userId', 'name email avatar district upazila phone')
+      .sort({ order: 1 });
     
     if (!members || members.length === 0) {
       return { status: false, message: "No divisional team members found." };
@@ -73,7 +86,8 @@ export const GetDivisionalTeamByIdService = async (req) => {
   try {
     const memberId = new ObjectId(req.params.id);
     
-    const member = await DivisionalTeam.findById(memberId);
+    const member = await DivisionalTeam.findById(memberId)
+      .populate('userId', 'name email avatar district upazila phone');
     
     if (!member) {
       return { status: false, message: "Divisional team member not found." };
@@ -109,7 +123,9 @@ export const GetDivisionalTeamByDivisionService = async (req) => {
       filter.active = true;
     }
     
-    const members = await DivisionalTeam.find(filter).sort({ order: 1 });
+    const members = await DivisionalTeam.find(filter)
+      .populate('userId', 'name email avatar district upazila phone')
+      .sort({ order: 1 });
     
     if (!members || members.length === 0) {
       return { status: false, message: `No divisional team members found for ${division} division.` };
@@ -136,7 +152,8 @@ export const UpdateDivisionalTeamService = async (req) => {
     const reqBody = req.body;
     
     // Check if divisional team member exists
-    const currentMember = await DivisionalTeam.findById(memberId);
+    const currentMember = await DivisionalTeam.findById(memberId)
+      .populate('userId', 'name email avatar district upazila phone');
     
     if (!currentMember) {
       return { status: false, message: "Divisional team member not found." };
@@ -179,7 +196,8 @@ export const DeleteDivisionalTeamService = async (req) => {
     }
     
     // Get member before deletion to access image
-    const member = await DivisionalTeam.findById(memberId);
+    const member = await DivisionalTeam.findById(memberId)
+      .populate('userId', 'name email avatar district upazila phone');
     
     if (!member) {
       return { status: false, message: "Divisional team member not found or already deleted." };
@@ -214,7 +232,8 @@ export const ToggleDivisionalTeamActiveService = async (req) => {
     const memberId = new ObjectId(req.params.id);
     
     // Get current divisional team member
-    const member = await DivisionalTeam.findById(memberId);
+      const member = await DivisionalTeam.findById(memberId)
+      .populate('userId', 'name email avatar district upazila phone');
     
     if (!member) {
       return { status: false, message: "Divisional team member not found." };
@@ -247,7 +266,8 @@ export const ToggleDivisionalTeamFeaturedService = async (req) => {
     const memberId = new ObjectId(req.params.id);
     
     // Get current divisional team member
-    const member = await DivisionalTeam.findById(memberId);
+      const member = await DivisionalTeam.findById(memberId)
+      .populate('userId', 'name email avatar district upazila phone');
     
     if (!member) {
       return { status: false, message: "Divisional team member not found." };
@@ -285,7 +305,8 @@ export const UpdateDivisionalTeamOrderService = async (req) => {
     }
     
     // Get current divisional team member
-    const member = await DivisionalTeam.findById(memberId);
+    const member = await DivisionalTeam.findById(memberId)
+      .populate('userId', 'name email avatar district upazila phone');
     
     if (!member) {
       return { status: false, message: "Divisional team member not found." };

@@ -10,7 +10,6 @@ import {
   UpdateBoardTeamOrder
 } from '../controllers/BoardTeamControllers.js';
 import { protect, restrictTo } from '../middleware/auth.js';
-import { upload } from '../utility/fileUtils.js';
 
 const router = express.Router();
 

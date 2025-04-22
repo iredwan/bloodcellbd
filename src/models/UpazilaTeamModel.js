@@ -6,21 +6,9 @@ const upazilaTeamSchema = new mongoose.Schema({
     ref: "User",
     required: [true, "User is required"]
   },
-  position: {
+  designation: {
     type: String,
     required: [true, "Position is required"]
-  },
-  district: {
-    type: String,
-    required: [true, "District is required"]
-  },
-  upazila: {
-    type: String,
-    required: [true, "Upazila is required"]
-  },
-  phone: {
-    type: String,
-    required: [true, "Phone number is required"]
   },
   bio: {
     type: String,

@@ -1,20 +1,18 @@
 import mongoose from "mongoose";
 
 const boardTeamSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, "Name is required"]
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: [true, "User is required"]
   },
-  position: {
+  designation: {
     type: String,
-    required: [true, "Position is required"]
+    required: [true, "Designation is required"]
   },
   bio: {
     type: String,
     required: [true, "Bio is required"]
-  },
-  image: {
-    type: String
   },
   socialLinks: {
     facebook: String,

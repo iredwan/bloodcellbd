@@ -415,6 +415,37 @@ export const GetUserByNameService = async (req) => {
   }
 };
 
+export const GetUserByGmailService = async (req) => {
+  try {
+    const { email } = req.params;
+    
+    // Find user by email
+    const user = await UserModel.findOne({ 
+      email: email
+    });
+    
+    if (!user) {
+      return { 
+        status: false, 
+        message: "No user found with the given email." 
+      };
+    }
+    
+    return {
+      status: true,
+      data: user,
+      message: "User retrieved successfully.",
+    };
+  } catch (e) {
+    return { 
+      status: false, 
+      message: "Failed to retrieve user by email.", 
+      details: e.message 
+    };
+  }
+};
+
+
 
 
 
