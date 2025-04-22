@@ -318,3 +318,39 @@ export const RemoveEventFromGoodwillAmbassadorService = async (req) => {
     };
   }
 };
+
+// Get Goodwill Ambassadors by Designation
+export const GetGoodwillAmbassadorByDesignationService = async (req) => {
+  try {
+    const { designation } = req.params;
+    
+    if (!designation) {
+      return { status: false, message: "Designation parameter is required." };
+    }
+    
+    // Find all ambassadors with the specified designation
+    const ambassadors = await GoodwillAmbassador.find({ 
+      designation: designation,
+      active: true 
+    }).sort({ createdAt: -1 });
+    
+    if (!ambassadors || ambassadors.length === 0) {
+      return { 
+        status: false, 
+        message: `No Goodwill Ambassadors found with designation: ${designation}.` 
+      };
+    }
+    
+    return {
+      status: true,
+      message: `Goodwill Ambassadors with designation '${designation}' retrieved successfully.`,
+      data: ambassadors
+    };
+  } catch (e) {
+    return { 
+      status: false, 
+      message: "Failed to retrieve Goodwill Ambassadors by designation.", 
+      details: e.message 
+    };
+  }
+};
