@@ -5,10 +5,22 @@ import UserModel from "../models/UserModel.js";
 const ObjectId = mongoose.Types.ObjectId;
 
 // Create Moderator Team
-export const CreateModeratorTeamService = async (body) => {
+export const CreateModeratorTeamService = async (req) => {
   try {
-      const moderatorName = body.moderatorName;
-      let { moderatorTeamMembers } = body;
+    
+    // Get user ID from headers or cookies for createdBy field
+    const createdById = req.headers.user_id || (req.cookies && req.cookies.user_id);
+    
+    if (!createdById || !ObjectId.isValid(createdById)) {
+      return {
+        status: false,
+        message: "Valid user ID is required in headers or cookies."
+      };
+    }
+
+    const reqBody = req.body;     
+      const moderatorName = reqBody.moderatorName;
+      let { moderatorTeamMembers } = reqBody;
       const user = await UserModel.findById(moderatorName);
 
       // Check if moderator is found
@@ -28,7 +40,7 @@ export const CreateModeratorTeamService = async (body) => {
       }
 
       // Check if moderator team name is provided
-      const moderatorTeamName = body.moderatorTeamName || user.name + "'s Team";
+      const moderatorTeamName = reqBody.moderatorTeamName || user.name + "'s Team";
 
     // Check if required fields are provided
     if (!moderatorTeamName || !moderatorName) {
@@ -105,7 +117,8 @@ export const CreateModeratorTeamService = async (body) => {
     const newModeratorTeam = await ModeratorTeamModel.create({
       moderatorTeamName,
       moderatorName,
-      moderatorTeamMembers: moderatorTeamMembers || []
+      moderatorTeamMembers: moderatorTeamMembers || [],
+      createdBy: createdById 
     });
 
     return {
@@ -126,8 +139,10 @@ export const CreateModeratorTeamService = async (body) => {
 export const GetAllModeratorTeamsService = async () => {
   try {
     const moderatorTeams = await ModeratorTeamModel.find()
-      .populate("moderatorName", "name email phone role")
-      .populate("moderatorTeamMembers", "name email phone eligibility nextDonationDate alternatePhone whatsappNumber")
+      .populate("moderatorName", "name email phone role profileImage")
+      .populate("moderatorTeamMembers", "name email phone eligibility nextDonationDate alternatePhone whatsappNumber profileImage")
+      .populate("createdBy", "name email phone role profileImage")
+      .populate("updatedBy", "name email phone role profileImage")
       .sort({ createdAt: -1 })
       .lean();
     
@@ -172,8 +187,9 @@ export const GetAllModeratorTeamsService = async () => {
 };
 
 // Get Moderator Team By ID
-export const GetModeratorTeamByIdService = async (id) => {
+export const GetModeratorTeamByIdService = async (req) => {
   try {
+    const id = req.params.id;
     if (!ObjectId.isValid(id)) {
       return {
         status: false,
@@ -213,8 +229,22 @@ export const GetModeratorTeamByIdService = async (id) => {
 };
 
 // Update Moderator Team
-export const UpdateModeratorTeamService = async (id, body) => {
+export const UpdateModeratorTeamService = async (req) => {
   try {
+    // Get user ID from headers or cookies for updatedBy field
+    const updatedById = req.headers.user_id || (req.cookies && req.cookies.user_id);
+    
+    if (!updatedById || !ObjectId.isValid(updatedById)) {
+      return {
+        status: false,
+        message: "Valid user ID is required in headers or cookies."
+      };
+    }
+    const reqBody = req.body;
+    const id = req.params.id;
+    const moderatorTeamName = reqBody.moderatorTeamName;
+
+
     if (!ObjectId.isValid(id)) {
       return {
         status: false,
@@ -232,9 +262,9 @@ export const UpdateModeratorTeamService = async (id, body) => {
     }
     
     // Check if team name already exists (if updating team name)
-    if (body.moderatorTeamName && body.moderatorTeamName !== existingTeam.moderatorTeamName) {
+    if (moderatorTeamName && moderatorTeamName !== existingTeam.moderatorTeamName) {
       const teamWithName = await ModeratorTeamModel.findOne({ 
-        moderatorTeamName: body.moderatorTeamName,
+        moderatorTeamName: moderatorTeamName,
         _id: { $ne: id }
       });
       
@@ -246,10 +276,19 @@ export const UpdateModeratorTeamService = async (id, body) => {
       }
     }
     
+    // Merge existing data with new data
+    const updatedData = {
+      ...existingTeam.toObject(),
+      ...reqBody
+    };
+    
+    // Add updatedBy field to the updated data
+    updatedData.updatedBy = updatedById;
+
     // Update moderator team
     const updatedModeratorTeam = await ModeratorTeamModel.findByIdAndUpdate(
       id,
-      { $set: body },
+      { $set: updatedData },
       { new: true, runValidators: true }
     ).populate("moderatorName", "name email phone")
      .populate("moderatorTeamMembers", "name email phone");
@@ -269,8 +308,9 @@ export const UpdateModeratorTeamService = async (id, body) => {
 };
 
 // Delete Moderator Team
-export const DeleteModeratorTeamService = async (id) => {
+export const DeleteModeratorTeamService = async (req) => {
   try {
+    const id = req.params.id;
     if (!ObjectId.isValid(id)) {
       return {
         status: false,
@@ -305,8 +345,20 @@ export const DeleteModeratorTeamService = async (id) => {
 };
 
 // Add Member to Moderator Team
-export const AddTeamMemberService = async (id, memberId) => {
+export const AddTeamMemberService = async (req) => {
   try {
+
+    // Get user ID from headers or cookies for createdBy field
+    const updatedById = req.headers.user_id || (req.cookies && req.cookies.user_id);
+    if (!updatedById || !ObjectId.isValid(updatedById)) {
+      return {
+        status: false,  
+        message: "Valid user ID is required in headers or cookies."
+      };
+    }
+
+    const id = req.params.teamId;
+    const memberId = req.body.memberId;
     if (!ObjectId.isValid(id) || !ObjectId.isValid(memberId)) {
       return {
         status: false,
@@ -324,25 +376,41 @@ export const AddTeamMemberService = async (id, memberId) => {
     }
     
     // Check if member is already in the team
-    if (existingTeam.ModeratorTeamMembers.includes(memberId)) {
+    if (existingTeam.moderatorTeamMembers.includes(memberId)) {
       return {
         status: false,
         message: "Member is already in the team."
       };
     }
+
+    // Check if member role is not Member or user
+    const memberRole = await UserModel.findById(memberId);
+    if (memberRole.role !== "Member" && memberRole.role !== "user") {
+      return {
+        status: false,
+        message: `You can't add a ${memberRole.role} to a moderator team. You can add only a "Member" or "user" to a moderator team.`
+      };
+    }
+   
+    // Set member role to Member if it is user
+    if (memberRole.role === "user") {
+      await UserModel.findByIdAndUpdate(memberId, { $set: { role: "Member" } });
+    }
+
+    // set updatedBy field to createdBy
+    const updatedBy = {
+      updatedBy: updatedById
+    };
     
     // Add member to team
-    const updatedTeam = await ModeratorTeamModel.findByIdAndUpdate(
+    await ModeratorTeamModel.findByIdAndUpdate(
       id,
-      { $push: { ModeratorTeamMembers: memberId } },
+      { $addToSet: { moderatorTeamMembers: memberId }, ...updatedBy },
       { new: true, runValidators: true }
-    ).populate("ModeratorName", "name email phone")
-     .populate("ModeratorTeamMembers", "name email phone");
-    
+    )
     return {
       status: true,
       message: "Member added to team successfully.",
-      data: updatedTeam
     };
   } catch (e) {
     return {
@@ -354,8 +422,10 @@ export const AddTeamMemberService = async (id, memberId) => {
 };
 
 // Remove Member from Moderator Team
-export const RemoveTeamMemberService = async (id, memberId) => {
+export const RemoveTeamMemberService = async (req) => {
   try {
+    const id = req.params.teamId;
+    const memberId = req.body.memberId;
     if (!ObjectId.isValid(id) || !ObjectId.isValid(memberId)) {
       return {
         status: false,
@@ -373,7 +443,7 @@ export const RemoveTeamMemberService = async (id, memberId) => {
     }
     
     // Check if member is in the team
-    if (!existingTeam.ModeratorTeamMembers.includes(memberId)) {
+    if (!existingTeam.moderatorTeamMembers.includes(memberId)) {
       return {
         status: false,
         message: "Member is not in the team."
@@ -383,10 +453,10 @@ export const RemoveTeamMemberService = async (id, memberId) => {
     // Remove member from team
     const updatedTeam = await ModeratorTeamModel.findByIdAndUpdate(
       id,
-      { $pull: { ModeratorTeamMembers: memberId } },
+      { $pull: { moderatorTeamMembers: memberId } },
       { new: true, runValidators: true }
-    ).populate("ModeratorName", "name email phone")
-     .populate("ModeratorTeamMembers", "name email phone");
+    ).populate("moderatorName", "name email phone")
+     .populate("moderatorTeamMembers", "name email phone");
     
     return {
       status: true,

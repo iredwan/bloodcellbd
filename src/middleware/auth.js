@@ -47,6 +47,7 @@ export const protect = async (req, res, next) => {
         message: 'Your account has been banned. Please contact support.'
       });
     }
+
     
     // Set user information in request headers
     req.headers.user_id = decoded.id;
@@ -64,8 +65,9 @@ export const protect = async (req, res, next) => {
 
 export const restrictTo = (...roles) => {
   return (req, res, next) => {
-    // roles is an array ['admin', 'dist-coordinator', etc]
-    if (!roles.includes(req.user.role)) {
+    // roles is an array ['admin', 'dist-co
+    const userRole = req.headers.role || (req.cookies && req.cookies.role);
+    if (!roles.includes(userRole)) {
       return res.status(403).json({
         status: false,
         message: 'You do not have permission to perform this action'

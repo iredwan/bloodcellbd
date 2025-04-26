@@ -16,7 +16,7 @@ router.get('/district/:district', protect, GetUserByDistrict);
 router.get('/all', protect, GetAllUser);
 
 // Protected routes
-router.post('/register', protect, restrictTo('admin'), ProfileRegister);
+router.post('/register', protect, ProfileRegister);
 
 router.post('/register-with-ref', protect, restrictTo('Moderator', 'Monitor', 'Upazila Coordinator', 'Upazila Sub-Coordinator', 'Upazila IT & Media Coordinator', 'Upazila Logistics Coordinator', 'District Coordinator', 'District Sub-Coordinator', 'District IT & Media Coordinator', 'District Logistics Coordinator', 'Division Coordinator', 'Division Sub-Coordinator', 'Admin'), ProfileRegisterWithRef);
 

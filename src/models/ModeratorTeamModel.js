@@ -13,7 +13,11 @@ const moderatorTeamSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     }],
-    reference: {
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    },
+    updatedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     }

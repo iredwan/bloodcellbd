@@ -11,7 +11,7 @@ import {
 // Create Moderator Team
 export const CreateModeratorTeam = async (req, res) => {
   try {
-    const result = await CreateModeratorTeamService(req.body);
+    const result = await CreateModeratorTeamService(req);
     
     if (result.status) {
       return res.status(201).json(result);
@@ -49,7 +49,7 @@ export const GetAllModeratorTeams = async (req, res) => {
 // Get Moderator Team By ID
 export const GetModeratorTeamById = async (req, res) => {
   try {
-    const result = await GetModeratorTeamByIdService(req.params.id);
+    const result = await GetModeratorTeamByIdService(req);
     
     if (result.status) {
       return res.status(200).json(result);
@@ -68,7 +68,7 @@ export const GetModeratorTeamById = async (req, res) => {
 // Update Moderator Team
 export const UpdateModeratorTeam = async (req, res) => {
   try {
-    const result = await UpdateModeratorTeamService(req.params.id, req.body);
+    const result = await UpdateModeratorTeamService(req);
     
     if (result.status) {
       return res.status(200).json(result);
@@ -87,7 +87,7 @@ export const UpdateModeratorTeam = async (req, res) => {
 // Delete Moderator Team
 export const DeleteModeratorTeam = async (req, res) => {
   try {
-    const result = await DeleteModeratorTeamService(req.params.id);
+    const result = await DeleteModeratorTeamService(req);
     
     if (result.status) {
       return res.status(200).json(result);
@@ -106,9 +106,7 @@ export const DeleteModeratorTeam = async (req, res) => {
 // Add Member to Team
 export const AddTeamMember = async (req, res) => {
   try {
-    const { teamId, memberId } = req.params;
-    
-    const result = await AddTeamMemberService(teamId, memberId);
+    const result = await AddTeamMemberService(req);
     
     if (result.status) {
       return res.status(200).json(result);
@@ -127,9 +125,7 @@ export const AddTeamMember = async (req, res) => {
 // Remove Member from Team
 export const RemoveTeamMember = async (req, res) => {
   try {
-    const { teamId, memberId } = req.params;
-    
-    const result = await RemoveTeamMemberService(teamId, memberId);
+    const result = await RemoveTeamMemberService(req);
     
     if (result.status) {
       return res.status(200).json(result);

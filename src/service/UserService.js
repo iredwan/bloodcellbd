@@ -31,8 +31,6 @@ export const UserRegisterWithRefService = async (req) => {
     // Get reference ID from headers or cookies
     let referenceId = req.headers.user_id || (req.cookies && req.cookies.user_id);
     
-    console.log(referenceId);
-    
     // Check if reference user exists
     if (referenceId) {
       if (!ObjectId.isValid(referenceId)) {
@@ -81,6 +79,7 @@ export const UserLoginService = async (req, res) => {
     
     let user_id = user.id;
     let role = user.role;
+    
     
     const passwordMatch = await bcrypt.compare(password, user.password);
 
