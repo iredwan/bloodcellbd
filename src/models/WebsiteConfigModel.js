@@ -29,22 +29,9 @@ const websiteConfigSchema = new Schema({
   },
   socialMedia: {
     facebook: { type: String, default: '' },
-    twitter: { type: String, default: '' },
     instagram: { type: String, default: '' },
     linkedin: { type: String, default: '' },
     youtube: { type: String, default: '' }
-  },
-  aboutUs: {
-    type: String,
-    trim: true
-  },
-  mission: {
-    type: String,
-    trim: true
-  },
-  vision: {
-    type: String,
-    trim: true
   },
   metaTags: {
     title: { type: String, trim: true },

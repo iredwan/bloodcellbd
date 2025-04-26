@@ -10,6 +10,17 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "Date of birth is required"],
   },
+  identificationNumber: {
+    type: String,
+    required: [true, "NID or birth registration number is required"],
+    unique: true,
+    trim: true,
+  },
+  identificationType: {
+    type: String,
+    enum: ['NID', 'Birth Registration'],
+    required: [true, "Identification type is required"],
+  },
   gender: {
     type: String,
     required: [true, "Gender is required"],
@@ -26,9 +37,15 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "Father name is required"],
   },
+  fatherPhoneNumber: {  
+    type: String,
+  },
   motherName: {
     type: String,
     required: [true, "Mother name is required"],
+  },
+  motherPhoneNumber: {
+    type: String,
   },
   smoking: {
     type: Boolean,
@@ -44,6 +61,13 @@ const userSchema = new mongoose.Schema({
   phone: {
     type: String,
     required: [true, "Phone number is required"],
+  },
+  alternatePhone: {
+    type: String,
+    required: [true, "Alternate phone number is required"],
+  },
+  whatsappNumber: {
+    type: String,
   },
   password: {
     type: String,
@@ -78,8 +102,12 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["user", "volunteer", "dist-coordinator", "admin"],
+    enum: ["user", "Member", "Moderator", "Monitor", "Upazila Coordinator", "Upazila Sub-Coordinator", "Upazila IT & Media Coordinator", "Upazila Logistics Coordinator", "District Coordinator", "District Sub-Coordinator", "District IT & Media Coordinator", "District Logistics Coordinator", "Division Coordinator", "Division Sub-Coordinator", "Admin"],
     default: "user",
+  },
+  roleSuffix: {
+    type: String,
+    default: "",
   },
   isApproved: {
     type: Boolean,
@@ -89,8 +117,32 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  avatar: {
+  profileImage: {
     type: String,
+    required: [true, "Profile image is required"],
+  },
+  nidOrBirthRegistrationImage: {
+    type: String,
+    required: [true, "NID or birth registration image is required"],
+  },
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
+  reference: {
+    type: mongoose.Schema.Types.Mixed, // Can be either ObjectId or String
+    ref: "User",
+    default: "Self",
+    validate: {
+      validator: function(value) {
+        return typeof value === 'string' || value instanceof mongoose.Types.ObjectId;
+      },
+      message: 'Reference must be either a String or ObjectId'
+    }
+  },
+  updatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
   }
 }, {
   timestamps: true,

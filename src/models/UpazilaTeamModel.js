@@ -8,11 +8,7 @@ const upazilaTeamSchema = new mongoose.Schema({
   },
   designation: {
     type: String,
-    required: [true, "Position is required"]
-  },
-  bio: {
-    type: String,
-    required: [true, "Bio is required"]
+    required: [true, "Designation is required"]
   },
   socialLinks: {
     facebook: String,

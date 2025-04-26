@@ -11,9 +11,9 @@ export const UserRegisterService = async (req) => {
     let reqBody = req.body;
     
     // Check if user already exists
-    const userExists = await UserModel.findOne({ email: reqBody.email });
+    const userExists = await UserModel.findOne({ identificationNumber: reqBody.identificationNumber });
     if (userExists) {
-      return { status: false, message: "User with this email already exists." };
+      return { status: false, message: `User with this ${reqBody.identificationType} already exists.` };
     }
     
     const newUser = new UserModel(reqBody);
@@ -21,6 +21,44 @@ export const UserRegisterService = async (req) => {
     return { status: true, message: "Register success." };
   } catch (e) {
     return { status: false, message: "There is problem to Register you.", details: e };
+  }
+};
+
+export const UserRegisterWithRefService = async (req) => {
+  try {
+    let reqBody = req.body;
+    
+    // Get reference ID from headers or cookies
+    let referenceId = req.headers.user_id || (req.cookies && req.cookies.user_id);
+    
+    console.log(referenceId);
+    
+    // Check if reference user exists
+    if (referenceId) {
+      if (!ObjectId.isValid(referenceId)) {
+        return { status: false, message: "Invalid reference user ID." };
+      }
+      
+      const referenceUser = await UserModel.findById(referenceId);
+      if (!referenceUser) {
+        return { status: false, message: "Reference user not found." };
+      }
+      
+      // Add reference to request body
+      reqBody.reference = referenceId;
+    }
+    
+    // Check if user already exists
+    const userExists = await UserModel.findOne({ identificationNumber: reqBody.identificationNumber });
+    if (userExists) {
+      return { status: false, message: `User with this ${reqBody.identificationType} already exists.` };
+    }
+    
+    const newUser = new UserModel(reqBody);
+    await newUser.save();
+    return { status: true, message: "Register with reference success." };
+  } catch (e) {
+    return { status: false, message: "There is problem registering you with reference.", details: e.message };
   }
 };
 
@@ -99,15 +137,29 @@ export const GetUserByIdService = async (req) => {
   try {
     const userId = new ObjectId(req.params.id);
     
-    const user = await UserModel.findById(userId);
+    const user = await UserModel.findById(userId).select('-nidOrBirthRegistrationImage');
     
     if (!user) {
       return { status: false, message: "User not found." };
     }
+
+    let userData = user.toObject();
+
+    // Check if reference is an ObjectId
+    if (userData.reference && userData.reference !== 'Self') {
+      const referenceUser = await UserModel.findById(userData.reference)
+        .select('name phone email district upazila role roleSuffix profileImage');
+      
+      if (referenceUser) {
+        userData.referenceInfo = referenceUser;
+      }
+    } else {
+      userData.referenceInfo = 'Self';
+    }
     
     return {
       status: true,
-      data: user,
+      data: userData,
       message: "User retrieved successfully.",
     };
   } catch (e) {
@@ -115,25 +167,25 @@ export const GetUserByIdService = async (req) => {
   }
 };
 
-export const UpdateUserByIdService = async (req) => {
+export const UpdateUserByIdSelfService = async (req) => {
   try {
     const userId = new ObjectId(req.params.id);
     const reqBody = req.body;
 
     // Check if avatar is being updated
-    if (reqBody.avatar) {
-      // Get the current user data to find the previous avatar
-      const currentUser = await UserModel.findById(userId);
+    // if (reqBody.avatar) {
+    //   // Get the current user data to find the previous avatar
+    //   const currentUser = await UserModel.findById(userId);
       
-      // If user exists and has a previous avatar that is different from the new one
-      if (currentUser && currentUser.avatar && currentUser.avatar !== reqBody.avatar) {
-        // Delete the previous avatar file
-        const deleteResult = await deleteFile(currentUser.avatar);
-        if (!deleteResult.status) {
-          console.error("Failed to delete previous user avatar:", deleteResult.error);
-        }
-      }
-    }
+    //   // If user exists and has a previous avatar that is different from the new one
+    //   if (currentUser && currentUser.avatar && currentUser.avatar !== reqBody.avatar) {
+    //     // Delete the previous avatar file
+    //     const deleteResult = await deleteFile(currentUser.avatar);
+    //     if (!deleteResult.status) {
+    //       console.error("Failed to delete previous user avatar:", deleteResult.error);
+    //     }
+    //   }
+    // }
 
     const updatedUser = await UserModel.findByIdAndUpdate(
       userId,
@@ -151,17 +203,118 @@ export const UpdateUserByIdService = async (req) => {
   }
 };
 
+export const UpdateUserByIdRefService = async (req) => {
+  try {
+    const userId = new ObjectId(req.params.id);
+    const reqBody = req.body;
+    // Get reference ID from headers or cookies
+    let referenceId = req.headers.user_id || (req.cookies && req.cookies.user_id);
+    
+    if (!referenceId) {
+      return { status: false, message: "Reference ID is required." };
+    }
+
+    // Validate reference ID
+    if (!ObjectId.isValid(referenceId)) {
+      return { status: false, message: "Invalid reference user ID." };
+    }
+
+    // Check if reference user exists
+    const referenceUser = await UserModel.findById(referenceId);
+    if (!referenceUser) {
+      return { status: false, message: "Reference user not found." };
+    }
+
+    // Check if user exists
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return { status: false, message: "User not found." };
+    }
+
+    // Fix: Spread reqBody directly instead of nesting it in an object
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      userId,
+      { 
+        $set: {
+          ...reqBody,
+          updatedBy: referenceId
+        }
+      },
+      { new: true }
+    );
+
+    return {
+      status: true,
+      data: updatedUser,
+      message: "User reference updated successfully.",
+    };
+  } catch (e) {
+    return { status: false, message: "Failed to update user reference.", details: e.message };
+  }
+};
+
 export const GetAllUserService = async () => {
   try {
+    const users = await UserModel.find({
+      isApproved: true,
+      isBanned: false
+    }).select('-nidOrBirthRegistrationImage -password -reference -updatedBy');
+    const totalUsers = await UserModel.countDocuments({
+      isApproved: true,
+      isBanned: false
+    });
+    return {
+      status: true,
+      data: {
+        users: users,
+        totalUsers: totalUsers
+      },
+      message: "Users retrieved successfully.",
+    };
+  } catch (e) {
+    return { status: false, message: "Failed to retrieve users.", details: e.message };
+  }
+};
+
+export const GetAllUserForAdminService = async () => {
+  try {
     const users = await UserModel.find({});
-    
-    if (!users || users.length === 0) {
-      return { status: false, message: "No users found." };
-    }
+    const totalUsers = await UserModel.countDocuments({});
+
+    const usersWithRefs = await Promise.all(users.map(async (user) => {
+      const userData = user.toObject();
+
+      // Check if reference is an ObjectId
+      if (userData.reference && userData.reference !== 'Self') {
+        const referenceUser = await UserModel.findById(userData.reference)
+          .select('name phone email district upazila role roleSuffix profileImage');
+        
+        if (referenceUser) {
+          userData.reference = referenceUser;
+        }
+      } else {
+        userData.reference = 'Self';
+      }
+
+      // Get updatedBy user data if it exists
+      if (userData.updatedBy) {
+        const updatedByUser = await UserModel.findById(userData.updatedBy)
+          .select('name phone email district upazila role roleSuffix profileImage');
+        
+        if (updatedByUser) {
+          userData.updatedBy = updatedByUser;
+        }
+      }
+
+      return userData;
+    }));
     
     return {
       status: true,
-      data: users,
+      data: {
+        users: usersWithRefs,
+        totalUsers: totalUsers
+      },
       message: "Users retrieved successfully.",
     };
   } catch (e) {
@@ -176,15 +329,24 @@ export const EligibleUserService = async () => {
       eligibility: true,
       isBanned: false,
       isApproved: true
-    });
+    }, { nidOrBirthRegistrationImage: 0, password: 0, reference: 0, updatedBy: 0, updatedAt: 0, createdAt: 0,});
     
+    const totalEligibleUsers = await UserModel.countDocuments({
+      eligibility: true,
+      isBanned: false, 
+      isApproved: true
+    });
+
     if (!eligibleUsers || eligibleUsers.length === 0) {
       return { status: false, message: "No eligible users found." };
     }
     
     return {
       status: true,
-      data: eligibleUsers,
+      data: {
+        users: eligibleUsers,
+        totalUsers: totalEligibleUsers
+      },
       message: "Eligible users retrieved successfully.",
     };
   } catch (e) {
@@ -236,7 +398,7 @@ export const GetUserByBloodGroupService = async (req) => {
       bloodGroup: bloodGroup,
       isBanned: false,
       isApproved: true
-    });
+    }, { nidOrBirthRegistrationImage: 0, password: 0, reference: 0, updatedBy: 0, updatedAt: 0, createdAt: 0,});
     
     if (!users || users.length === 0) {
       return { status: false, message: "No users found with the specified blood group." };
@@ -266,7 +428,7 @@ export const GetUserByUpazilaService = async (req) => {
     
     const users = await UserModel.find({ 
       upazila: upazila
-    });
+    }, { nidOrBirthRegistrationImage: 0, password: 0, reference: 0, updatedBy: 0, updatedAt: 0, createdAt: 0,});
     
     if (!users || users.length === 0) {
       return { status: false, message: "No users found in the specified upazila." };
@@ -296,7 +458,7 @@ export const GetUserByDistrictService = async (req) => {
     
     const users = await UserModel.find({ 
       district: district
-    });
+    }, { nidOrBirthRegistrationImage: 0, password: 0, reference: 0, updatedBy: 0, updatedAt: 0, createdAt: 0,});
     
     if (!users || users.length === 0) {
       return { status: false, message: "No users found in the specified district." };
@@ -392,7 +554,7 @@ export const GetUserByNameService = async (req) => {
       eligibility: true,
       isApproved: true,
       isBanned: false
-    });
+    }, { nidOrBirthRegistrationImage: 0, password: 0, reference: 0, updatedBy: 0, updatedAt: 0, createdAt: 0,});
     
     if (!users || users.length === 0) {
       return { 
@@ -415,19 +577,19 @@ export const GetUserByNameService = async (req) => {
   }
 };
 
-export const GetUserByGmailService = async (req) => {
+export const GetUserByNIDOrBirthRegistrationService = async (req) => {
   try {
-    const { email } = req.params;
+    const { nidOrBirthRegistration } = req.params;
     
     // Find user by email
     const user = await UserModel.findOne({ 
-      email: email
-    });
+      identificationNumber: nidOrBirthRegistration
+    }, { nidOrBirthRegistrationImage: 0, password: 0, reference: 0, updatedBy: 0, updatedAt: 0, createdAt: 0,});
     
     if (!user) {
       return { 
         status: false, 
-        message: "No user found with the given email." 
+        message: "No user found with the given NID or birth registration number." 
       };
     }
     
@@ -439,7 +601,7 @@ export const GetUserByGmailService = async (req) => {
   } catch (e) {
     return { 
       status: false, 
-      message: "Failed to retrieve user by email.", 
+      message: "Failed to retrieve user by NID or birth registration number.", 
       details: e.message 
     };
   }

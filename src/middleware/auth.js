@@ -1,4 +1,4 @@
-import UserModel from "../models/UserModel.js";
+import UserOTPModel from "../models/UserOTPModel.js";
 import { DecodeToken } from "../utility/TokenHelper.js";
 
 export const protect = async (req, res, next) => {
@@ -32,7 +32,7 @@ export const protect = async (req, res, next) => {
   
   try {
    // 3) Check if user still exists
-    const currentUser = await UserModel.findById(decoded.id);
+    const currentUser = await UserOTPModel.findOne({ email: decoded.email });
     if (!currentUser) {
       return res.status(401).json({
         status: false,

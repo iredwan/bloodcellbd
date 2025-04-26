@@ -4,7 +4,6 @@ const upazilaOrPSSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, "Upazila/PS name is required"],
-    unique: true,
     trim: true
   },
   bengaliName: {

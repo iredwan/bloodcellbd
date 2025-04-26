@@ -1,4 +1,4 @@
-import { UserRegisterService, UserLoginService, UserLogoutService, GetUserByIdService, UpdateUserByIdService, GetAllUserService, EligibleUserService, DeleteUserService, GetUserByBloodGroupService, GetUserByUpazilaService, GetPendingUserService, GetApprovedUserService, GetBannedUserService, GetUserByDistrictService, GetUserByNameService, GetUserByGmailService } from "../service/UserService.js";
+import { UserRegisterService, UserLoginService, UserLogoutService, GetUserByIdService, UpdateUserByIdSelfService, UpdateUserByIdRefService, GetAllUserService, EligibleUserService, DeleteUserService, GetUserByBloodGroupService, GetUserByUpazilaService, GetPendingUserService, GetApprovedUserService, GetBannedUserService, GetUserByDistrictService, GetUserByNameService, GetUserByNIDOrBirthRegistrationService, UserRegisterWithRefService, GetAllUserForAdminService } from "../service/UserService.js";
 
 // Profile Register
 export const ProfileRegister = async (req, res) => {
@@ -6,6 +6,16 @@ export const ProfileRegister = async (req, res) => {
     const result = await UserRegisterService(req);
     return res.status(200).json(result);
   } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+// Profile Register With Reference
+export const ProfileRegisterWithRef = async (req, res) => {
+  try {
+    const result = await UserRegisterWithRefService(req);
+    return res.status(200).json(result);
+  } catch (error) { 
     return res.status(500).json({ error: error.message });
   }
 };
@@ -41,14 +51,24 @@ export const GetUserById = async (req, res) => {
 };
 
 // Update User By Id
-export const UpdateUserById = async (req, res) => {
+export const UpdateUserByIdSelf = async (req, res) => {
   try {
-    const result = await UpdateUserByIdService(req);
+    const result = await UpdateUserByIdSelfService(req);
     return res.status(200).json(result);
   } catch (error) { 
     return res.status(500).json({ error: error.message });
   }
 };
+
+export const UpdateUserByIdRef = async (req, res) => {
+  try {
+    const result = await UpdateUserByIdRefService(req);
+    return res.status(200).json(result);
+  } catch (error) { 
+    return res.status(500).json({ error: error.message });
+  }
+};
+
 
 // Get All User
 export const GetAllUser = async (req, res) => { 
@@ -59,6 +79,17 @@ export const GetAllUser = async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 };
+
+// Get All User For Admin
+export const GetAllUserForAdmin = async (req, res) => {
+  try {
+    const result = await GetAllUserForAdminService(); 
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
 
 // Eligible User
 export const EligibleUser = async (req, res) => {
@@ -150,10 +181,10 @@ export const GetUserByName = async (req, res) => {
   }
 };
 
-// Get User By Gmail
-export const GetUserByGmail = async (req, res) => {
+// Get User By NID or Birth Registration
+export const GetUserByNIDOrBirthRegistration = async (req, res) => {
   try {
-    const result = await GetUserByGmailService(req);
+    const result = await GetUserByNIDOrBirthRegistrationService(req);
     return res.status(200).json(result);
   } catch (error) {   
     return res.status(500).json({ error: error.message });

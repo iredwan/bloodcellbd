@@ -23,11 +23,11 @@ export const CreateUpazilaOrPSService = async (data) => {
     }
 
     // Check if upazila/PS already exists
-    const existingUpazilaOrPS = await UpazilaOrPSModel.findOne({ name });
+    const existingUpazilaOrPS = await UpazilaOrPSModel.findOne({ name, district });
     if (existingUpazilaOrPS) {
       return {
         status: false,
-        message: "Upazila/PS with this name already exists."
+        message: "Upazila/PS with this name already exists in the selected district."
       };
     }
 
