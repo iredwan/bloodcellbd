@@ -32,7 +32,7 @@ router.get('/pending', protect, restrictTo('Moderator', 'Monitor', 'Upazila Coor
 
 router.get('/approved', protect, restrictTo('Moderator', 'Monitor', 'Upazila Coordinator', 'Upazila Sub-Coordinator', 'Upazila IT & Media Coordinator', 'Upazila Logistics Coordinator', 'District Coordinator', 'District Sub-Coordinator', 'District IT & Media Coordinator', 'District Logistics Coordinator', 'Division Coordinator', 'Division Sub-Coordinator', 'Admin'), GetApprovedUser);
 
-router.get('/banned', protect, restrictTo('Moderator', 'Monitor', 'Upazila Coordinator', 'Upazila Sub-Coordinator', 'Upazila IT & Media Coordinator', 'Upazila Logistics Coordinator', 'District Coordinator', 'District Sub-Coordinator', 'District IT & Media Coordinator', 'District Logistics Coordinator', 'Division Coordinator', 'Division Sub-Coordinator', 'Admin'), GetBannedUser);
+router.get('/banned', protect, restrictTo('District Coordinator', 'District Sub-Coordinator', 'District IT & Media Coordinator', 'District Logistics Coordinator', 'Division Coordinator', 'Division Sub-Coordinator', 'Admin'), GetBannedUser);
 
 router.delete('/delete/:userId', protect, restrictTo('District Coordinator', 'District Sub-Coordinator', 'District IT & Media Coordinator', 'District Logistics Coordinator', 'Division Coordinator', 'Division Sub-Coordinator', 'Admin'), DeleteUser);
 

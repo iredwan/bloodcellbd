@@ -10,16 +10,19 @@ const teamSchema = new mongoose.Schema({
     ref: "User",
     required: [true, "Team monitor is required"],
   },
-  designation: {
-    type: String,
-    required: true, 
-    default: "Monitor",
-  },
   moderatorTeamID: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "ModeratorTeam",
     required: [true, "Moderator team members are required"],
   }],
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  updatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
 }, {
   timestamps: true,
   versionKey: false

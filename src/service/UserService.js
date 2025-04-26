@@ -186,6 +186,9 @@ export const UpdateUserByIdSelfService = async (req) => {
     //   }
     // }
 
+    //Set isApproved to false
+    reqBody.isApproved = false;
+
     const updatedUser = await UserModel.findByIdAndUpdate(
       userId,
       { $set: reqBody },
@@ -195,7 +198,7 @@ export const UpdateUserByIdSelfService = async (req) => {
     return {
       status: true,
       data: updatedUser,
-      message: "User updated successfully.",
+      message: "User updated successfully. Please wait for approval.",
     };
   } catch (e) {
     return { status: false, message: "Failed to update user.", details: e.message };

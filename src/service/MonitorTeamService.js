@@ -1,60 +1,98 @@
 import MonitorTeamModel from "../models/MonitorTeamModel.js";
 import mongoose from "mongoose";
-import userModel from "../models/UserModel.js";
+import UserModel from "../models/UserModel.js";
+import ModeratorTeamModel from "../models/ModeratorTeamModel.js";
 
 const ObjectId = mongoose.Types.ObjectId;
 
 // Create Monitor Team
-export const CreateMonitorTeamService = async (body) => {
+export const CreateMonitorTeamService = async (req) => {
   try {
-    const teamMonitor = body.teamMonitor;
-    const { designation, moderatorTeamID } = body;
+    // Get user ID from headers or cookies for createdBy field
+    const createdById = req.headers.user_id || (req.cookies && req.cookies.user_id);
+    
+    if (!createdById || !ObjectId.isValid(createdById)) {
+      return {
+        status: false,
+        message: "Valid user ID is required in headers or cookies."
+      };
+    }
 
-    const user = await userModel.findById(teamMonitor);
+    const reqBody = req.body;     
+    const teamMonitor = reqBody.teamMonitor;
+    const { moderatorTeamID } = reqBody;
 
+    // Generate team name with index from database
+    const teamCount = await MonitorTeamModel.countDocuments();
+    const teamName = `Monitor Team ${teamCount + 1}`;
+    
+    const user = await UserModel.findById(teamMonitor);
+    
+    // Check if monitor is found
     if (!user) {
       return {
         status: false,
-        message: "Team monitor not found."
+        message: "Monitor not found with this ID."
       };
     }
 
-    const teamName = user.name + "'s Team";
-
-    // Check if required fields are provided
-    if (!teamName || !teamMonitor || !moderatorTeamID) {
+    // Check if added monitor role is not monitor
+    if (user.role !== "Monitor") {
       return {
         status: false,
-        message: "Team name, team monitor, and moderator team ID are required."
+        message: "You have to set this user as a monitor first."
       };
     }
 
-    // Check if team name already exists
-    const existingTeam = await MonitorTeamModel.findOne({ teamName });
-    if (existingTeam) {
+    // Check if monitor is already in a team
+    const existingMonitor = await MonitorTeamModel.findOne({ teamMonitor });
+    if (existingMonitor) {
       return {
         status: false,
-        message: "Team with this name already exists."
-      };
+        message: "Monitor is already in a team."
+      }
+    };
+
+
+    // Validate moderator teams if provided
+    if (moderatorTeamID && moderatorTeamID.length > 0) {
+      // Check if moderator teams exist
+      const teamsCount = await ModeratorTeamModel.countDocuments({
+        _id: { $in: moderatorTeamID }
+      });
+      
+      if (teamsCount !== moderatorTeamID.length) {
+        return {
+          status: false,
+          message: "One or more moderator teams not found."
+        };
+      }
+      
+      // Check if moderator teams are already assigned to another monitor team
+      const assignedTeams = await MonitorTeamModel.find({
+        moderatorTeamID: { $in: moderatorTeamID }
+      });
+      
+      if (assignedTeams.length > 0) {
+        return {
+          status: false,
+          message: "One or more moderator teams are already assigned to another monitor team."
+        };
+      }
     }
 
     // Create new monitor team
     const newMonitorTeam = await MonitorTeamModel.create({
       teamName,
       teamMonitor,
-      designation: designation || "Monitor",
-      moderatorTeamID
+      moderatorTeamID: moderatorTeamID || [],
+      createdBy: createdById
     });
-
-    // Populate references for response
-    const populatedTeam = await MonitorTeamModel.findById(newMonitorTeam._id)
-      .populate("teamMonitor", "name email phone")
-      .populate("moderatorTeamID", "moderatorTeamName");
 
     return {
       status: true,
       message: "Monitor team created successfully.",
-      data: populatedTeam
+      data: newMonitorTeam
     };
   } catch (e) {
     return {
@@ -69,9 +107,57 @@ export const CreateMonitorTeamService = async (body) => {
 export const GetAllMonitorTeamsService = async () => {
   try {
     const monitorTeams = await MonitorTeamModel.find()
-      .populate("teamMonitor", "name email phone role")
-      .populate("moderatorTeamID", "moderatorTeamName, moderatorName")
-      .sort({ createdAt: -1 });
+      .populate("teamMonitor", "name email phone role profileImage")
+      .populate({
+        path: "moderatorTeamID",
+        populate: {
+          path: "moderatorName",
+          select: "name email phone role profileImage"
+        }
+      })
+      .populate("createdBy", "name email phone role profileImage")
+      .populate("updatedBy", "name email phone role profileImage")
+      .sort({ createdAt: -1 })
+      .lean();
+    
+    // Count total monitor teams
+    const totalTeams = monitorTeams.length;
+
+    // Count total moderator
+    const totalModeratorTeam = monitorTeams.reduce((total, team) => {
+      return total + (team.moderatorTeamID ? team.moderatorTeamID.length : 0);
+    }, 0);
+
+    // Count total moderator teams
+    const totalModerator = monitorTeams.reduce((total, team) => {
+      return total + (team.moderatorTeamID ? team.moderatorTeamID.length : 0);
+    }, 0);
+
+    // Count total members in moderator teams
+    const totalModeratorTeamMembers = await ModeratorTeamModel.aggregate([
+      {
+        $project: {
+          memberCount: { $size: { $ifNull: ["$moderatorTeamMembers", []] } }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalMembers: { $sum: "$memberCount" }
+        }
+      }
+    ]);
+    // Count total members in moderator teams and add total moderator
+    const totalMembers = totalModeratorTeamMembers[0]?.totalMembers + totalModerator || 0;
+    
+    // Add counts to the monitor teams data
+    const monitorTeamsWithCounts = {
+      teams: monitorTeams,
+      totalTeams,
+      totalModeratorTeam,
+      totalModerator,
+      totalMembers
+    };
     
     if (!monitorTeams || monitorTeams.length === 0) {
       return {
@@ -83,7 +169,7 @@ export const GetAllMonitorTeamsService = async () => {
     return {
       status: true,
       message: "All monitor teams retrieved successfully.",
-      data: monitorTeams
+      data: monitorTeamsWithCounts
     };
   } catch (e) {
     return {
@@ -95,8 +181,9 @@ export const GetAllMonitorTeamsService = async () => {
 };
 
 // Get Monitor Team By ID
-export const GetMonitorTeamByIdService = async (id) => {
+export const GetMonitorTeamByIdService = async (req) => {
   try {
+    const id = req.params.id;
     if (!ObjectId.isValid(id)) {
       return {
         status: false,
@@ -105,8 +192,17 @@ export const GetMonitorTeamByIdService = async (id) => {
     }
     
     const monitorTeam = await MonitorTeamModel.findById(id)
-      .populate("teamMonitor", "name email phone role")
-      .populate("moderatorTeamID", "moderatorTeamName, moderatorName");
+      .populate("teamMonitor", "name email phone role profileImage")
+      .populate({
+        path: "moderatorTeamID",
+        populate: {
+          path: "moderatorName",
+          select: "name email phone role profileImage"
+        }
+      })
+      .populate("createdBy", "name email phone role profileImage")
+      .populate("updatedBy", "name email phone role profileImage")
+      .lean();
     
     if (!monitorTeam) {
       return {
@@ -114,11 +210,41 @@ export const GetMonitorTeamByIdService = async (id) => {
         message: "Monitor team not found."
       };
     }
+
+        // Count total moderator teams
+        const totalModeratorTeam = await ModeratorTeamModel.countDocuments();
+
+        // Count total moderators (unique moderatorName entries)
+        const moderators = await ModeratorTeamModel.distinct('moderatorName');
+        const totalModerator = moderators.length;
+    
+        // Count total members in moderator teams
+        const totalModeratorTeamMembers = await ModeratorTeamModel.aggregate([
+          {
+            $project: {
+              memberCount: { $size: { $ifNull: ["$moderatorTeamMembers", []] } }
+            }
+          },
+          {
+            $group: {
+              _id: null,
+              totalMembers: { $sum: "$memberCount" }
+            }
+          }
+        ]);
+    
+        // Count total members in moderator teams and add total moderator
+        const totalMembers = (totalModeratorTeamMembers[0]?.totalMembers || 0) + totalModerator;
     
     return {
       status: true,
       message: "Monitor team retrieved successfully.",
-      data: monitorTeam
+      data: {
+        monitorTeam,
+        totalModeratorTeam,
+        totalModerator,
+        totalMembers
+      }
     };
   } catch (e) {
     return {
@@ -129,45 +255,10 @@ export const GetMonitorTeamByIdService = async (id) => {
   }
 };
 
-// Get Monitor Teams By Moderator Team ID
-export const GetMonitorTeamsByModeratorTeamService = async (moderatorTeamId) => {
-  try {
-    if (!ObjectId.isValid(moderatorTeamId)) {
-      return {
-        status: false,
-        message: "Invalid moderator team ID."
-      };
-    }
-    
-    const monitorTeams = await MonitorTeamModel.find({ moderatorTeamID: moderatorTeamId })
-      .populate("teamMonitor", "name email phone")
-      .populate("moderatorTeamID", "moderatorTeamName")
-      .sort({ createdAt: -1 });
-    
-    if (!monitorTeams || monitorTeams.length === 0) {
-      return {
-        status: false,
-        message: "No monitor teams found for this moderator team."
-      };
-    }
-    
-    return {
-      status: true,
-      message: "Monitor teams retrieved successfully.",
-      data: monitorTeams
-    };
-  } catch (e) {
-    return {
-      status: false,
-      message: "Failed to retrieve monitor teams.",
-      details: e.message
-    };
-  }
-};
-
 // Update Monitor Team
-export const UpdateMonitorTeamService = async (id, body) => {
+export const UpdateMonitorTeamService = async (req) => {
   try {
+    const id = req.params.id;
     if (!ObjectId.isValid(id)) {
       return {
         status: false,
@@ -175,7 +266,17 @@ export const UpdateMonitorTeamService = async (id, body) => {
       };
     }
     
-    // Check if monitor team exists
+    // Get user ID from headers or cookies for updatedBy field
+    const updatedById = req.headers.user_id || (req.cookies && req.cookies.user_id);
+    
+    if (!updatedById || !ObjectId.isValid(updatedById)) {
+      return {
+        status: false,
+        message: "Valid user ID is required in headers or cookies."
+      };
+    }
+    
+    // Check if team exists
     const existingTeam = await MonitorTeamModel.findById(id);
     if (!existingTeam) {
       return {
@@ -184,34 +285,98 @@ export const UpdateMonitorTeamService = async (id, body) => {
       };
     }
     
-    // Check if team name already exists (if updating team name)
-    if (body.teamName && body.teamName !== existingTeam.teamName) {
-      const teamWithName = await MonitorTeamModel.findOne({ 
-        teamName: body.teamName,
-        _id: { $ne: id }
-      });
-      
-      if (teamWithName) {
+    const reqBody = req.body;
+    const { teamName, teamMonitor, moderatorTeamID } = reqBody;
+    
+    // Update object with fields that are provided
+    const updateObj = { updatedBy: updatedById };
+    
+    if (teamName) updateObj.teamName = teamName;
+    
+    // If team monitor is being updated
+    if (teamMonitor && ObjectId.isValid(teamMonitor)) {
+      const user = await UserModel.findById(teamMonitor);
+      if (!user) {
         return {
           status: false,
-          message: "Another monitor team with this name already exists."
+          message: "Monitor not found with this ID."
         };
       }
+      
+      if (user.role !== "Monitor") {
+        return {
+          status: false,
+          message: "You have to set this user as a monitor first."
+        };
+      }
+      
+      // Check if monitor is already in another team
+      const existingMonitor = await MonitorTeamModel.findOne({ 
+        teamMonitor, 
+        _id: { $ne: id } 
+      });
+      
+      if (existingMonitor) {
+        return {
+          status: false,
+          message: "Monitor is already in another team."
+        };
+      }
+      
+      updateObj.teamMonitor = teamMonitor;
     }
     
-    // Update monitor team
-    const updatedMonitorTeam = await MonitorTeamModel.findByIdAndUpdate(
+    // If moderator teams are being updated
+    if (moderatorTeamID && moderatorTeamID.length > 0) {
+      // Check if moderator teams exist
+      const teamsCount = await ModeratorTeamModel.countDocuments({
+        _id: { $in: moderatorTeamID }
+      });
+      
+      if (teamsCount !== moderatorTeamID.length) {
+        return {
+          status: false,
+          message: "One or more moderator teams not found."
+        };
+      }
+      
+      // Check if moderator teams are already assigned to another monitor team
+      const assignedTeams = await MonitorTeamModel.find({
+        _id: { $ne: id },
+        moderatorTeamID: { $in: moderatorTeamID }
+      });
+      
+      if (assignedTeams.length > 0) {
+        return {
+          status: false,
+          message: "One or more moderator teams are already assigned to another monitor team."
+        };
+      }
+      
+      updateObj.moderatorTeamID = moderatorTeamID;
+    }
+    
+    // Update the team
+    const updatedTeam = await MonitorTeamModel.findByIdAndUpdate(
       id,
-      { $set: body },
-      { new: true, runValidators: true }
+      updateObj,
+      { new: true }
     )
-    .populate("teamMonitor", "name email phone")
-    .populate("moderatorTeamID", "moderatorTeamName");
+    .populate("teamMonitor", "name email phone role profileImage")
+    .populate({
+      path: "moderatorTeamID",
+      populate: {
+        path: "moderatorName",
+        select: "name email phone role profileImage"
+      }
+    })
+    .populate("createdBy", "name email phone role profileImage")
+    .populate("updatedBy", "name email phone role profileImage");
     
     return {
       status: true,
       message: "Monitor team updated successfully.",
-      data: updatedMonitorTeam
+      data: updatedTeam
     };
   } catch (e) {
     return {
@@ -223,8 +388,9 @@ export const UpdateMonitorTeamService = async (id, body) => {
 };
 
 // Delete Monitor Team
-export const DeleteMonitorTeamService = async (id) => {
+export const DeleteMonitorTeamService = async (req) => {
   try {
+    const id = req.params.id;
     if (!ObjectId.isValid(id)) {
       return {
         status: false,
@@ -232,7 +398,7 @@ export const DeleteMonitorTeamService = async (id) => {
       };
     }
     
-    // Check if monitor team exists
+    // Check if team exists
     const existingTeam = await MonitorTeamModel.findById(id);
     if (!existingTeam) {
       return {
@@ -241,60 +407,17 @@ export const DeleteMonitorTeamService = async (id) => {
       };
     }
     
-    // Delete monitor team
-    const deletedMonitorTeam = await MonitorTeamModel.findByIdAndDelete(id);
+    // Delete the team
+    await MonitorTeamModel.findByIdAndDelete(id);
     
     return {
       status: true,
-      message: "Monitor team deleted successfully.",
-      data: deletedMonitorTeam
+      message: "Monitor team deleted successfully."
     };
   } catch (e) {
     return {
       status: false,
       message: "Failed to delete monitor team.",
-      details: e.message
-    };
-  }
-};
-
-// Change Monitor Team Moderator
-export const ChangeTeamMonitorService = async (id, newMonitorId) => {
-  try {
-    if (!ObjectId.isValid(id) || !ObjectId.isValid(newMonitorId)) {
-      return {
-        status: false,
-        message: "Invalid team ID or monitor ID."
-      };
-    }
-    
-    // Check if monitor team exists
-    const existingTeam = await MonitorTeamModel.findById(id);
-    if (!existingTeam) {
-      return {
-        status: false,
-        message: "Monitor team not found."
-      };
-    }
-    
-    // Update team monitor
-    const updatedTeam = await MonitorTeamModel.findByIdAndUpdate(
-      id,
-      { $set: { teamMonitor: newMonitorId } },
-      { new: true, runValidators: true }
-    )
-    .populate("teamMonitor", "name email phone")
-    .populate("moderatorTeamID", "moderatorTeamName");
-    
-    return {
-      status: true,
-      message: "Team monitor changed successfully.",
-      data: updatedTeam
-    };
-  } catch (e) {
-    return {
-      status: false,
-      message: "Failed to change team monitor.",
       details: e.message
     };
   }
