@@ -1,358 +1,227 @@
 import UpazilaTeam from "../models/UpazilaTeamModel.js";
 import mongoose from "mongoose";
-import UserModel from "../models/UserModel.js";
 const ObjectId = mongoose.Types.ObjectId;
 
-// Create Upazila Team Member
+// Create UpazilaTeam Service
 export const CreateUpazilaTeamService = async (req) => {
   try {
     const reqBody = req.body;
-    const userId = reqBody.userId;
 
-    const user = await UserModel.findById(userId);
-    if (!user) {
-      return { status: false, message: "User not found." };
+    //check if user role is not set upazila coordinator, sub-coordinator, it-media coordinator, logistics coordinator
+    if (req.user.role !== "Upazila Coordinator" && req.user.role !== "Upazila Sub-Coordinator" && req.user.role !== "Upazila IT & Media Coordinator" && req.user.role !== "Upazila Logistics Coordinator") {
+      return { status: false, message: "You have to set user role as Upazila Coordinator, Upazila Sub-Coordinator, Upazila IT & Media Coordinator, Upazila Logistics Coordinator" };
     }
 
-    const upazilaTeam = await UpazilaTeam.findOne({ userId });
-    if (upazilaTeam) {
-      return { status: false, message: "Upazila team member already exists." };
+    // Check if the team already exists for this upazila
+    const existingTeam = await UpazilaTeam.findOne({ upazilaName: reqBody.upazilaName });
+    if (existingTeam) {
+      return { status: false, message: "Team already exists for this upazila" };
     }
     
-    // Create new upazila team member
-    const newMember = new UpazilaTeam(reqBody);
-    await newMember.save();
+    //check if coordinator is already in other team
+    const coordinatorInOtherTeam = await UpazilaTeam.findOne({
+         $or: [
+        { upazilaCoordinator: reqBody.upazilaCoordinator },
+        { upazilaSubCoordinator: reqBody.upazilaSubCoordinator },
+        { upazilaITMediaCoordinator: reqBody.upazilaITMediaCoordinator },
+        { upazilaLogisticsCoordinator: reqBody.upazilaLogisticsCoordinator }
+      ]
+    });
+    if (coordinatorInOtherTeam) {
+      return { status: false, message: "Coordinator already in other team" };
+    }
+
+    //check if monitor team is already in other team
+    const monitorTeamInOtherTeam = await UpazilaTeam.findOne({
+      monitorTeams: { $in: [reqBody.monitorTeamId] }
+    });
+    if (monitorTeamInOtherTeam) {
+      return { status: false, message: "Monitor team already in other team" };
+    }
     
-    return { 
-      status: true, 
-      message: "Upazila team member created successfully.",
-      data: newMember
-    };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to create upazila team member.", 
-      details: e.message 
-    };
+    // Add created by from header or cookie
+    const createdBy = req.headers.user_id || req.cookies.user_id;
+    if (!createdBy) {
+      return { status: false, message: "Unauthorized" };
+    }
+
+    reqBody.createdBy = createdBy;
+    
+    const newUpazilaTeam = new UpazilaTeam(reqBody);
+    await newUpazilaTeam.save();
+    
+    return { status: true, message: "Upazila team created successfully", data: newUpazilaTeam };
+  } catch (error) {
+    return { status: false, message: "Error creating upazila team", error: error.message };
   }
 };
 
-// Get All Upazila Team Members
-export const GetAllUpazilaTeamService = async (req) => {
+// Get All UpazilaTeams Service
+export const GetAllUpazilaTeamsService = async () => {
   try {
-    // Optional query parameters
-    const filter = {};
+    const upazilaTeams = await UpazilaTeam.find()
+      .populate("upazilaName", "name")
+      .populate("upazilaCoordinator", "name email phone profileImage role roleSuffix")
+      .populate("upazilaSubCoordinator", "name email phone profileImage role roleSuffix")
+      .populate("upazilaITMediaCoordinator", "name email phone profileImage role roleSuffix")
+      .populate("upazilaLogisticsCoordinator", "name email phone profileImage role roleSuffix")
+      .populate({
+        path: "monitorTeams",
+        populate: [{
+          path: "teamMonitor",
+          select: "name email phone profileImage"
+        },
+        {
+          path: "moderatorTeamID",
+          populate: [{
+            path: "moderatorName",
+            select: "name email phone profileImage role roleSuffix"
+          },
+          {
+            path: "moderatorTeamMembers",
+            select: "name email phone profileImage role roleSuffix"
+          }]
+        }]
+      })
+      .populate({
+        path: "createdBy",
+        select: "name email phone profileImage role roleSuffix"
+      })
+      .populate({
+        path: "updatedBy", 
+        select: "name email phone profileImage role roleSuffix"
+      });
     
-    if (req.query.active === 'true') {
-      filter.active = true;
+    if (!upazilaTeams || upazilaTeams.length === 0) {
+      return { status: false, message: "No upazila teams found" };
     }
+
+    // // Count total monitor teams
+    const totalMonitorTeams = upazilaTeams.reduce((acc, team) => {
+      return acc + (team.monitorTeams ? team.monitorTeams.length : 0);
+    }, 0);
     
-    if (req.query.featured === 'true') {
-      filter.featured = true;
-    }
-    
-    // Filter by district if provided
-    if (req.query.district) {
-      filter.district = req.query.district;
-    }
-    
-    // Filter by upazila if provided
-    if (req.query.upazila) {
-      filter.upazila = req.query.upazila;
-    }
-    
-    // Get all upazila team members with filters
-    const members = await UpazilaTeam.find(filter)
-      .populate('userId', 'name email avatar district upazila phone')
-      .sort({ order: 1 });
-    
-    if (!members || members.length === 0) {
-      return { status: false, message: "No upazila team members found." };
-    }
-    
-    return {
-      status: true,
-      data: members,
-      message: "Upazila team members retrieved successfully.",
-    };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to retrieve upazila team members.", 
-      details: e.message 
-    };
+    return { status: true, message: "Upazila teams retrieved successfully", data: {
+      upazilaTeams,
+      totalMonitorTeams
+    } };
+  } catch (error) {
+    return { status: false, message: "Error retrieving upazila team", error: error.message };
   }
 };
 
-// Get Upazila Team Member By ID
+// Get UpazilaTeam By ID Service
 export const GetUpazilaTeamByIdService = async (req) => {
   try {
-    const memberId = new ObjectId(req.params.id);
+    const teamId = new ObjectId(req.params.id);
     
-    const member = await UpazilaTeam.findById(memberId)
-      .populate('userId', 'name email avatar district upazila phone');
+    const upazilaTeam = await UpazilaTeam.findById(teamId)
+      .populate("upazilaName", "name")
+      .populate("upazilaCoordinator", "name phone profileImage role roleSuffix")
+      .populate("upazilaSubCoordinator", "name phone profileImage role roleSuffix")
+      .populate("upazilaITMediaCoordinator", "name phone profileImage role roleSuffix")
+      .populate("upazilaLogisticsCoordinator", "name phone profileImage role roleSuffix")
+      .populate({
+        path: "monitorTeams",
+        populate: [{
+          path: "teamMonitor",
+          select: "name email phone profileImage role roleSuffix"
+        },
+        {
+          path: "moderatorTeamID",
+          populate: [{
+            path: "moderatorName", 
+            select: "name email phone profileImage role roleSuffix"
+          },
+          {
+            path: "moderatorTeamMembers",
+            select: "name email phone profileImage role roleSuffix"
+          }]
+        }]
+      })
+      .populate("createdBy", "name phone profileImage role roleSuffix")
+      .populate("updatedBy", "name phone profileImage role roleSuffix");
     
-    if (!member) {
-      return { status: false, message: "Upazila team member not found." };
+    if (!upazilaTeam) {
+      return { status: false, message: "Upazila team not found" };
     }
     
-    return {
-      status: true,
-      data: member,
-      message: "Upazila team member retrieved successfully.",
-    };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to retrieve upazila team member.", 
-      details: e.message 
-    };
+    return { status: true, message: "Upazila team retrieved successfully", data: upazilaTeam };
+  } catch (error) {
+    return { status: false, message: "Error retrieving upazila team", error: error.message };
   }
 };
 
-// Get Upazila Team Members By District
-export const GetUpazilaTeamByDistrictService = async (req) => {
-  try {
-    const { district } = req.params;
-    
-    if (!district) {
-      return { status: false, message: "District parameter is required." };
-    }
-    
-    const filter = { district };
-    
-    // Add active filter if specified
-    if (req.query.active === 'true') {
-      filter.active = true;
-    }
-    
-    const members = await UpazilaTeam.find(filter)
-      .populate('userId', 'name email avatar district upazila phone')
-      .sort({ order: 1 });
-    
-    if (!members || members.length === 0) {
-      return { status: false, message: `No upazila team members found for ${district} district.` };
-    }
-    
-    return {
-      status: true,
-      data: members,
-      message: `Upazila team members for ${district} district retrieved successfully.`,
-    };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to retrieve upazila team members by district.", 
-      details: e.message 
-    };
-  }
-};
-
-// Get Upazila Team Members By Upazila
-export const GetUpazilaTeamByUpazilaService = async (req) => {
-  try {
-    const { upazila } = req.params;
-    
-    if (!upazila) {
-      return { status: false, message: "Upazila parameter is required." };
-    }
-    
-    const filter = { upazila };
-    
-    // Add active filter if specified
-    if (req.query.active === 'true') {
-      filter.active = true;
-    }
-    
-    const members = await UpazilaTeam.find(filter)
-      .populate('userId', 'name email avatar district upazila phone')
-      .sort({ order: 1 });
-    
-    if (!members || members.length === 0) {
-      return { status: false, message: `No upazila team members found for ${upazila} upazila.` };
-    }
-    
-    return {
-      status: true,
-      data: members,
-      message: `Upazila team members for ${upazila} upazila retrieved successfully.`,
-    };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to retrieve upazila team members by upazila.", 
-      details: e.message 
-    };
-  }
-};
-
-// Update Upazila Team Member
+// Update UpazilaTeam Service
 export const UpdateUpazilaTeamService = async (req) => {
   try {
-    const memberId = new ObjectId(req.params.id);
+    const teamId = new ObjectId(req.params.id);
     const reqBody = req.body;
     
-    // Check if upazila team member exists
-    const currentMember = await UpazilaTeam.findById(memberId);
-    
-    if (!currentMember) {
-      return { status: false, message: "Upazila team member not found." };
+    // Add updated by from header or cookie
+    const updatedBy = req.headers.user_id || req.cookies.user_id;
+    if (!updatedBy) {
+      return { status: false, message: "Unauthorized" };
+    }
+    reqBody.updatedBy = updatedBy;
+
+    //check if new user role is not set upazila coordinator, sub-coordinator, it-media coordinator, logistics coordinator
+    if (reqBody.upazilaCoordinator && reqBody.upazilaCoordinator.role !== "Upazila Coordinator" && reqBody.upazilaCoordinator.role !== "Upazila Sub-Coordinator" && reqBody.upazilaCoordinator.role !== "Upazila IT & Media Coordinator" && reqBody.upazilaCoordinator.role !== "Upazila Logistics Coordinator") {
+      return { status: false, message: "You have to set user role as Upazila Coordinator, Upazila Sub-Coordinator, Upazila IT & Media Coordinator, Upazila Logistics Coordinator" };
+    }
+
+    //check if coordinator is already in other team
+    const coordinatorInOtherTeam = await UpazilaTeam.findOne({
+      _id: { $ne: teamId },
+      $or: [
+        { upazilaCoordinator: reqBody.upazilaCoordinator },
+        { upazilaSubCoordinator: reqBody.upazilaSubCoordinator },
+        { upazilaITMediaCoordinator: reqBody.upazilaITMediaCoordinator },
+        { upazilaLogisticsCoordinator: reqBody.upazilaLogisticsCoordinator }
+      ]
+    });
+    if (coordinatorInOtherTeam) {
+      return { status: false, message: "Coordinator already in other team" };
+    }
+
+    //check if monitor team is already in other team
+    const monitorTeamInOtherTeam = await UpazilaTeam.findOne({
+      monitorTeams: { $in: [reqBody.monitorTeamId] }
+    });
+    if (monitorTeamInOtherTeam) {
+      return { status: false, message: "Monitor team already in other team" };
     }
     
-    // Update upazila team member
-    const updatedMember = await UpazilaTeam.findByIdAndUpdate(
-      memberId,
-      { $set: reqBody },
-      { new: true, runValidators: true }
-    ).populate('userId', 'name email avatar district upazila phone');
     
-    return {
-      status: true,
-      data: updatedMember,
-      message: "Upazila team member updated successfully.",
-    };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to update upazila team member.", 
-      details: e.message 
-    };
+    const updatedUpazilaTeam = await UpazilaTeam.findByIdAndUpdate(
+      teamId,
+      { $set: reqBody },
+      { new: true }
+    )
+    
+    if (!updatedUpazilaTeam) {
+      return { status: false, message: "Upazila team not found" };
+    }
+    
+    return { status: true, message: "Upazila team updated successfully" };
+  } catch (error) {
+    return { status: false, message: "Error updating upazila team", error: error.message };
   }
 };
 
-// Delete Upazila Team Member
+// Delete UpazilaTeam Service
 export const DeleteUpazilaTeamService = async (req) => {
   try {
-    const memberId = req.params.id;
+    const teamId = new ObjectId(req.params.id);
     
-    if (!ObjectId.isValid(memberId)) {
-      return { status: false, message: "Invalid upazila team member ID." };
+    const deletedUpazilaTeam = await UpazilaTeam.findByIdAndDelete(teamId);
+    
+    if (!deletedUpazilaTeam) {
+      return { status: false, message: "Upazila team not found" };
     }
     
-    // Check if member exists
-    const member = await UpazilaTeam.findById(memberId);
-    
-    if (!member) {
-      return { status: false, message: "Upazila team member not found or already deleted." };
-    }
-    
-    // Delete the upazila team member
-    const deletedMember = await UpazilaTeam.findByIdAndDelete(memberId);
-    
-    return {
-      status: true,
-      message: "Upazila team member deleted successfully.",
-      data: deletedMember
-    };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to delete upazila team member.", 
-      details: e.message 
-    };
+    return { status: true, message: "Upazila team deleted successfully" };
+  } catch (error) {
+    return { status: false, message: "Error deleting upazila team", error: error.message };
   }
 };
-
-// Toggle Upazila Team Member Active Status
-export const ToggleUpazilaTeamActiveService = async (req) => {
-  try {
-    const memberId = new ObjectId(req.params.id);
-    
-    // Get current upazila team member
-    const member = await UpazilaTeam.findById(memberId);
-    
-    if (!member) {
-      return { status: false, message: "Upazila team member not found." };
-    }
-    
-    // Toggle the active status
-    const updatedMember = await UpazilaTeam.findByIdAndUpdate(
-      memberId,
-      { $set: { active: !member.active } },
-      { new: true }
-    ).populate('userId', 'name email avatar district upazila phone');
-    
-    return {
-      status: true,
-      message: `Upazila team member ${updatedMember.active ? 'activated' : 'deactivated'} successfully.`,
-      data: updatedMember
-    };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to toggle upazila team member status.", 
-      details: e.message 
-    };
-  }
-};
-
-// Toggle Upazila Team Member Featured Status
-export const ToggleUpazilaTeamFeaturedService = async (req) => {
-  try {
-    const memberId = new ObjectId(req.params.id);
-    
-    // Get current upazila team member
-    const member = await UpazilaTeam.findById(memberId);
-    
-    if (!member) {
-      return { status: false, message: "Upazila team member not found." };
-    }
-    
-    // Toggle the featured status
-    const updatedMember = await UpazilaTeam.findByIdAndUpdate(
-      memberId,
-      { $set: { featured: !member.featured } },
-      { new: true }
-    ).populate('userId', 'name email avatar district upazila phone');
-    
-    return {
-      status: true,
-      message: `Upazila team member ${updatedMember.featured ? 'featured' : 'unfeatured'} successfully.`,
-      data: updatedMember
-    };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to toggle upazila team member featured status.", 
-      details: e.message 
-    };
-  }
-};
-
-// Update Upazila Team Member Order
-export const UpdateUpazilaTeamOrderService = async (req) => {
-  try {
-    const memberId = new ObjectId(req.params.id);
-    const { order } = req.body;
-    
-    if (typeof order !== 'number') {
-      return { status: false, message: "Order must be a number." };
-    }
-    
-    // Get current upazila team member
-    const member = await UpazilaTeam.findById(memberId);
-    
-    if (!member) {
-      return { status: false, message: "Upazila team member not found." };
-    }
-    
-    // Update the order
-    const updatedMember = await UpazilaTeam.findByIdAndUpdate(
-      memberId,
-      { $set: { order } },
-      { new: true }
-    ).populate('userId', 'name email avatar district upazila phone');
-    
-    return {
-      status: true,
-      message: "Upazila team member order updated successfully.",
-      data: updatedMember
-    };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to update upazila team member order.", 
-      details: e.message 
-    };
-  }
-}; 

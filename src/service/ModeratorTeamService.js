@@ -139,10 +139,10 @@ export const CreateModeratorTeamService = async (req) => {
 export const GetAllModeratorTeamsService = async () => {
   try {
     const moderatorTeams = await ModeratorTeamModel.find()
-      .populate("moderatorName", "name email phone role profileImage")
-      .populate("moderatorTeamMembers", "name email phone eligibility nextDonationDate alternatePhone whatsappNumber profileImage")
-      .populate("createdBy", "name email phone role profileImage")
-      .populate("updatedBy", "name email phone role profileImage")
+      .populate("moderatorName", "name email phone role roleSuffix profileImage")
+      .populate("moderatorTeamMembers", "name email phone eligibility nextDonationDate alternatePhone whatsappNumber role roleSuffix profileImage")
+      .populate("createdBy", "name email phone role roleSuffix profileImage")
+      .populate("updatedBy", "name email phone role roleSuffix profileImage")
       .sort({ createdAt: -1 })
       .lean();
     
@@ -198,8 +198,10 @@ export const GetModeratorTeamByIdService = async (req) => {
     }
     
     const moderatorTeam = await ModeratorTeamModel.findById(id)
-      .populate("moderatorName", "name email phone role")
-      .populate("moderatorTeamMembers", "name email phone eligibility nextDonationDate alternatePhone whatsappNumber");
+      .populate("moderatorName", "name email phone role roleSuffix profileImage")
+      .populate("moderatorTeamMembers", "name email phone eligibility nextDonationDate alternatePhone whatsappNumber role roleSuffix profileImage")
+      .populate("createdBy", "name email phone role roleSuffix profileImage")
+      .populate("updatedBy", "name email phone role roleSuffix profileImage");
 
     // Count total team members
     const totalTeamMembers = moderatorTeam.moderatorTeamMembers ? moderatorTeam.moderatorTeamMembers.length : 0;

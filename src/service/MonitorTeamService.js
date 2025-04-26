@@ -107,16 +107,22 @@ export const CreateMonitorTeamService = async (req) => {
 export const GetAllMonitorTeamsService = async () => {
   try {
     const monitorTeams = await MonitorTeamModel.find()
-      .populate("teamMonitor", "name email phone role profileImage")
+      .populate("teamMonitor", "name email phone role roleSuffix profileImage")
       .populate({
         path: "moderatorTeamID",
-        populate: {
-          path: "moderatorName",
-          select: "name email phone role profileImage"
-        }
+        populate: [
+          {
+            path: "moderatorName",
+            select: "name email phone role roleSuffix profileImage"
+          },
+          {
+            path: "moderatorTeamMembers", 
+            select: "name email phone role roleSuffix profileImage"
+          }
+        ]
       })
-      .populate("createdBy", "name email phone role profileImage")
-      .populate("updatedBy", "name email phone role profileImage")
+      .populate("createdBy", "name email phone role roleSuffix profileImage")
+      .populate("updatedBy", "name email phone role roleSuffix profileImage")
       .sort({ createdAt: -1 })
       .lean();
     

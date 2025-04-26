@@ -1,152 +1,102 @@
 import {
   CreateUpazilaTeamService,
-  GetAllUpazilaTeamService,
+  GetAllUpazilaTeamsService,
   GetUpazilaTeamByIdService,
-  GetUpazilaTeamByDistrictService,
-  GetUpazilaTeamByUpazilaService,
   UpdateUpazilaTeamService,
-  DeleteUpazilaTeamService,
-  ToggleUpazilaTeamActiveService,
-  ToggleUpazilaTeamFeaturedService,
-  UpdateUpazilaTeamOrderService
+  DeleteUpazilaTeamService
 } from '../service/UpazilaTeamService.js';
 
-// Create Upazila Team Member
+// Create Upazila Team
 export const CreateUpazilaTeam = async (req, res) => {
   try {
     const result = await CreateUpazilaTeamService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(201).json(result);
+    } else {
+      return res.status(400).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: "Error creating upazila team member",
+      message: "Error creating upazila team",
       error: error.message
     });
   }
 };
 
-// Get All Upazila Team Members
-export const GetAllUpazilaTeam = async (req, res) => {
+// Get All Upazila Teams
+export const GetAllUpazilaTeams = async (req, res) => {
   try {
-    const result = await GetAllUpazilaTeamService(req);
-    return res.status(200).json(result);
+    const result = await GetAllUpazilaTeamsService();
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: "Error retrieving upazila team members",
+      message: "Error retrieving upazila teams",
       error: error.message
     });
   }
 };
 
-// Get Upazila Team Member By ID
+// Get Upazila Team By ID
 export const GetUpazilaTeamById = async (req, res) => {
   try {
     const result = await GetUpazilaTeamByIdService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: "Error retrieving upazila team member",
+      message: "Error retrieving upazila team",
       error: error.message
     });
   }
 };
 
-// Get Upazila Team Members By District
-export const GetUpazilaTeamByDistrict = async (req, res) => {
-  try {
-    const result = await GetUpazilaTeamByDistrictService(req);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      status: false,
-      message: "Error retrieving upazila team members by district",
-      error: error.message
-    });
-  }
-};
-
-// Get Upazila Team Members By Upazila
-export const GetUpazilaTeamByUpazila = async (req, res) => {
-  try {
-    const result = await GetUpazilaTeamByUpazilaService(req);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      status: false,
-      message: "Error retrieving upazila team members by upazila",
-      error: error.message
-    });
-  }
-};
-
-// Update Upazila Team Member
+// Update Upazila Team
 export const UpdateUpazilaTeam = async (req, res) => {
   try {
     const result = await UpdateUpazilaTeamService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(400).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: "Error updating upazila team member",
+      message: "Error updating upazila team",
       error: error.message
     });
   }
 };
 
-// Delete Upazila Team Member
+// Delete Upazila Team
 export const DeleteUpazilaTeam = async (req, res) => {
   try {
     const result = await DeleteUpazilaTeamService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: "Error deleting upazila team member",
+      message: "Error deleting upazila team",
       error: error.message
     });
   }
 };
-
-// Toggle Upazila Team Member Active Status
-export const ToggleUpazilaTeamActive = async (req, res) => {
-  try {
-    const result = await ToggleUpazilaTeamActiveService(req);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      status: false,
-      message: "Error toggling upazila team member status",
-      error: error.message
-    });
-  }
-};
-
-// Toggle Upazila Team Member Featured Status
-export const ToggleUpazilaTeamFeatured = async (req, res) => {
-  try {
-    const result = await ToggleUpazilaTeamFeaturedService(req);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      status: false,
-      message: "Error toggling upazila team member featured status",
-      error: error.message
-    });
-  }
-};
-
-// Update Upazila Team Member Order
-export const UpdateUpazilaTeamOrder = async (req, res) => {
-  try {
-    const result = await UpdateUpazilaTeamOrderService(req);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      status: false,
-      message: "Error updating upazila team member order",
-      error: error.message
-    });
-  }
-}; 

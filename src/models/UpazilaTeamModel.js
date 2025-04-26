@@ -1,32 +1,39 @@
 import mongoose from "mongoose";
 
 const upazilaTeamSchema = new mongoose.Schema({
-  userId: {
+  upazilaName: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "UpazilaOrPS",
+    required: [true, "Upazila is required"]
+  },
+  upazilaCoordinator: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: [true, "User is required"]
+    required: [true, "Upazila Coordinator is required"]
   },
-  designation: {
-    type: String,
-    required: [true, "Designation is required"]
+  upazilaSubCoordinator: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
   },
-  socialLinks: {
-    facebook: String,
-    whatsapp: String,
-    linkedin: String,
-    instagram: String
+  upazilaITMediaCoordinator: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
   },
-  active: {
-    type: Boolean,
-    default: true
+  upazilaLogisticsCoordinator: {  
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
   },
-  featured: {
-    type: Boolean,
-    default: false
+  monitorTeams:[{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "MonitorTeam",
+  }],
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
   },
-  order: {
-    type: Number,
-    default: 0
+  updatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
   }
 }, {
   timestamps: true,
