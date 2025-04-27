@@ -14,17 +14,37 @@ import { protect, restrictTo } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Public routes
+/**
+ * Public Routes - No authentication required
+ */
+
+// Get all sponsors with optional filters (active, type, search, pagination)
 router.get('/all', GetAllSponsors);
-router.get('/details/:id', GetSponsorById);
+
+// Get sponsor details by ID
+router.get('/get/:id', GetSponsorById);
+
+// Get sponsors filtered by type (platinum, gold, silver, bronze, other)
 router.get('/type/:sponsorType', GetSponsorsByType);
 
-// Protected routes (admin only)
-router.post('/create', protect, restrictTo('admin'), CreateSponsor);
-router.put('/update/:id', protect, restrictTo('admin'), UpdateSponsor);
-router.delete('/delete/:id', protect, restrictTo('admin'), DeleteSponsor);
-router.patch('/toggle-active/:id', protect, restrictTo('admin'), ToggleSponsorActive);
-router.post('/add-event/:sponsorId/:eventId', protect, restrictTo('admin'), AddEventToSponsor);
-router.delete('/remove-event/:sponsorId/:eventId', protect, restrictTo('admin'), RemoveEventFromSponsor);
+/**
+ * Protected Routes - Admin authentication required
+ */
+
+// Create a new sponsor
+router.post('/create', protect, CreateSponsor);
+
+// Update an existing sponsor
+router.put('/update/:id', protect, UpdateSponsor);
+
+// Delete a sponsor
+router.delete('/delete/:id', protect, DeleteSponsor);
+
+// Toggle active status (activate/deactivate)
+router.patch('/toggle-active/:id', protect, ToggleSponsorActive);
+
+// Manage sponsor-event relationships
+router.post('/event/:sponsorId/:eventId', protect, restrictTo('Admin'), AddEventToSponsor);
+router.delete('/event/:sponsorId/:eventId', protect, restrictTo('Admin'), RemoveEventFromSponsor);
 
 export default router; 

@@ -9,6 +9,23 @@ const ObjectId = mongoose.Types.ObjectId;
 export const CreateSponsorService = async (req) => {
   try {
     const reqBody = req.body;
+
+    // Validate required fields
+    if (!reqBody.name || !reqBody.logo || !reqBody.coverImage) {
+      return {
+        status: false,
+        message: "Name, logo, and cover image are required fields."
+      };
+    }
+    
+    // Check if sponsor with same name already exists
+    const existingSponsor = await Sponsor.findOne({ name: reqBody.name });
+    if (existingSponsor) {
+      return {
+        status: false,
+        message: "A sponsor with this name already exists."
+      };
+    }
     
     // Create new sponsor
     const newSponsor = new Sponsor(reqBody);
@@ -31,30 +48,47 @@ export const CreateSponsorService = async (req) => {
 // Get All Sponsors
 export const GetAllSponsorsService = async (req) => {
   try {
-    // Optional query for active only
+    // Optional query filters
     const filter = {};
     
-    if (req.query.active === 'true') {
-      filter.active = true;
+    if (req.query.active === 'true' || req.query.active === 'false') {
+      filter.active = req.query.active === 'true';
     }
     
     // Filter by sponsor type if provided
     if (req.query.type && ['platinum', 'gold', 'silver', 'bronze', 'other'].includes(req.query.type)) {
       filter.sponsorType = req.query.type;
     }
+
+    // Text search on name or description
+    if (req.query.search) {
+      filter.$or = [
+        { name: { $regex: req.query.search, $options: 'i' } },
+        { description: { $regex: req.query.search, $options: 'i' } }
+      ];
+    }
     
-    // Get all sponsors with filters
-    const sponsors = await Sponsor.find(filter)
-      .populate('events', 'title date location');
+    // Count total documents for pagination info
+    const total = await Sponsor.countDocuments(filter);
+    
+    // Get sponsors with filters and pagination
+    const sponsors = await Sponsor.find(filter).select('-events -contactPerson')
     
     if (!sponsors || sponsors.length === 0) {
-      return { status: false, message: "No sponsors found." };
+      return { 
+        status: false, 
+        message: "No sponsors found." 
+      };
     }
     
     return {
       status: true,
-      data: sponsors,
-      message: "Sponsors retrieved successfully.",
+      data: {
+        sponsors,
+        totalSponsors: total,
+        
+      },
+      message: "Sponsors retrieved successfully."
     };
   } catch (e) {
     return { 
@@ -68,10 +102,14 @@ export const GetAllSponsorsService = async (req) => {
 // Get Sponsor By ID
 export const GetSponsorByIdService = async (req) => {
   try {
-    const sponsorId = new ObjectId(req.params.id);
+    const sponsorId = req.params.id;
+    
+    if (!ObjectId.isValid(sponsorId)) {
+      return { status: false, message: "Invalid sponsor ID format." };
+    }
     
     const sponsor = await Sponsor.findById(sponsorId)
-      .populate('events', 'title date location');
+      .populate('events', 'title date location posterImage description');
     
     if (!sponsor) {
       return { status: false, message: "Sponsor not found." };
@@ -80,7 +118,7 @@ export const GetSponsorByIdService = async (req) => {
     return {
       status: true,
       data: sponsor,
-      message: "Sponsor retrieved successfully.",
+      message: "Sponsor retrieved successfully."
     };
   } catch (e) {
     return { 
@@ -94,8 +132,12 @@ export const GetSponsorByIdService = async (req) => {
 // Update Sponsor
 export const UpdateSponsorService = async (req) => {
   try {
-    const sponsorId = new ObjectId(req.params.id);
+    const sponsorId = req.params.id;
     const reqBody = req.body;
+    
+    if (!ObjectId.isValid(sponsorId)) {
+      return { status: false, message: "Invalid sponsor ID format." };
+    }
     
     // Check if sponsor exists
     const currentSponsor = await Sponsor.findById(sponsorId);
@@ -104,9 +146,30 @@ export const UpdateSponsorService = async (req) => {
       return { status: false, message: "Sponsor not found." };
     }
     
+    // Check for name uniqueness if updating name
+    if (reqBody.name && reqBody.name !== currentSponsor.name) {
+      const existingSponsor = await Sponsor.findOne({ 
+        name: reqBody.name, 
+        _id: { $ne: sponsorId } 
+      });
+      
+      if (existingSponsor) {
+        return {
+          status: false,
+          message: "A sponsor with this name already exists."
+        };
+      }
+    }
+    
     // If updating logo, delete the old one
     if (reqBody.logo && currentSponsor.logo && reqBody.logo !== currentSponsor.logo) {
       const fileName = path.basename(currentSponsor.logo);
+      await deleteFile(fileName);
+    }
+    
+    // If updating cover image, delete the old one
+    if (reqBody.coverImage && currentSponsor.coverImage && reqBody.coverImage !== currentSponsor.coverImage) {
+      const fileName = path.basename(currentSponsor.coverImage);
       await deleteFile(fileName);
     }
     
@@ -115,12 +178,12 @@ export const UpdateSponsorService = async (req) => {
       sponsorId,
       { $set: reqBody },
       { new: true, runValidators: true }
-    ).populate('events', 'title date location');
+    ).populate('events', 'title date location posterImage');
     
     return {
       status: true,
       data: updatedSponsor,
-      message: "Sponsor updated successfully.",
+      message: "Sponsor updated successfully."
     };
   } catch (e) {
     return { 
@@ -137,10 +200,10 @@ export const DeleteSponsorService = async (req) => {
     const sponsorId = req.params.id;
     
     if (!ObjectId.isValid(sponsorId)) {
-      return { status: false, message: "Invalid sponsor ID." };
+      return { status: false, message: "Invalid sponsor ID format." };
     }
     
-    // Get sponsor before deletion to access logo
+    // Get sponsor before deletion to access files
     const sponsor = await Sponsor.findById(sponsorId);
     
     if (!sponsor) {
@@ -149,8 +212,14 @@ export const DeleteSponsorService = async (req) => {
     
     // Delete the logo file if it exists
     if (sponsor.logo) {
-      const fileName = path.basename(sponsor.logo);
-      await deleteFile(fileName);
+      const logoFileName = path.basename(sponsor.logo);
+      await deleteFile(logoFileName);
+    }
+    
+    // Delete the cover image file if it exists
+    if (sponsor.coverImage) {
+      const coverFileName = path.basename(sponsor.coverImage);
+      await deleteFile(coverFileName);
     }
     
     // Delete the sponsor
@@ -173,7 +242,11 @@ export const DeleteSponsorService = async (req) => {
 // Toggle Sponsor Active Status
 export const ToggleSponsorActiveService = async (req) => {
   try {
-    const sponsorId = new ObjectId(req.params.id);
+    const sponsorId = req.params.id;
+    
+    if (!ObjectId.isValid(sponsorId)) {
+      return { status: false, message: "Invalid sponsor ID format." };
+    }
     
     // Get current sponsor
     const sponsor = await Sponsor.findById(sponsorId);
@@ -206,11 +279,11 @@ export const ToggleSponsorActiveService = async (req) => {
 // Add Event to Sponsor
 export const AddEventToSponsorService = async (req) => {
   try {
-    const sponsorId = new ObjectId(req.params.id);
-    const { eventId } = req.body;
+    const sponsorId = req.params.sponsorId;
+    const eventId = req.params.eventId;
     
-    if (!eventId || !ObjectId.isValid(eventId)) {
-      return { status: false, message: "Valid event ID is required." };
+    if (!ObjectId.isValid(sponsorId) || !ObjectId.isValid(eventId)) {
+      return { status: false, message: "Invalid sponsor ID or event ID format." };
     }
     
     // Check if sponsor exists
@@ -226,7 +299,7 @@ export const AddEventToSponsorService = async (req) => {
         sponsorId,
         { $addToSet: { events: eventId } },
         { new: true }
-      ).populate('events', 'title date location');
+      ).populate('events', 'title date location posterImage');
       
       return {
         status: true,
@@ -251,11 +324,11 @@ export const AddEventToSponsorService = async (req) => {
 // Remove Event from Sponsor
 export const RemoveEventFromSponsorService = async (req) => {
   try {
-    const sponsorId = new ObjectId(req.params.sponsorId);
-    const eventId = new ObjectId(req.params.eventId);
+    const sponsorId = req.params.sponsorId;
+    const eventId = req.params.eventId;
     
-    if (!eventId || !ObjectId.isValid(eventId)) {
-      return { status: false, message: "Valid event ID is required." };
+    if (!ObjectId.isValid(sponsorId) || !ObjectId.isValid(eventId)) {
+      return { status: false, message: "Invalid sponsor ID or event ID format." };
     }
     
     // Check if sponsor exists
@@ -266,17 +339,24 @@ export const RemoveEventFromSponsorService = async (req) => {
     }
     
     // Remove event from sponsor's events array
-    const updatedSponsor = await Sponsor.findByIdAndUpdate(
-      sponsorId,
-      { $pull: { events: eventId } },
-      { new: true }
-    ).populate('events', 'title date location');
-    
-    return {
-      status: true,
-      message: "Event removed from sponsor successfully.",
-      data: updatedSponsor
-    };
+    if (sponsor.events.includes(eventId)) {
+      const updatedSponsor = await Sponsor.findByIdAndUpdate(
+        sponsorId,
+        { $pull: { events: eventId } },
+        { new: true }
+      ).populate('events', 'title date location posterImage');
+      
+      return {
+        status: true,
+        message: "Event removed from sponsor successfully.",
+        data: updatedSponsor
+      };
+    } else {
+      return {
+        status: false,
+        message: "Event is not associated with this sponsor."
+      };
+    }
   } catch (e) {
     return { 
       status: false, 
@@ -289,28 +369,29 @@ export const RemoveEventFromSponsorService = async (req) => {
 // Get Sponsors by Type
 export const GetSponsorsByTypeService = async (req) => {
   try {
-    const { type } = req.params;
+    const sponsorType = req.params.sponsorType;
     
-    if (!type || !['platinum', 'gold', 'silver', 'bronze', 'other'].includes(type)) {
+    if (!['platinum', 'gold', 'silver', 'bronze', 'other'].includes(sponsorType)) {
       return { 
         status: false, 
         message: "Invalid sponsor type. Must be one of: platinum, gold, silver, bronze, other." 
       };
     }
     
+    // Get sponsors by type
     const sponsors = await Sponsor.find({ 
-      sponsorType: type,
-      active: true
-    }).populate('events', 'title date location');
+      sponsorType: sponsorType,
+      active: true 
+    }).populate('events', 'title date location posterImage');
     
     if (!sponsors || sponsors.length === 0) {
-      return { status: false, message: `No ${type} sponsors found.` };
+      return { status: false, message: `No ${sponsorType} sponsors found.` };
     }
     
     return {
       status: true,
       data: sponsors,
-      message: `${type.charAt(0).toUpperCase() + type.slice(1)} sponsors retrieved successfully.`,
+      message: `${sponsorType.charAt(0).toUpperCase() + sponsorType.slice(1)} sponsors retrieved successfully.`
     };
   } catch (e) {
     return { 

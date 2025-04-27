@@ -14,7 +14,12 @@ import {
 export const CreateSponsor = async (req, res) => {
   try {
     const result = await CreateSponsorService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(201).json(result);
+    } else {
+      return res.status(400).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
@@ -28,7 +33,12 @@ export const CreateSponsor = async (req, res) => {
 export const GetAllSponsors = async (req, res) => {
   try {
     const result = await GetAllSponsorsService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
@@ -42,7 +52,12 @@ export const GetAllSponsors = async (req, res) => {
 export const GetSponsorById = async (req, res) => {
   try {
     const result = await GetSponsorByIdService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
@@ -56,7 +71,12 @@ export const GetSponsorById = async (req, res) => {
 export const UpdateSponsor = async (req, res) => {
   try {
     const result = await UpdateSponsorService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(400).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
@@ -70,7 +90,12 @@ export const UpdateSponsor = async (req, res) => {
 export const DeleteSponsor = async (req, res) => {
   try {
     const result = await DeleteSponsorService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
@@ -84,7 +109,12 @@ export const DeleteSponsor = async (req, res) => {
 export const ToggleSponsorActive = async (req, res) => {
   try {
     const result = await ToggleSponsorActiveService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
@@ -98,7 +128,12 @@ export const ToggleSponsorActive = async (req, res) => {
 export const AddEventToSponsor = async (req, res) => {
   try {
     const result = await AddEventToSponsorService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(400).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
@@ -112,7 +147,12 @@ export const AddEventToSponsor = async (req, res) => {
 export const RemoveEventFromSponsor = async (req, res) => {
   try {
     const result = await RemoveEventFromSponsorService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(400).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
@@ -126,7 +166,12 @@ export const RemoveEventFromSponsor = async (req, res) => {
 export const GetSponsorsByType = async (req, res) => {
   try {
     const result = await GetSponsorsByTypeService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,

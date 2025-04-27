@@ -9,7 +9,11 @@ const sponsorSchema = new mongoose.Schema(
     },
     logo: {
       type: String,
-      default: null
+      required: [true, "Sponsor logo is required"],
+    },
+    coverImage: {
+      type: String,
+      required: [true, "Sponsor cover image is required"],
     },
     website: {
       type: String,
@@ -26,8 +30,8 @@ const sponsorSchema = new mongoose.Schema(
     },
     sponsorType: {
       type: String,
-      enum: ["platinum", "gold", "silver", "bronze", "other"],
-      default: "other"
+      enum: ["Platinum", "Gold", "Silver", "Bronze", "Other"],
+      default: "Other"
     },
     events: [{
       type: mongoose.Schema.Types.ObjectId,
