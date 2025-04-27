@@ -1,30 +1,28 @@
 import express from 'express';
 import {
   CreateDivisionalTeam,
-  GetAllDivisionalTeam,
+  GetAllDivisionalTeams,
   GetDivisionalTeamById,
-  GetDivisionalTeamByDivision,
   UpdateDivisionalTeam,
-  DeleteDivisionalTeam,
-  ToggleDivisionalTeamActive,
-  ToggleDivisionalTeamFeatured,
-  UpdateDivisionalTeamOrder
+  DeleteDivisionalTeam
 } from '../controllers/DivisionalTeamControllers.js';
 import { protect, restrictTo } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Public routes
-router.get('/all', GetAllDivisionalTeam);
-router.get('/details/:id', GetDivisionalTeamById);
-router.get('/division/:division', GetDivisionalTeamByDivision);
+// Create a new divisional team
+router.post('/create', protect, CreateDivisionalTeam);
 
-// Protected routes (admin only)
-router.post('/create', protect, restrictTo('admin'), CreateDivisionalTeam);
-router.put('/update/:id', protect, restrictTo('admin'), UpdateDivisionalTeam);
-router.delete('/delete/:id', protect, restrictTo('admin'), DeleteDivisionalTeam);
-router.patch('/toggle-active/:id', protect, restrictTo('admin'), ToggleDivisionalTeamActive);
-router.patch('/toggle-featured/:id', protect, restrictTo('admin'), ToggleDivisionalTeamFeatured);
-router.patch('/update-order/:id', protect, restrictTo('admin'), UpdateDivisionalTeamOrder);
+// Get all divisional teams
+router.get('/all', protect, GetAllDivisionalTeams);
+
+// Get divisional team by ID
+router.get('/get/:id', protect, GetDivisionalTeamById);
+
+// Update divisional team
+router.put('/update/:id', protect, UpdateDivisionalTeam);
+
+// Delete divisional team
+router.delete('/delete/:id', protect, DeleteDivisionalTeam);
 
 export default router; 

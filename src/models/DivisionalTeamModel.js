@@ -1,38 +1,34 @@
 import mongoose from "mongoose";
 
 const divisionalTeamSchema = new mongoose.Schema({
-  userId: {
+  divisionID: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Division",
+    required: [true, "Division is required"]
+  },
+  divisionalCoordinatorID: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: [true, "User is required"]
   },
-  designation: {
-    type: String,
-    required: [true, "Designation is required"],
-    default: "Divisional Coordinator"
+  divisionalSubCoordinatorID: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
   },
-  bio: {
-    type: String,
-    required: [true, "Bio is required"]
+  
+  districtTeamID: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "DistrictTeam",
+  }],
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
   },
-  socialLinks: {
-    facebook: String,
-    whatsapp: String,
-    linkedin: String,
-    instagram: String
+  updatedBy: {  
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
   },
-  active: {
-    type: Boolean,
-    default: true
-  },
-  featured: {
-    type: Boolean,
-    default: false
-  },
-  order: {
-    type: Number,
-    default: 0
-  }
+
 }, {
   timestamps: true,
   versionKey: false

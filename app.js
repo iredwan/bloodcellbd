@@ -24,6 +24,7 @@ import districtRoutes from './src/routes/DistrictRoutes.js';
 import upazilaOrPSRoutes from './src/routes/UpazilaOrPSRoutes.js';
 import moderatorTeamRoutes from './src/routes/ModeratorTeamRoutes.js';
 import monitorTeamRoutes from './src/routes/MonitorTeamRoutes.js';
+import divisionRoutes from './src/routes/DivisionRoutes.js';
 // Load environment variables
 dotenv.config();
 
@@ -75,6 +76,9 @@ app.use('/api/districts', districtRoutes);
 app.use('/api/upazilas-or-ps', upazilaOrPSRoutes);
 app.use('/api/moderator-team', moderatorTeamRoutes);
 app.use('/api/monitor-team', monitorTeamRoutes);
+app.use('/api/divisions', divisionRoutes);
+
+
 // Root route
 app.get('/', (req, res) => {
   res.send('Blood Cell BD API is running');
