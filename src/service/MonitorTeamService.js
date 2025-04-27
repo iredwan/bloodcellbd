@@ -114,10 +114,6 @@ export const GetAllMonitorTeamsService = async () => {
           {
             path: "moderatorName",
             select: "name email phone role roleSuffix profileImage"
-          },
-          {
-            path: "moderatorTeamMembers", 
-            select: "name email phone role roleSuffix profileImage"
           }
         ]
       })

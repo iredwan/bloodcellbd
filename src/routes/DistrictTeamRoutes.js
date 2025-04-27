@@ -1,31 +1,28 @@
 import express from 'express';
 import {
   CreateDistrictTeam,
-  GetAllDistrictTeam,
+  GetAllDistrictTeams,
   GetDistrictTeamById,
-  GetDistrictTeamByDistrict,
   UpdateDistrictTeam,
-  DeleteDistrictTeam,
-  ToggleDistrictTeamActive,
-  ToggleDistrictTeamFeatured,
-  UpdateDistrictTeamOrder
+  DeleteDistrictTeam
 } from '../controllers/DistrictTeamControllers.js';
 import { protect, restrictTo } from '../middleware/auth.js';
-import { upload } from '../utility/fileUtils.js';
 
 const router = express.Router();
 
-// Public routes
-router.get('/all', GetAllDistrictTeam);
-router.get('/details/:id', GetDistrictTeamById);
-router.get('/district/:district', GetDistrictTeamByDistrict);
+// Create a new district team
+router.post('/create', protect, restrictTo('District Coordinator', 'District Sub-Coordinator', 'Division Coordinator', 'Division Sub-Coordinator', 'Admin'), CreateDistrictTeam);
 
-// Protected routes (admin only)
-router.post('/create', protect, restrictTo('admin'), upload.single('image'), CreateDistrictTeam);
-router.put('/update/:id', protect, restrictTo('admin'), upload.single('image'), UpdateDistrictTeam);
-router.delete('/delete/:id', protect, restrictTo('admin'), DeleteDistrictTeam);
-router.patch('/toggle-active/:id', protect, restrictTo('admin'), ToggleDistrictTeamActive);
-router.patch('/toggle-featured/:id', protect, restrictTo('admin'), ToggleDistrictTeamFeatured);
-router.patch('/update-order/:id', protect, restrictTo('admin'), UpdateDistrictTeamOrder);
+// Get all district teams
+router.get('/all', protect, GetAllDistrictTeams);
+
+// Get district team by ID
+router.get('/get/:id', protect, GetDistrictTeamById);
+
+// Update district team
+router.put('/update/:id', protect, restrictTo('District Coordinator', 'District Sub-Coordinator', 'Division Coordinator', 'Division Sub-Coordinator', 'Admin'), UpdateDistrictTeam);
+
+// Delete district team
+router.delete('/delete/:id', protect, restrictTo('District Coordinator', 'District Sub-Coordinator', 'Division Coordinator', 'Division Sub-Coordinator', 'Admin'), DeleteDistrictTeam);
 
 export default router; 

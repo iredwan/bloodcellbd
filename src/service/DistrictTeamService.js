@@ -1,334 +1,245 @@
 import DistrictTeam from "../models/DistrictTeamModel.js";
 import mongoose from "mongoose";
-import { deleteFile } from "../utility/fileUtils.js";
-import path from "path";
-import UserModel from "../models/UserModel.js";
 const ObjectId = mongoose.Types.ObjectId;
 
-// Create District Team Member
+// Create DistrictTeam Service
 export const CreateDistrictTeamService = async (req) => {
   try {
     const reqBody = req.body;
-    const userId = reqBody.userId;
 
-    const user = await UserModel.findById(userId);
-    if (!user) {
-      return { status: false, message: "User not found." };
-    }
-
-    const districtTeam = await DistrictTeam.findOne({ userId });
-    if (districtTeam) {
-      return { status: false, message: "District team member already exists." };
+    // Check if the team already exists for this district
+    const existingTeam = await DistrictTeam.findOne({ districtId: reqBody.districtId });
+    if (existingTeam) {
+      return { status: false, message: "Team already exists for this district" };
     }
     
-    // Create new district team member
-    const newMember = new DistrictTeam(reqBody);
-    await newMember.save();
+    // Check if coordinator is already in other team
+    const coordinatorInOtherTeam = await DistrictTeam.findOne({
+      $or: [
+        { districtCoordinatorID: reqBody.districtCoordinatorID },
+        { districtSubCoordinatorID: reqBody.districtSubCoordinatorID },
+        { districtITMediaCoordinatorID: reqBody.districtITMediaCoordinatorID },
+        { districtLogisticsCoordinatorID: reqBody.districtLogisticsCoordinatorID }
+      ]
+    });
+    if (coordinatorInOtherTeam) {
+      return { status: false, message: "Coordinator already in other team" };
+    }
+
+    // Check if upazila team is already in other team
+    if (reqBody.upazilaTeamID && reqBody.upazilaTeamID.length > 0) {
+      const upazilaTeamInOtherTeam = await DistrictTeam.findOne({
+        upazilaTeamID: { $in: reqBody.upazilaTeamID }
+      });
+      if (upazilaTeamInOtherTeam) {
+        return { status: false, message: "Upazila team already in other district team" };
+      }
+    }
+    
+    // Add created by from header or cookie
+    const createdBy = req.headers.user_id || req.cookies.user_id;
+    if (!createdBy) {
+      return { status: false, message: "Unauthorized" };
+    }
+
+    reqBody.createdBy = createdBy;
+    
+    const newDistrictTeam = new DistrictTeam(reqBody);
+    await newDistrictTeam.save();
+    
+    return { status: true, message: "District team created successfully", data: newDistrictTeam };
+  } catch (error) {
+    return { status: false, message: "Error creating district team", error: error.message };
+  }
+};
+
+// Get All DistrictTeams Service
+export const GetAllDistrictTeamsService = async () => {
+  try {
+    const districtTeams = await DistrictTeam.find()
+      .populate("districtId", "name")
+      .populate("districtCoordinatorID", "name email phone profileImage role roleSuffix")
+      .populate("districtSubCoordinatorID", "name email phone profileImage role roleSuffix")
+      .populate("districtITMediaCoordinatorID", "name email phone profileImage role roleSuffix")
+      .populate("districtLogisticsCoordinatorID", "name email phone profileImage role roleSuffix")
+      .populate({
+        path: "upazilaTeamID",
+        populate: [
+          {
+            path: "upazilaName",
+            select: "name"
+          },
+          {
+            path: "upazilaCoordinator",
+            select: "name email phone profileImage role roleSuffix"
+          },
+          {
+            path: "upazilaSubCoordinator",
+            select: "name email phone profileImage role roleSuffix"
+          },
+          {
+            path: "upazilaITMediaCoordinator",
+            select: "name email phone profileImage role roleSuffix"
+          },
+          {
+            path: "upazilaLogisticsCoordinator",
+            select: "name email phone profileImage role roleSuffix"
+          }
+        ]
+      })
+      .populate("createdBy", "name email phone profileImage role roleSuffix")
+      .populate("updatedBy", "name email phone profileImage role roleSuffix");
+    
+    if (!districtTeams || districtTeams.length === 0) {
+      return { status: false, message: "No district teams found" };
+    }
+
+    // Count total upazila teams
+    const totalUpazilaTeams = districtTeams.reduce((acc, team) => {
+      return acc + (team.upazilaTeamID ? team.upazilaTeamID.length : 0);
+    }, 0);
     
     return { 
       status: true, 
-      message: "District team member created successfully.",
-      data: newMember
+      message: "District teams retrieved successfully", 
+      data: {
+        districtTeams,
+        totalUpazilaTeams
+      } 
     };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to create district team member.", 
-      details: e.message 
-    };
+  } catch (error) {
+    return { status: false, message: "Error retrieving district teams", error: error.message };
   }
 };
 
-// Get All District Team Members
-export const GetAllDistrictTeamService = async (req) => {
-  try {
-    // Optional query parameters
-    const filter = {};
-    
-    if (req.query.active === 'true') {
-      filter.active = true;
-    }
-    
-    if (req.query.featured === 'true') {
-      filter.featured = true;
-    }
-    
-    // Filter by district if provided
-    if (req.query.district) {
-      filter.district = req.query.district;
-    }
-    
-    // Get all district team members with filters
-    const members = await DistrictTeam.find(filter)
-      .populate('userId', 'name email avatar district upazila phone')
-      .sort({ order: 1 });
-    
-    if (!members || members.length === 0) {
-      return { status: false, message: "No district team members found." };
-    }
-    
-    return {
-      status: true,
-      data: members,
-      message: "District team members retrieved successfully.",
-    };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to retrieve district team members.", 
-      details: e.message 
-    };
-  }
-};
-
-// Get District Team Member By ID
+// Get DistrictTeam By ID Service
 export const GetDistrictTeamByIdService = async (req) => {
   try {
-    const memberId = new ObjectId(req.params.id);
+    const teamId = new ObjectId(req.params.id);
     
-    const member = await DistrictTeam.findById(memberId)
-      .populate('userId', 'name email avatar district upazila phone');
+    const districtTeam = await DistrictTeam.findById(teamId)
+      .populate("districtId", "name")
+      .populate("districtCoordinatorID", "name email phone profileImage role roleSuffix")
+      .populate("districtSubCoordinatorID", "name email phone profileImage role roleSuffix")
+      .populate("districtITMediaCoordinatorID", "name email phone profileImage role roleSuffix")
+      .populate("districtLogisticsCoordinatorID", "name email phone profileImage role roleSuffix")
+      .populate({
+        path: "upazilaTeamID",
+        populate: [
+          {
+            path: "upazilaName",
+            select: "name"
+          },
+          {
+            path: "upazilaCoordinator",
+            select: "name email phone profileImage role roleSuffix"
+          },
+          {
+            path: "upazilaSubCoordinator",
+            select: "name email phone profileImage role roleSuffix"
+          },
+          {
+            path: "upazilaITMediaCoordinator",
+            select: "name email phone profileImage role roleSuffix"
+          },
+          {
+            path: "upazilaLogisticsCoordinator",
+            select: "name email phone profileImage role roleSuffix"
+          },
+          {
+            path: "monitorTeams",
+            select: "teamMonitor teamName",
+            populate: {
+              path: "teamMonitor",
+              select: "name profileImage"
+            }
+          },
+
+        ]
+      })
+      .populate("createdBy", "name email phone profileImage role roleSuffix")
+      .populate("updatedBy", "name email phone profileImage role roleSuffix");
     
-    if (!member) {
-      return { status: false, message: "District team member not found." };
+    if (!districtTeam) {
+      return { status: false, message: "District team not found" };
     }
     
-    return {
-      status: true,
-      data: member,
-      message: "District team member retrieved successfully.",
-    };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to retrieve district team member.", 
-      details: e.message 
-    };
+    return { status: true, message: "District team retrieved successfully", data: districtTeam };
+  } catch (error) {
+    return { status: false, message: "Error retrieving district team", error: error.message };
   }
 };
 
-// Get District Team Members By District
-export const GetDistrictTeamByDistrictService = async (req) => {
-  try {
-    const { district } = req.params;
-    
-    if (!district) {
-      return { status: false, message: "District parameter is required." };
-    }
-    
-    const filter = { district };
-    
-    // Add active filter if specified
-    if (req.query.active === 'true') {
-      filter.active = true;
-    }
-    
-    const members = await DistrictTeam.find(filter)
-      .populate('userId', 'name email avatar district upazila phone')
-      .sort({ order: 1 });
-    
-    if (!members || members.length === 0) {
-      return { status: false, message: `No district team members found for ${district} district.` };
-    }
-    
-    return {
-      status: true,
-      data: members,
-      message: `District team members for ${district} district retrieved successfully.`,
-    };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to retrieve district team members by district.", 
-      details: e.message 
-    };
-  }
-};
-
-// Update District Team Member
+// Update DistrictTeam Service
 export const UpdateDistrictTeamService = async (req) => {
   try {
-    const memberId = new ObjectId(req.params.id);
+    const teamId = new ObjectId(req.params.id);
     const reqBody = req.body;
     
-    // Check if district team member exists
-    const currentMember = await DistrictTeam.findById(memberId)
-      .populate('userId', 'name email avatar district upazila phone');
-    
-    if (!currentMember) {
-      return { status: false, message: "District team member not found." };
+    // Add updated by from header or cookie
+    const updatedBy = req.headers.user_id || req.cookies.user_id;
+    if (!updatedBy) {
+      return { status: false, message: "Unauthorized" };
+    }
+    reqBody.updatedBy = updatedBy;
+
+    // Check if coordinator is already in other team
+    if (reqBody.districtCoordinatorID || reqBody.districtSubCoordinatorID || 
+        reqBody.districtITMediaCoordinatorID || reqBody.districtLogisticsCoordinatorID) {
+      const coordinatorInOtherTeam = await DistrictTeam.findOne({
+        _id: { $ne: teamId },
+        $or: [
+          { districtCoordinatorID: reqBody.districtCoordinatorID },
+          { districtSubCoordinatorID: reqBody.districtSubCoordinatorID },
+          { districtITMediaCoordinatorID: reqBody.districtITMediaCoordinatorID },
+          { districtLogisticsCoordinatorID: reqBody.districtLogisticsCoordinatorID }
+        ]
+      });
+      if (coordinatorInOtherTeam) {
+        return { status: false, message: "Coordinator already in other team" };
+      }
+    }
+
+    // Check if upazila team is already in other team
+    if (reqBody.upazilaTeamID && reqBody.upazilaTeamID.length > 0) {
+      const upazilaTeamInOtherTeam = await DistrictTeam.findOne({
+        _id: { $ne: teamId },
+        upazilaTeamID: { $in: reqBody.upazilaTeamID }
+      });
+      if (upazilaTeamInOtherTeam) {
+        return { status: false, message: "Upazila team already in other district team" };
+      }
     }
     
-    // If updating image, delete the old one
-    if (reqBody.image && currentMember.image && reqBody.image !== currentMember.image) {
-      const fileName = path.basename(currentMember.image);
-      await deleteFile(fileName);
-    }
-    
-    // Update district team member
-    const updatedMember = await DistrictTeam.findByIdAndUpdate(
-      memberId,
+    const updatedDistrictTeam = await DistrictTeam.findByIdAndUpdate(
+      teamId,
       { $set: reqBody },
-      { new: true, runValidators: true }
+      { new: true }
     );
     
-    return {
-      status: true,
-      data: updatedMember,
-      message: "District team member updated successfully.",
-    };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to update district team member.", 
-      details: e.message 
-    };
+    if (!updatedDistrictTeam) {
+      return { status: false, message: "District team not found" };
+    }
+    
+    return { status: true, message: "District team updated successfully", data: updatedDistrictTeam };
+  } catch (error) {
+    return { status: false, message: "Error updating district team", error: error.message };
   }
 };
 
-// Delete District Team Member
+// Delete DistrictTeam Service
 export const DeleteDistrictTeamService = async (req) => {
   try {
-    const memberId = req.params.id;
+    const teamId = new ObjectId(req.params.id);
     
-    if (!ObjectId.isValid(memberId)) {
-      return { status: false, message: "Invalid district team member ID." };
+    const deletedDistrictTeam = await DistrictTeam.findByIdAndDelete(teamId);
+    
+    if (!deletedDistrictTeam) {
+      return { status: false, message: "District team not found" };
     }
     
-    // Get member before deletion to access image
-    const member = await DistrictTeam.findById(memberId)
-      .populate('userId', 'name email avatar district upazila phone');
-    
-    if (!member) {
-      return { status: false, message: "District team member not found or already deleted." };
-    }
-    
-    // Delete the image file if it exists
-    if (member.image) {
-      const fileName = path.basename(member.image);
-      await deleteFile(fileName);
-    }
-    
-    // Delete the district team member
-    const deletedMember = await DistrictTeam.findByIdAndDelete(memberId);
-    
-    return {
-      status: true,
-      message: "District team member deleted successfully.",
-      data: deletedMember
-    };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to delete district team member.", 
-      details: e.message 
-    };
+    return { status: true, message: "District team deleted successfully" };
+  } catch (error) {
+    return { status: false, message: "Error deleting district team", error: error.message };
   }
 };
-
-// Toggle District Team Member Active Status
-export const ToggleDistrictTeamActiveService = async (req) => {
-  try {
-    const memberId = new ObjectId(req.params.id);
-    
-    // Get current district team member
-      const member = await DistrictTeam.findById(memberId)
-      .populate('userId', 'name email avatar district upazila phone');
-    
-    if (!member) {
-      return { status: false, message: "District team member not found." };
-    }
-    
-    // Toggle the active status
-    const updatedMember = await DistrictTeam.findByIdAndUpdate(
-      memberId,
-      { $set: { active: !member.active } },
-      { new: true }
-    );
-    
-    return {
-      status: true,
-      message: `District team member ${updatedMember.active ? 'activated' : 'deactivated'} successfully.`,
-      data: updatedMember
-    };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to toggle district team member status.", 
-      details: e.message 
-    };
-  }
-};
-
-// Toggle District Team Member Featured Status
-export const ToggleDistrictTeamFeaturedService = async (req) => {
-  try {
-    const memberId = new ObjectId(req.params.id);
-    
-    // Get current district team member
-      const member = await DistrictTeam.findById(memberId)
-      .populate('userId', 'name email avatar district upazila phone');
-    
-    if (!member) {
-      return { status: false, message: "District team member not found." };
-    }
-    
-    // Toggle the featured status
-    const updatedMember = await DistrictTeam.findByIdAndUpdate(
-      memberId,
-      { $set: { featured: !member.featured } },
-      { new: true }
-    );
-    
-    return {
-      status: true,
-      message: `District team member ${updatedMember.featured ? 'featured' : 'unfeatured'} successfully.`,
-      data: updatedMember
-    };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to toggle district team member featured status.", 
-      details: e.message 
-    };
-  }
-};
-
-// Update District Team Member Order
-export const UpdateDistrictTeamOrderService = async (req) => {
-  try {
-    const memberId = new ObjectId(req.params.id);
-    const { order } = req.body;
-    
-    if (typeof order !== 'number') {
-      return { status: false, message: "Order must be a number." };
-    }
-    
-    // Get current district team member
-    const member = await DistrictTeam.findById(memberId)
-      .populate('userId', 'name email avatar district upazila phone');
-    
-    if (!member) {
-      return { status: false, message: "District team member not found." };
-    }
-    
-    // Update the order
-    const updatedMember = await DistrictTeam.findByIdAndUpdate(
-      memberId,
-      { $set: { order } },
-      { new: true }
-    );
-    
-    return {
-      status: true,
-      message: "District team member order updated successfully.",
-      data: updatedMember
-    };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to update district team member order.", 
-      details: e.message 
-    };
-  }
-}; 

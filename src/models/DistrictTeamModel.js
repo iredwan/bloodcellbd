@@ -2,38 +2,40 @@ import mongoose from "mongoose";
 
 const districtTeamSchema = new mongoose.Schema(
   {
-    userId: {
+    districtId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "District",
+      required: [true, "District is required"]
+    },
+    districtCoordinatorID: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: [true, "User is required"]
+      required: [true, "District Coordinator is required"]
     },
-    designation: {
-      type: String,
-      required: [true, "Designation is required"],
-      trim: true
+    districtSubCoordinatorID: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
-    socialLinks: {
-      facebook: String,
-      whatsapp: String,
-      linkedin: String,
-      instagram: String
+    districtITMediaCoordinatorID: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
-    bio: {
-      type: String,
-      trim: true
+    districtLogisticsCoordinatorID: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
-    order: {
-      type: Number,
-      default: 0
+    upazilaTeamID: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "UpazilaTeam",
+    }],
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
-    active: {
-      type: Boolean,
-      default: true
+    updatedBy: {  
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
-    featured: {
-      type: Boolean,
-      default: false
-    }
   },
   {
     timestamps: true,

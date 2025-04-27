@@ -1,136 +1,101 @@
 import {
   CreateDistrictTeamService,
-  GetAllDistrictTeamService,
+  GetAllDistrictTeamsService,
   GetDistrictTeamByIdService,
-  GetDistrictTeamByDistrictService,
   UpdateDistrictTeamService,
-  DeleteDistrictTeamService,
-  ToggleDistrictTeamActiveService,
-  ToggleDistrictTeamFeaturedService,
-  UpdateDistrictTeamOrderService
+  DeleteDistrictTeamService
 } from '../service/DistrictTeamService.js';
 
-// Create District Team Member
+// Create District Team
 export const CreateDistrictTeam = async (req, res) => {
   try {
     const result = await CreateDistrictTeamService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(201).json(result);
+    } else {
+      return res.status(400).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: "Error creating district team member",
+      message: "Error creating district team",
       error: error.message
     });
   }
 };
 
-// Get All District Team Members
-export const GetAllDistrictTeam = async (req, res) => {
+// Get All District Teams
+export const GetAllDistrictTeams = async (req, res) => {
   try {
-    const result = await GetAllDistrictTeamService(req);
-    return res.status(200).json(result);
+    const result = await GetAllDistrictTeamsService();
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: "Error retrieving district team members",
+      message: "Error retrieving district teams",
       error: error.message
     });
   }
 };
 
-// Get District Team Member By ID
+// Get District Team By ID
 export const GetDistrictTeamById = async (req, res) => {
   try {
     const result = await GetDistrictTeamByIdService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: "Error retrieving district team member",
+      message: "Error retrieving district team",
       error: error.message
     });
   }
 };
 
-// Get District Team Members By District
-export const GetDistrictTeamByDistrict = async (req, res) => {
-  try {
-    const result = await GetDistrictTeamByDistrictService(req);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      status: false,
-      message: "Error retrieving district team members by district",
-      error: error.message
-    });
-  }
-};
-
-// Update District Team Member
+// Update District Team
 export const UpdateDistrictTeam = async (req, res) => {
   try {
     const result = await UpdateDistrictTeamService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(400).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: "Error updating district team member",
+      message: "Error updating district team",
       error: error.message
     });
   }
 };
 
-// Delete District Team Member
+// Delete District Team
 export const DeleteDistrictTeam = async (req, res) => {
   try {
     const result = await DeleteDistrictTeamService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: "Error deleting district team member",
-      error: error.message
-    });
-  }
-};
-
-// Toggle District Team Member Active Status
-export const ToggleDistrictTeamActive = async (req, res) => {
-  try {
-    const result = await ToggleDistrictTeamActiveService(req);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      status: false,
-      message: "Error toggling district team member status",
-      error: error.message
-    });
-  }
-};
-
-// Toggle District Team Member Featured Status
-export const ToggleDistrictTeamFeatured = async (req, res) => {
-  try {
-    const result = await ToggleDistrictTeamFeaturedService(req);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      status: false,
-      message: "Error toggling district team member featured status",
-      error: error.message
-    });
-  }
-};
-
-// Update District Team Member Order
-export const UpdateDistrictTeamOrder = async (req, res) => {
-  try {
-    const result = await UpdateDistrictTeamOrderService(req);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      status: false,
-      message: "Error updating district team member order",
+      message: "Error deleting district team",
       error: error.message
     });
   }

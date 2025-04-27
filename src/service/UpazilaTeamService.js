@@ -76,10 +76,6 @@ export const GetAllUpazilaTeamsService = async () => {
           populate: [{
             path: "moderatorName",
             select: "name email phone profileImage role roleSuffix"
-          },
-          {
-            path: "moderatorTeamMembers",
-            select: "name email phone profileImage role roleSuffix"
           }]
         }]
       })
@@ -131,10 +127,6 @@ export const GetUpazilaTeamByIdService = async (req) => {
           path: "moderatorTeamID",
           populate: [{
             path: "moderatorName", 
-            select: "name email phone profileImage role roleSuffix"
-          },
-          {
-            path: "moderatorTeamMembers",
             select: "name email phone profileImage role roleSuffix"
           }]
         }]
