@@ -27,7 +27,7 @@ router.post('/create', protect, CreateRequest);
 router.patch('/update/:id', protect, UpdateRequest);
 router.delete('/delete/:id', protect, DeleteRequest);
 router.get('/user/requests', protect, GetUserRequests);
-router.patch('/fulfill/:id', protect, FulfillRequest);
+router.patch('/fulfill-by/:id', protect, FulfillRequest);
 
 
 export default router; 
