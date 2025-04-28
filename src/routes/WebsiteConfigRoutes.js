@@ -2,17 +2,15 @@ import express from 'express';
 import {
   UpsertWebsiteConfig,
   GetWebsiteConfig,
-  UpdateContactInfo
 } from '../controllers/WebsiteConfigControllers.js';
 import { protect, restrictTo } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // Public routes
-router.get('/', GetWebsiteConfig);
+router.get('/get', GetWebsiteConfig);
 
 // Protected routes (admin only)
-router.post('/upsert', protect, restrictTo('admin'), UpsertWebsiteConfig);
-router.put('/contact', protect, restrictTo('admin'), UpdateContactInfo);
+router.post('/upsert', protect, restrictTo('Admin', "Head of It & Media"), UpsertWebsiteConfig);
 
 export default router; 
