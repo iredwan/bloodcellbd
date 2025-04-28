@@ -4,8 +4,6 @@ import {
   GetEventByIdService, 
   UpdateEventService,
   DeleteEventService,
-  UpdateEventStatusService,
-  GetEventsByOrganizerService,
   GetUpcomingEventsService
 } from '../service/EventService.js';
 
@@ -13,7 +11,12 @@ import {
 export const CreateEvent = async (req, res) => {
   try {
     const result = await CreateEventService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(201).json(result);
+    } else {
+      return res.status(400).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
@@ -27,7 +30,12 @@ export const CreateEvent = async (req, res) => {
 export const GetAllEvents = async (req, res) => {
   try {
     const result = await GetAllEventsService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
@@ -41,7 +49,12 @@ export const GetAllEvents = async (req, res) => {
 export const GetEventById = async (req, res) => {
   try {
     const result = await GetEventByIdService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
@@ -55,7 +68,12 @@ export const GetEventById = async (req, res) => {
 export const UpdateEvent = async (req, res) => {
   try {
     const result = await UpdateEventService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(400).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
@@ -69,7 +87,12 @@ export const UpdateEvent = async (req, res) => {
 export const DeleteEvent = async (req, res) => {
   try {
     const result = await DeleteEventService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
@@ -79,39 +102,16 @@ export const DeleteEvent = async (req, res) => {
   }
 };
 
-// Update Event Status
-export const UpdateEventStatus = async (req, res) => {
-  try {
-    const result = await UpdateEventStatusService(req);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      status: false,
-      message: "Error updating event status",
-      error: error.message
-    });
-  }
-};
-
-// Get Events By Organizer
-export const GetEventsByOrganizer = async (req, res) => {
-  try {
-    const result = await GetEventsByOrganizerService(req);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      status: false,
-      message: "Error retrieving events by organizer",
-      error: error.message
-    });
-  }
-};
-
 // Get Upcoming Events
 export const GetUpcomingEvents = async (req, res) => {
   try {
-    const result = await GetUpcomingEventsService();
-    return res.status(200).json(result);
+    const result = await GetUpcomingEventsService(req);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,

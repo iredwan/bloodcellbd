@@ -4,17 +4,19 @@ import {
   GetGoodwillAmbassadorByIdService,
   UpdateGoodwillAmbassadorService,
   DeleteGoodwillAmbassadorService,
-  ToggleGoodwillAmbassadorActiveService,
-  ToggleGoodwillAmbassadorFeaturedService,
-  AddEventToGoodwillAmbassadorService,
-  RemoveEventFromGoodwillAmbassadorService
+  GetGoodwillAmbassadorByDesignationService
 } from '../service/GoodwillAmbassadorService.js';
 
 // Create Goodwill Ambassador
 export const CreateGoodwillAmbassador = async (req, res) => {
   try {
     const result = await CreateGoodwillAmbassadorService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(201).json(result);
+    } else {
+      return res.status(400).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
@@ -28,7 +30,12 @@ export const CreateGoodwillAmbassador = async (req, res) => {
 export const GetAllGoodwillAmbassadors = async (req, res) => {
   try {
     const result = await GetAllGoodwillAmbassadorsService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
@@ -42,7 +49,12 @@ export const GetAllGoodwillAmbassadors = async (req, res) => {
 export const GetGoodwillAmbassadorById = async (req, res) => {
   try {
     const result = await GetGoodwillAmbassadorByIdService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
@@ -56,7 +68,12 @@ export const GetGoodwillAmbassadorById = async (req, res) => {
 export const UpdateGoodwillAmbassador = async (req, res) => {
   try {
     const result = await UpdateGoodwillAmbassadorService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(400).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
@@ -70,7 +87,12 @@ export const UpdateGoodwillAmbassador = async (req, res) => {
 export const DeleteGoodwillAmbassador = async (req, res) => {
   try {
     const result = await DeleteGoodwillAmbassadorService(req);
-    return res.status(200).json(result);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
@@ -80,57 +102,20 @@ export const DeleteGoodwillAmbassador = async (req, res) => {
   }
 };
 
-// Toggle Goodwill Ambassador Active Status
-export const ToggleGoodwillAmbassadorActive = async (req, res) => {
+// Get Goodwill Ambassadors by Designation
+export const GetGoodwillAmbassadorsByDesignation = async (req, res) => {
   try {
-    const result = await ToggleGoodwillAmbassadorActiveService(req);
-    return res.status(200).json(result);
+    const result = await GetGoodwillAmbassadorByDesignationService(req);
+    
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
   } catch (error) {
     return res.status(500).json({
       status: false,
-      message: "Error toggling Goodwill Ambassador status",
-      error: error.message
-    });
-  }
-};
-
-// Toggle Goodwill Ambassador Featured Status
-export const ToggleGoodwillAmbassadorFeatured = async (req, res) => {
-  try {
-    const result = await ToggleGoodwillAmbassadorFeaturedService(req);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      status: false,
-      message: "Error toggling Goodwill Ambassador featured status",
-      error: error.message
-    });
-  }
-};
-
-// Add Event to Goodwill Ambassador
-export const AddEventToGoodwillAmbassador = async (req, res) => {
-  try {
-    const result = await AddEventToGoodwillAmbassadorService(req);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      status: false,
-      message: "Error adding event to Goodwill Ambassador",
-      error: error.message
-    });
-  }
-};
-
-// Remove Event from Goodwill Ambassador
-export const RemoveEventFromGoodwillAmbassador = async (req, res) => {
-  try {
-    const result = await RemoveEventFromGoodwillAmbassadorService(req);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      status: false,
-      message: "Error removing event from Goodwill Ambassador",
+      message: `Error retrieving ${req.params.designation}s`,
       error: error.message
     });
   }

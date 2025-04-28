@@ -1,122 +1,71 @@
-import {
-  UpsertWebsiteConfigService,
-  GetWebsiteConfigService,
-  UpdateContactInfoService,
-  UpdateSocialMediaService,
-  UpdateAboutUsService,
-  UpdateMetaTagsService,
-  ToggleMaintenanceModeService,
-  UpdateAnalyticsCodeService
-} from '../service/WebsiteConfigService.js';
+import { 
+  UpsertWebsiteConfigService, 
+  GetWebsiteConfigService, 
+  UpdateContactInfoService
+} from "../service/WebsiteConfigService.js";
 
-// Create or Update Website Configuration
+/**
+ * Create or Update Website Configuration
+ * Handles both creation of new config and updating existing config
+ */
 export const UpsertWebsiteConfig = async (req, res) => {
   try {
     const result = await UpsertWebsiteConfigService(req);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({
+    
+    if (!result.status) {
+      return res.status(400).json(result);
+    }
+    
+    res.status(200).json(result);
+  } catch (e) {
+    res.status(500).json({
       status: false,
-      message: "Error updating website configuration",
-      error: error.message
+      message: "Failed to update website configuration.",
+      details: e.message
     });
   }
 };
 
-// Get Website Configuration
+/**
+ * Get Website Configuration
+ * Retrieves the current website configuration
+ */
 export const GetWebsiteConfig = async (req, res) => {
   try {
     const result = await GetWebsiteConfigService();
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({
+    
+    if (!result.status) {
+      return res.status(404).json(result);
+    }
+    
+    res.status(200).json(result);
+  } catch (e) {
+    res.status(500).json({
       status: false,
-      message: "Error retrieving website configuration",
-      error: error.message
+      message: "Failed to retrieve website configuration.",
+      details: e.message
     });
   }
 };
 
-// Update Contact Information
+/**
+ * Update Contact Information
+ * Updates only the contact info section of website configuration
+ */
 export const UpdateContactInfo = async (req, res) => {
   try {
     const result = await UpdateContactInfoService(req);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({
+    
+    if (!result.status) {
+      return res.status(400).json(result);
+    }
+    
+    res.status(200).json(result);
+  } catch (e) {
+    res.status(500).json({
       status: false,
-      message: "Error updating contact information",
-      error: error.message
-    });
-  }
-};
-
-// Update Social Media Links
-export const UpdateSocialMedia = async (req, res) => {
-  try {
-    const result = await UpdateSocialMediaService(req);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      status: false,
-      message: "Error updating social media links",
-      error: error.message
-    });
-  }
-};
-
-// Update About Us Information
-export const UpdateAboutUs = async (req, res) => {
-  try {
-    const result = await UpdateAboutUsService(req);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      status: false,
-      message: "Error updating about us information",
-      error: error.message
-    });
-  }
-};
-
-// Update Meta Tags
-export const UpdateMetaTags = async (req, res) => {
-  try {
-    const result = await UpdateMetaTagsService(req);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      status: false,
-      message: "Error updating meta tags",
-      error: error.message
-    });
-  }
-};
-
-// Toggle Maintenance Mode
-export const ToggleMaintenanceMode = async (req, res) => {
-  try {
-    const result = await ToggleMaintenanceModeService(req);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      status: false,
-      message: "Error toggling maintenance mode",
-      error: error.message
-    });
-  }
-};
-
-// Update Analytics Code
-export const UpdateAnalyticsCode = async (req, res) => {
-  try {
-    const result = await UpdateAnalyticsCodeService(req);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      status: false,
-      message: "Error updating analytics code",
-      error: error.message
+      message: "Failed to update contact information.",
+      details: e.message
     });
   }
 }; 

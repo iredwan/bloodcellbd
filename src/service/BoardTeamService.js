@@ -55,7 +55,7 @@ export const GetAllBoardTeamService = async (req) => {
     
     // Get all board team members with filters
     const members = await BoardTeam.find(filter)
-      .populate('userId', 'name email avatar district upazila phone')
+      .populate('userId', 'name email profileImage district upazila phone')
       .sort({ order: 1 });
     
     if (!members || members.length === 0) {
@@ -82,7 +82,7 @@ export const GetBoardTeamByIdService = async (req) => {
     const memberId = new ObjectId(req.params.id);
     
     const member = await BoardTeam.findById(memberId)
-      .populate('userId', 'name email avatar district upazila phone');
+      .populate('userId', 'name email profileImage district upazila phone');
     
     if (!member) {
       return { status: false, message: "Board team member not found." };

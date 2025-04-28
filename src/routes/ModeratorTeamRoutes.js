@@ -11,26 +11,26 @@ import {
 import { protect, restrictTo } from '../middleware/auth.js';
 
 const router = express.Router();
-
-// Create a new moderator team (Admin only)
-router.post('/create', protect, restrictTo('Monitor', 'Upazila Coordinator', 'Upazila Sub-Coordinator', 'Upazila IT & Media Coordinator', 'Upazila Logistics Coordinator', 'District Coordinator', 'District Sub-Coordinator', 'District IT & Media Coordinator', 'District Logistics Coordinator', 'Division Coordinator', 'Division Sub-Coordinator', 'Admin'), CreateModeratorTeam);
-
 // Get all moderator teams
 router.get('/all',protect, GetAllModeratorTeams);
 
 // Get moderator team by ID
 router.get('/get/:id', protect, GetModeratorTeamById);
 
+// Create a new moderator team (Admin only)
+router.post('/create', protect, restrictTo('Monitor', 'Upazila Coordinator', 'Upazila Sub-Coordinator', 'District Coordinator', 'District Sub-Coordinator', 'Admin'), CreateModeratorTeam);
+
+
 // Update moderator team (Admin only)
-router.put('/update/:id', protect, restrictTo('Monitor', 'Upazila Coordinator', 'Upazila Sub-Coordinator', 'Upazila IT & Media Coordinator', 'Upazila Logistics Coordinator', 'District Coordinator', 'District Sub-Coordinator', 'District IT & Media Coordinator', 'District Logistics Coordinator', 'Division Coordinator', 'Division Sub-Coordinator', 'Admin'), UpdateModeratorTeam);
+router.put('/update/:id', protect, restrictTo('Monitor', 'Upazila Coordinator', 'Upazila Sub-Coordinator', 'District Coordinator', 'District Sub-Coordinator', 'Admin'), UpdateModeratorTeam);
 
 // Delete moderator team (Admin only)
-router.delete('/delete/:id', protect, restrictTo('Monitor', 'Upazila Coordinator', 'Upazila Sub-Coordinator', 'Upazila IT & Media Coordinator', 'Upazila Logistics Coordinator', 'District Coordinator', 'District Sub-Coordinator', 'District IT & Media Coordinator', 'District Logistics Coordinator', 'Division Coordinator', 'Division Sub-Coordinator', 'Admin'), DeleteModeratorTeam);
+router.delete('/delete/:id', protect, restrictTo('Monitor', 'Upazila Coordinator', 'Upazila Sub-Coordinator', 'District Coordinator', 'District Sub-Coordinator', 'Admin'), DeleteModeratorTeam);
 
 // Add member to team (Admin only)
-router.post('/add-member/:teamId', protect, restrictTo('Moderator', 'Monitor', 'Upazila Coordinator', 'Upazila Sub-Coordinator', 'Upazila IT & Media Coordinator', 'Upazila Logistics Coordinator', 'District Coordinator', 'District Sub-Coordinator', 'District IT & Media Coordinator', 'District Logistics Coordinator', 'Division Coordinator', 'Division Sub-Coordinator', 'Admin'), AddTeamMember);
+router.post('/add-member/:teamId', protect, restrictTo('Moderator', 'Monitor', 'Upazila Coordinator', 'Upazila Sub-Coordinator', 'District Coordinator', 'District Sub-Coordinator', 'Admin'), AddTeamMember);
 
 // Remove member from team (Admin only)
-router.delete('/remove-member/:teamId', protect, restrictTo('Moderator', 'Monitor', 'Upazila Coordinator', 'Upazila Sub-Coordinator', 'Upazila IT & Media Coordinator', 'Upazila Logistics Coordinator', 'District Coordinator', 'District Sub-Coordinator', 'District IT & Media Coordinator', 'District Logistics Coordinator', 'Division Coordinator', 'Division Sub-Coordinator', 'Admin'), RemoveTeamMember);
+router.delete('/remove-member/:teamId', protect, restrictTo('Moderator', 'Monitor', 'Upazila Coordinator', 'Upazila Sub-Coordinator', 'District Coordinator', 'District Sub-Coordinator', 'Admin'), RemoveTeamMember);
 
 export default router; 

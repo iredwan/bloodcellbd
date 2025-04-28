@@ -84,6 +84,29 @@ export const GetCarouselByIdService = async (req) => {
   }
 };
 
+//Get Active Carousel
+export const GetActiveCarouselService = async (req) => {
+  try {
+    const carouselItems = await CarouselModel.find({ isActive: true }).sort({ order: 1 });
+    
+    if (!carouselItems || carouselItems.length === 0) {
+      return { status: false, message: "No active carousel items found." };
+    }
+    return {
+      status: true,
+      data: carouselItems,
+      message: "Active carousel items retrieved successfully.",
+    };
+  } catch (e) {
+    return { 
+      status: false,  
+      message: "Failed to retrieve active carousel items.", 
+      details: e.message 
+    };
+  }
+};
+
+
 // Update carousel item
 export const UpdateCarouselService = async (req) => {
   try {

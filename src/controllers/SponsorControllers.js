@@ -4,9 +4,6 @@ import {
   GetSponsorByIdService,
   UpdateSponsorService,
   DeleteSponsorService,
-  ToggleSponsorActiveService,
-  AddEventToSponsorService,
-  RemoveEventFromSponsorService,
   GetSponsorsByTypeService
 } from '../service/SponsorService.js';
 
@@ -100,63 +97,6 @@ export const DeleteSponsor = async (req, res) => {
     return res.status(500).json({
       status: false,
       message: "Error deleting sponsor",
-      error: error.message
-    });
-  }
-};
-
-// Toggle Sponsor Active Status
-export const ToggleSponsorActive = async (req, res) => {
-  try {
-    const result = await ToggleSponsorActiveService(req);
-    
-    if (result.status) {
-      return res.status(200).json(result);
-    } else {
-      return res.status(404).json(result);
-    }
-  } catch (error) {
-    return res.status(500).json({
-      status: false,
-      message: "Error toggling sponsor status",
-      error: error.message
-    });
-  }
-};
-
-// Add Event to Sponsor
-export const AddEventToSponsor = async (req, res) => {
-  try {
-    const result = await AddEventToSponsorService(req);
-    
-    if (result.status) {
-      return res.status(200).json(result);
-    } else {
-      return res.status(400).json(result);
-    }
-  } catch (error) {
-    return res.status(500).json({
-      status: false,
-      message: "Error adding event to sponsor",
-      error: error.message
-    });
-  }
-};
-
-// Remove Event from Sponsor
-export const RemoveEventFromSponsor = async (req, res) => {
-  try {
-    const result = await RemoveEventFromSponsorService(req);
-    
-    if (result.status) {
-      return res.status(200).json(result);
-    } else {
-      return res.status(400).json(result);
-    }
-  } catch (error) {
-    return res.status(500).json({
-      status: false,
-      message: "Error removing event from sponsor",
       error: error.message
     });
   }

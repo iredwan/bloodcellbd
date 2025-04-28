@@ -3,7 +3,8 @@ import {
   GetAllCarouselService, 
   GetCarouselByIdService, 
   UpdateCarouselService, 
-  DeleteCarouselService 
+  DeleteCarouselService, 
+  GetActiveCarouselService
 } from '../service/CarouselService.js';
 
 // Create Carousel
@@ -43,6 +44,20 @@ export const GetCarouselById = async (req, res) => {
     return res.status(500).json({ 
       status: false, 
       message: "Error retrieving carousel item", 
+      error: error.message 
+    });
+  }
+};
+
+// Get Active Carousel
+export const GetActiveCarousel = async (req, res) => {
+  try {
+    const result = await GetActiveCarouselService(req);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({ 
+      status: false, 
+      message: "Error retrieving active carousel items", 
       error: error.message 
     });
   }

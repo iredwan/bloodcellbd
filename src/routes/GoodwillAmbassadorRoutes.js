@@ -5,26 +5,33 @@ import {
   GetGoodwillAmbassadorById,
   UpdateGoodwillAmbassador,
   DeleteGoodwillAmbassador,
-  ToggleGoodwillAmbassadorActive,
-  ToggleGoodwillAmbassadorFeatured,
-  AddEventToGoodwillAmbassador,
-  RemoveEventFromGoodwillAmbassador
+  GetGoodwillAmbassadorsByDesignation
 } from '../controllers/GoodwillAmbassadorControllers.js';
 import { protect, restrictTo } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Public routes
+/**
+ * Public Routes - No authentication required
+ */
+
+// Get all goodwill ambassadors with optional filters
 router.get('/all', GetAllGoodwillAmbassadors);
+
+// Get goodwill ambassador details by ID
 router.get('/details/:id', GetGoodwillAmbassadorById);
 
-// Protected routes (admin only)
-router.post('/create', protect, restrictTo('admin'), CreateGoodwillAmbassador);
-router.put('/update/:id', protect, restrictTo('admin'), UpdateGoodwillAmbassador);
-router.delete('/delete/:id', protect, restrictTo('admin'), DeleteGoodwillAmbassador);
-router.patch('/toggle-active/:id', protect, restrictTo('admin'), ToggleGoodwillAmbassadorActive);
-router.patch('/toggle-featured/:id', protect, restrictTo('admin'), ToggleGoodwillAmbassadorFeatured);
-router.post('/add-event/:ambassadorId/:eventId', protect, restrictTo('admin'), AddEventToGoodwillAmbassador);
-router.delete('/remove-event/:ambassadorId/:eventId', protect, restrictTo('admin'), RemoveEventFromGoodwillAmbassador);
+// Get goodwill ambassadors by designation (Goodwill Ambassador or Honorable Member)
+router.get('/designation/:designation', GetGoodwillAmbassadorsByDesignation);
+
+
+// Create a new goodwill ambassador
+router.post('/create', protect, restrictTo('Admin'), CreateGoodwillAmbassador);
+
+// Update an existing goodwill ambassador
+router.put('/update/:id', protect, restrictTo('Admin'), UpdateGoodwillAmbassador);
+
+// Delete a goodwill ambassador
+router.delete('/delete/:id', protect, restrictTo('Admin'), DeleteGoodwillAmbassador);
 
 export default router; 

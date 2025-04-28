@@ -10,16 +10,38 @@ export const CreateEventService = async (req) => {
   try {
     const eventData = req.body;
     
-    // If admin is creating the event, use the organizer ID from the body
-    // If organizer is creating the event, use their ID from auth
-    if (!eventData.organizer && req.headers.user_id) {
-      eventData.organizer = req.headers.user_id;
+    // Validate required fields
+    if (!eventData.title || !eventData.description || !eventData.date || !eventData.time || 
+        !eventData.upazila || !eventData.district) {
+      return { 
+        status: false, 
+        message: "Missing required fields. Please provide title, description, date, time, upazila, and district." 
+      };
+    }
+
+    // Check if the event is already created
+    const existingEvent = await Event.findOne({
+      date: eventData.date,
+      district: eventData.district,
+      upazila: eventData.upazila
+    });
+    if (existingEvent) {
+      return {
+        status: false,
+        message: "An event already exists in this location at this date."
+      };
+    }
+    // Set creator/updater information
+    const userId = req.headers.user_id || req.cookies.user_id;
+    if (userId) {
+      eventData.createdBy = userId;
     }
     
     // Create new event
     const newEvent = new Event(eventData);
     await newEvent.save();
     
+    // Return just the new event without population since Upazila model isn't registered
     return { 
       status: true, 
       message: "Event created successfully.",
@@ -34,44 +56,29 @@ export const CreateEventService = async (req) => {
   }
 };
 
-// Get all events
-export const GetAllEventsService = async (req) => {
+// Get all events with filters and pagination
+export const GetAllEventsService = async () => {
   try {
-    const { status, from, to, organizer } = req.query;
     
-    // Build filter object based on query parameters
-    const filter = {};
     
-    // Filter by status if provided
-    if (status && ['upcoming', 'ongoing', 'completed', 'cancelled'].includes(status)) {
-      filter.status = status;
-    }
-    
-    // Filter by date range if provided
-    if (from || to) {
-      filter.date = {};
-      if (from) filter.date.$gte = new Date(from);
-      if (to) filter.date.$lte = new Date(to);
-    }
-    
-    // Filter by organizer if provided
-    if (organizer && ObjectId.isValid(organizer)) {
-      filter.organizer = new ObjectId(organizer);
-    }
-    
-    // Get events with filters, sort by date, and populate organizer
-    const events = await Event.find(filter)
-      .sort({ date: 1 }) // Sort by date ascending (upcoming first)
-      .populate('organizer', 'name email phone');
-    
+    // Get events with filters, pagination, sorting, and populate relations
+    const events = await Event.find()
+      .populate('organizer', 'name logo')
+      .populate('district', 'name')
+      .populate('upazila', 'name')
+      .populate('createdBy', 'name role roleSuffix')
+      .populate('updatedBy', 'name role roleSuffix');
     if (!events || events.length === 0) {
-      return { status: false, message: "No events found." };
+      return { 
+        status: false, 
+        message: "No events found matching your criteria." 
+      };
     }
     
     return {
       status: true,
       data: events,
-      message: "Events retrieved successfully.",
+      message: "Events retrieved successfully."
     };
   } catch (e) {
     return { 
@@ -85,9 +92,18 @@ export const GetAllEventsService = async (req) => {
 // Get event by ID
 export const GetEventByIdService = async (req) => {
   try {
-    const eventId = new ObjectId(req.params.id);
+    const eventId = req.params.id;
     
-    const event = await Event.findById(eventId).populate('organizer', 'name email phone');
+    if (!ObjectId.isValid(eventId)) {
+      return { status: false, message: "Invalid event ID format." };
+    }
+    
+    const event = await Event.findById(eventId)
+      .populate('organizer', 'name logo description')
+      .populate('district', 'name')
+      .populate('upazila', 'name')
+      .populate('createdBy', 'name role roleSuffix')
+      .populate('updatedBy', 'name role roleSuffix');
     
     if (!event) {
       return { status: false, message: "Event not found." };
@@ -96,7 +112,7 @@ export const GetEventByIdService = async (req) => {
     return {
       status: true,
       data: event,
-      message: "Event retrieved successfully.",
+      message: "Event retrieved successfully."
     };
   } catch (e) {
     return { 
@@ -110,8 +126,13 @@ export const GetEventByIdService = async (req) => {
 // Update event
 export const UpdateEventService = async (req) => {
   try {
-    const eventId = new ObjectId(req.params.id);
+    const eventId = req.params.id;
     const updateData = req.body;
+    console.log(updateData);
+    
+    if (!ObjectId.isValid(eventId)) {
+      return { status: false, message: "Invalid event ID format." };
+    }
     
     // Check if current event exists
     const currentEvent = await Event.findById(eventId);
@@ -120,33 +141,30 @@ export const UpdateEventService = async (req) => {
       return { status: false, message: "Event not found." };
     }
     
-    // Check if user has permission to update this event
-    // If user is not an admin, they should only update their own events
-    if (req.headers.role !== 'admin' && 
-        req.headers.user_id !== currentEvent.organizer.toString()) {
-      return { 
-        status: false, 
-        message: "You don't have permission to update this event." 
-      };
+ 
+    const userId = req.headers.user_id || req.cookies.user_id;
+    
+    // Set updatedBy field
+    if (userId) {
+      updateData.updatedBy = userId;
     }
     
-    // If updating image, delete the old one
-    if (updateData.image && currentEvent.image && updateData.image !== currentEvent.image) {
-      const fileName = path.basename(currentEvent.image);
-      await deleteFile(fileName);
-    }
+    // // If updating image, delete the old one
+    // if (updateData.image && currentEvent.image && updateData.image !== currentEvent.image) {
+    //   const fileName = path.basename(currentEvent.image);
+    //   await deleteFile(fileName);
+    // }
     
     // Update event
     const updatedEvent = await Event.findByIdAndUpdate(
       eventId,
       { $set: updateData },
       { new: true, runValidators: true }
-    ).populate('organizer', 'name email phone');
-    
+    )
     return {
       status: true,
       data: updatedEvent,
-      message: "Event updated successfully.",
+      message: "Event updated successfully."
     };
   } catch (e) {
     return { 
@@ -163,7 +181,7 @@ export const DeleteEventService = async (req) => {
     const eventId = req.params.id;
     
     if (!ObjectId.isValid(eventId)) {
-      return { status: false, message: "Invalid event ID." };
+      return { status: false, message: "Invalid event ID format." };
     }
     
     // Get event before deletion
@@ -174,20 +192,23 @@ export const DeleteEventService = async (req) => {
     }
     
     // Check if user has permission to delete this event
-    // If user is not an admin, they should only delete their own events
-    if (req.headers.role !== 'admin' && 
-        req.headers.user_id !== event.organizer.toString()) {
+    const userId = req.headers.user_id || req.cookies.user_id;
+    const userRole = req.headers.role || req.user?.role;
+    
+    if (userRole !== 'Admin' && 
+        userId !== event.organizer.toString() && 
+        userId !== event.createdBy?.toString()) {
       return { 
         status: false, 
         message: "You don't have permission to delete this event." 
       };
     }
     
-    // Delete the image file if it exists
-    if (event.image) {
-      const fileName = path.basename(event.image);
-      await deleteFile(fileName);
-    }
+    // // Delete the image file if it exists
+    // if (event.image) {
+    //   const fileName = path.basename(event.image);
+    //   await deleteFile(fileName);
+    // }
     
     // Delete the event
     const deletedEvent = await Event.findByIdAndDelete(eventId);
@@ -195,7 +216,6 @@ export const DeleteEventService = async (req) => {
     return {
       status: true,
       message: "Event deleted successfully.",
-      data: deletedEvent
     };
   } catch (e) {
     return { 
@@ -206,111 +226,35 @@ export const DeleteEventService = async (req) => {
   }
 };
 
-// Update event status
-export const UpdateEventStatusService = async (req) => {
-  try {
-    const eventId = new ObjectId(req.params.id);
-    const { status } = req.body;
-    
-    // Validate status
-    if (!status || !['upcoming', 'ongoing', 'completed', 'cancelled'].includes(status)) {
-      return { 
-        status: false, 
-        message: "Invalid status. Must be one of: upcoming, ongoing, completed, cancelled." 
-      };
-    }
-    
-    // Check if event exists
-    const event = await Event.findById(eventId);
-    
-    if (!event) {
-      return { status: false, message: "Event not found." };
-    }
-    
-    // Check if user has permission to update this event's status
-    // If user is not an admin, they should only update their own events
-    if (req.headers.role !== 'admin' && 
-        req.headers.user_id !== event.organizer.toString()) {
-      return { 
-        status: false, 
-        message: "You don't have permission to update this event's status." 
-      };
-    }
-    
-    // Update event status
-    const updatedEvent = await Event.findByIdAndUpdate(
-      eventId,
-      { $set: { status } },
-      { new: true }
-    ).populate('organizer', 'name email phone');
-    
-    return {
-      status: true,
-      data: updatedEvent,
-      message: `Event status updated to ${status} successfully.`,
-    };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to update event status.", 
-      details: e.message 
-    };
-  }
-};
-
-// Get events by organizer
-export const GetEventsByOrganizerService = async (req) => {
-  try {
-    const organizerId = req.params.organizerId || req.headers.user_id;
-    
-    if (!organizerId || !ObjectId.isValid(organizerId)) {
-      return { status: false, message: "Invalid organizer ID." };
-    }
-    
-    // Get all events for this organizer
-    const events = await Event.find({ organizer: organizerId })
-      .sort({ date: 1 })
-      .populate('organizer', 'name email phone');
-    
-    if (!events || events.length === 0) {
-      return { status: false, message: "No events found for this organizer." };
-    }
-    
-    return {
-      status: true,
-      data: events,
-      message: "Organizer's events retrieved successfully.",
-    };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to retrieve organizer's events.", 
-      details: e.message 
-    };
-  }
-};
-
-// Get upcoming events
+// Get upcoming events (public)
 export const GetUpcomingEventsService = async () => {
   try {
-    const currentDate = new Date();
+   
     
-    // Get all upcoming events (date >= today)
-    const upcomingEvents = await Event.find({
-      date: { $gte: currentDate },
-      status: 'upcoming'
-    })
+    // Get upcoming events
+    const upcomingEvents = await Event.find(
+      {
+        status: 'upcoming',
+      }
+    )
       .sort({ date: 1 })
-      .populate('organizer', 'name email phone');
+      .populate('organizer', 'name logo')
+      .populate('district', 'name')
+      .populate('upazila', 'name')
+      .populate('createdBy', 'name role roleSuffix')
+      .populate('updatedBy', 'name role roleSuffix');
     
     if (!upcomingEvents || upcomingEvents.length === 0) {
-      return { status: false, message: "No upcoming events found." };
+      return { 
+        status: false, 
+        message: "No upcoming events found." 
+      };
     }
     
     return {
       status: true,
       data: upcomingEvents,
-      message: "Upcoming events retrieved successfully.",
+      message: "Upcoming events retrieved successfully."
     };
   } catch (e) {
     return { 

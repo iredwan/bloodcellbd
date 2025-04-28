@@ -35,31 +35,15 @@ const websiteConfigSchema = new Schema({
   },
   metaTags: {
     title: { type: String, trim: true },
+    image: { type: String, default: '' },
     description: { type: String, trim: true },
     keywords: { type: String, trim: true }
-  },
-  maintenanceMode: {
-    type: Boolean,
-    default: false
-  },
-  analyticsCode: {
-    type: String,
-    trim: true
-  },
-  lastUpdated: {
-    type: Date,
-    default: Date.now
   }
 }, {
   timestamps: true,
   versionKey: false
 });
 
-// Update the lastUpdated field on save
-websiteConfigSchema.pre('save', function(next) {
-  this.lastUpdated = Date.now();
-  next();
-});
 
 const WebsiteConfig = mongoose.model('WebsiteConfig', websiteConfigSchema);
 

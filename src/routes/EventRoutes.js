@@ -1,32 +1,47 @@
-import express from 'express';
-import { 
-  CreateEvent, 
-  GetAllEvents, 
-  GetEventById, 
-  UpdateEvent, 
-  DeleteEvent, 
-  UpdateEventStatus, 
-  GetEventsByOrganizer, 
-  GetUpcomingEvents 
-} from '../controllers/EventControllers.js';
-import { protect, restrictTo } from '../middleware/auth.js';
-import { upload } from '../utility/fileUtils.js';
+import express from "express";
+import {
+  CreateEvent,
+  GetAllEvents,
+  GetEventById,
+  UpdateEvent,
+  DeleteEvent,
+  GetUpcomingEvents,
+} from "../controllers/EventControllers.js";
+import { protect, restrictTo } from "../middleware/auth.js";
 
 const router = express.Router();
 
-// Public routes
-router.get('/all', GetAllEvents);
-router.get('/upcoming', GetUpcomingEvents);
-router.get('/:id', GetEventById);
+// Get events with filters and pagination
+router.get("/all", GetAllEvents);
 
-// Protected routes (for authenticated users)
-router.get('/organizer/events', protect, GetEventsByOrganizer);
-router.get('/organizer/:organizerId', protect, GetEventsByOrganizer);
+// Get upcoming events (paginated)
+router.get("/upcoming", GetUpcomingEvents);
 
-// Admin and Organizer routes
-router.post('/create', protect, restrictTo('admin', 'volunteer', 'dist-coordinator'), upload.single('image'), CreateEvent);
-router.patch('/update/:id', protect, upload.single('image'), UpdateEvent);
-router.delete('/delete/:id', protect, DeleteEvent);
-router.patch('/status/:id', protect, UpdateEventStatus);
+// Get event details by ID
+router.get("/get/:id", GetEventById);
 
-export default router; 
+// Create a new event (with image upload)
+router.post(
+  "/create",
+  protect,
+  restrictTo("Upazila Coordinator", "Upazila Sub-Coordinator", "District Coordinator", "District Sub-Coordinator", "Admin"),
+  CreateEvent
+);
+
+// Update an existing event (with image upload)
+router.patch(
+  "/update/:id",
+  protect,
+  restrictTo("Upazila Coordinator", "Upazila Sub-Coordinator", "District Coordinator", "District Sub-Coordinator", "Admin"),
+  UpdateEvent
+);
+
+// Delete an event
+router.delete(
+  "/delete/:id",
+  protect,
+  restrictTo("Upazila Coordinator", "Upazila Sub-Coordinator", "District Coordinator", "District Sub-Coordinator", "Admin"),
+  DeleteEvent
+);
+
+export default router;

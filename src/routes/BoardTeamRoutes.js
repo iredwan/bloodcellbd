@@ -15,14 +15,14 @@ const router = express.Router();
 
 // Public routes
 router.get('/all', GetAllBoardTeam);
-router.get('/details/:id', GetBoardTeamById);
+router.get('/get/:id', GetBoardTeamById);
 
 // Protected routes (admin only)
-router.post('/create', protect, restrictTo('admin'), CreateBoardTeam);
-router.put('/update/:id', protect, restrictTo('admin'), UpdateBoardTeam);
-router.delete('/delete/:id', protect, restrictTo('admin'), DeleteBoardTeam);
-router.patch('/toggle-active/:id', protect, restrictTo('admin'), ToggleBoardTeamActive);
-router.patch('/toggle-featured/:id', protect, restrictTo('admin'), ToggleBoardTeamFeatured);
-router.patch('/update-order/:id', protect, restrictTo('admin'), UpdateBoardTeamOrder);
+router.post('/create',protect, restrictTo('Admin'), CreateBoardTeam);
+router.put('/update/:id', protect, restrictTo('Admin'), UpdateBoardTeam);
+router.delete('/delete/:id', protect, restrictTo('Admin'), DeleteBoardTeam);
+router.patch('/toggle-active/:id', protect, restrictTo('Admin'), ToggleBoardTeamActive);
+router.patch('/toggle-featured/:id', protect, restrictTo('Admin'), ToggleBoardTeamFeatured);
+router.patch('/update-order/:id', protect, restrictTo('Admin'), UpdateBoardTeamOrder);
 
 export default router; 

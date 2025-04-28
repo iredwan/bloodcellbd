@@ -10,6 +10,20 @@ export const CreateGoodwillAmbassadorService = async (req) => {
   try {
     const reqBody = req.body;
     
+    // Validate required fields
+    if (!reqBody.name || !reqBody.designation || !reqBody.profileImage) {
+      return {
+        status: false,
+        message: "Name, designation, and profile image are required fields."
+      };
+    }
+    
+    // Set creator information
+    const userId = req.headers.user_id || req.cookies.user_id;
+    if (userId) {
+      reqBody.createdBy = userId;
+    }
+    
     // Create new goodwill ambassador
     const newAmbassador = new GoodwillAmbassador(reqBody);
     await newAmbassador.save();
@@ -31,30 +45,62 @@ export const CreateGoodwillAmbassadorService = async (req) => {
 // Get All Goodwill Ambassadors
 export const GetAllGoodwillAmbassadorsService = async (req) => {
   try {
-    // Optional query for active only
+    // Pagination
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    
+    // Build filter object based on query parameters
     const filter = {};
     
-    if (req.query.active === 'true') {
-      filter.active = true;
+    // Filter by active status if provided
+    if (req.query.active === 'true' || req.query.active === 'false') {
+      filter.active = req.query.active === 'true';
     }
     
-    // Filter by featured if provided
-    if (req.query.featured === 'true') {
-      filter.featured = true;
+    // Filter by designation if provided
+    if (req.query.designation && ['Goodwill Ambassador', 'Honorable Member'].includes(req.query.designation)) {
+      filter.designation = req.query.designation;
     }
+    
+    // Text search
+    if (req.query.search) {
+      filter.$or = [
+        { name: { $regex: req.query.search, $options: 'i' } },
+        { position: { $regex: req.query.search, $options: 'i' } },
+        { organization: { $regex: req.query.search, $options: 'i' } }
+      ];
+    }
+    
+    // Count total for pagination info
+    const total = await GoodwillAmbassador.countDocuments(filter);
     
     // Get all goodwill ambassadors with filters
     const ambassadors = await GoodwillAmbassador.find(filter)
-      .populate('events', 'title date location');
+      .sort({ featured: -1, createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .select('-events'); // Exclude events array for performance
     
     if (!ambassadors || ambassadors.length === 0) {
-      return { status: false, message: "No Goodwill Ambassadors found." };
+      return { 
+        status: false, 
+        message: "No Goodwill Ambassadors found." 
+      };
     }
     
     return {
       status: true,
-      data: ambassadors,
-      message: "Goodwill Ambassadors retrieved successfully.",
+      data: {
+        ambassadors,
+        pagination: {
+          totalAmbassadors: total,
+          currentPage: page,
+          totalPages: Math.ceil(total / limit),
+          ambassadorsPerPage: limit
+        }
+      },
+      message: "Goodwill Ambassadors retrieved successfully."
     };
   } catch (e) {
     return { 
@@ -68,10 +114,19 @@ export const GetAllGoodwillAmbassadorsService = async (req) => {
 // Get Goodwill Ambassador By ID
 export const GetGoodwillAmbassadorByIdService = async (req) => {
   try {
-    const ambassadorId = new ObjectId(req.params.id);
+    const ambassadorId = req.params.id;
+    
+    if (!ObjectId.isValid(ambassadorId)) {
+      return { status: false, message: "Invalid Goodwill Ambassador ID format." };
+    }
     
     const ambassador = await GoodwillAmbassador.findById(ambassadorId)
-      .populate('events', 'title date location');
+      .populate({
+        path: 'events',
+        select: 'title date location image status'
+      })
+      .populate('createdBy', 'name role')
+      .populate('updatedBy', 'name role');
     
     if (!ambassador) {
       return { status: false, message: "Goodwill Ambassador not found." };
@@ -80,7 +135,7 @@ export const GetGoodwillAmbassadorByIdService = async (req) => {
     return {
       status: true,
       data: ambassador,
-      message: "Goodwill Ambassador retrieved successfully.",
+      message: "Goodwill Ambassador retrieved successfully."
     };
   } catch (e) {
     return { 
@@ -94,14 +149,24 @@ export const GetGoodwillAmbassadorByIdService = async (req) => {
 // Update Goodwill Ambassador
 export const UpdateGoodwillAmbassadorService = async (req) => {
   try {
-    const ambassadorId = new ObjectId(req.params.id);
+    const ambassadorId = req.params.id;
     const reqBody = req.body;
+    
+    if (!ObjectId.isValid(ambassadorId)) {
+      return { status: false, message: "Invalid Goodwill Ambassador ID format." };
+    }
     
     // Check if ambassador exists
     const currentAmbassador = await GoodwillAmbassador.findById(ambassadorId);
     
     if (!currentAmbassador) {
       return { status: false, message: "Goodwill Ambassador not found." };
+    }
+    
+    // Set updater information
+    const userId = req.headers.user_id || req.cookies.user_id;
+    if (userId) {
+      reqBody.updatedBy = userId;
     }
     
     // If updating profile image, delete the old one
@@ -115,12 +180,17 @@ export const UpdateGoodwillAmbassadorService = async (req) => {
       ambassadorId,
       { $set: reqBody },
       { new: true, runValidators: true }
-    ).populate('events', 'title date location');
+    )
+      .populate({
+        path: 'events',
+        select: 'title date location'
+      })
+      .populate('updatedBy', 'name role');
     
     return {
       status: true,
       data: updatedAmbassador,
-      message: "Goodwill Ambassador updated successfully.",
+      message: "Goodwill Ambassador updated successfully."
     };
   } catch (e) {
     return { 
@@ -137,7 +207,7 @@ export const DeleteGoodwillAmbassadorService = async (req) => {
     const ambassadorId = req.params.id;
     
     if (!ObjectId.isValid(ambassadorId)) {
-      return { status: false, message: "Invalid Goodwill Ambassador ID." };
+      return { status: false, message: "Invalid Goodwill Ambassador ID format." };
     }
     
     // Get ambassador before deletion to access profile image
@@ -170,186 +240,63 @@ export const DeleteGoodwillAmbassadorService = async (req) => {
   }
 };
 
-// Toggle Goodwill Ambassador Active Status
-export const ToggleGoodwillAmbassadorActiveService = async (req) => {
-  try {
-    const ambassadorId = new ObjectId(req.params.id);
-    
-    // Get current ambassador
-    const ambassador = await GoodwillAmbassador.findById(ambassadorId);
-    
-    if (!ambassador) {
-      return { status: false, message: "Goodwill Ambassador not found." };
-    }
-    
-    // Toggle the active status
-    const updatedAmbassador = await GoodwillAmbassador.findByIdAndUpdate(
-      ambassadorId,
-      { $set: { active: !ambassador.active } },
-      { new: true }
-    );
-    
-    return {
-      status: true,
-      message: `Goodwill Ambassador ${updatedAmbassador.active ? 'activated' : 'deactivated'} successfully.`,
-      data: updatedAmbassador
-    };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to toggle Goodwill Ambassador status.", 
-      details: e.message 
-    };
-  }
-};
-
-// Toggle Goodwill Ambassador Featured Status
-export const ToggleGoodwillAmbassadorFeaturedService = async (req) => {
-  try {
-    const ambassadorId = new ObjectId(req.params.id);
-    
-    // Get current ambassador
-    const ambassador = await GoodwillAmbassador.findById(ambassadorId);
-    
-    if (!ambassador) {
-      return { status: false, message: "Goodwill Ambassador not found." };
-    }
-    
-    // Toggle the featured status
-    const updatedAmbassador = await GoodwillAmbassador.findByIdAndUpdate(
-      ambassadorId,
-      { $set: { featured: !ambassador.featured } },
-      { new: true }
-    );
-    
-    return {
-      status: true,
-      message: `Goodwill Ambassador ${updatedAmbassador.featured ? 'featured' : 'unfeatured'} successfully.`,
-      data: updatedAmbassador
-    };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to toggle Goodwill Ambassador featured status.", 
-      details: e.message 
-    };
-  }
-};
-
-// Add Event to Goodwill Ambassador
-export const AddEventToGoodwillAmbassadorService = async (req) => {
-  try {
-    const ambassadorId = new ObjectId(req.params.ambassadorId);
-    const eventId = new ObjectId(req.params.eventId);
-    
-    if (!eventId || !ObjectId.isValid(eventId)) {
-      return { status: false, message: "Valid event ID is required." };
-    }
-    
-    // Check if ambassador exists
-    const ambassador = await GoodwillAmbassador.findById(ambassadorId);
-    
-    if (!ambassador) {
-      return { status: false, message: "Goodwill Ambassador not found." };
-    }
-    
-    // Add event to ambassador's events array if not already there
-    if (!ambassador.events.includes(eventId)) {
-      const updatedAmbassador = await GoodwillAmbassador.findByIdAndUpdate(
-        ambassadorId,
-        { $addToSet: { events: eventId } },
-        { new: true }
-      ).populate('events', 'title date location');
-      
-      return {
-        status: true,
-        message: "Event added to Goodwill Ambassador successfully.",
-        data: updatedAmbassador
-      };
-    } else {
-      return {
-        status: false,
-        message: "Event is already associated with this Goodwill Ambassador."
-      };
-    }
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to add event to Goodwill Ambassador.", 
-      details: e.message 
-    };
-  }
-};
-
-// Remove Event from Goodwill Ambassador
-export const RemoveEventFromGoodwillAmbassadorService = async (req) => {
-  try {
-    const ambassadorId = new ObjectId(req.params.ambassadorId);
-    const eventId = new ObjectId(req.params.eventId);
-    
-    if (!eventId || !ObjectId.isValid(eventId)) {
-      return { status: false, message: "Valid event ID is required." };
-    }
-    
-    // Check if ambassador exists
-    const ambassador = await GoodwillAmbassador.findById(ambassadorId);
-    
-    if (!ambassador) {
-      return { status: false, message: "Goodwill Ambassador not found." };
-    }
-    
-    // Remove event from ambassador's events array
-    const updatedAmbassador = await GoodwillAmbassador.findByIdAndUpdate(
-      ambassadorId,
-      { $pull: { events: eventId } },
-      { new: true }
-    ).populate('events', 'title date location');
-    
-    return {
-      status: true,
-      message: "Event removed from Goodwill Ambassador successfully.",
-      data: updatedAmbassador
-    };
-  } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to remove event from Goodwill Ambassador.", 
-      details: e.message 
-    };
-  }
-};
-
-// Get Goodwill Ambassadors by Designation
+// Get Goodwill Ambassadors By Designation
 export const GetGoodwillAmbassadorByDesignationService = async (req) => {
   try {
-    const { designation } = req.params;
+    const designation = req.params.designation;
     
-    if (!designation) {
-      return { status: false, message: "Designation parameter is required." };
+    if (!designation || !['Goodwill Ambassador', 'Honorable Member'].includes(designation)) {
+      return { 
+        status: false, 
+        message: "Invalid designation. Must be 'Goodwill Ambassador' or 'Honorable Member'." 
+      };
     }
     
-    // Find all ambassadors with the specified designation
-    const ambassadors = await GoodwillAmbassador.find({ 
+    // Pagination
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    
+    // Base filter: active ambassadors with specified designation
+    const filter = { 
       designation: designation,
       active: true 
-    }).sort({ createdAt: -1 });
+    };
+    
+    // Count total for pagination
+    const total = await GoodwillAmbassador.countDocuments(filter);
+    
+    // Get ambassadors by designation
+    const ambassadors = await GoodwillAmbassador.find(filter)
+      .sort({ featured: -1, createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .select('-events');
     
     if (!ambassadors || ambassadors.length === 0) {
       return { 
         status: false, 
-        message: `No Goodwill Ambassadors found with designation: ${designation}.` 
+        message: `No ${designation}s found.` 
       };
     }
     
     return {
       status: true,
-      message: `Goodwill Ambassadors with designation '${designation}' retrieved successfully.`,
-      data: ambassadors
+      data: {
+        ambassadors,
+        pagination: {
+          total,
+          currentPage: page,
+          totalPages: Math.ceil(total / limit),
+          itemsPerPage: limit
+        }
+      },
+      message: `${designation}s retrieved successfully.`
     };
   } catch (e) {
     return { 
       status: false, 
-      message: "Failed to retrieve Goodwill Ambassadors by designation.", 
+      message: `Failed to retrieve ${req.params.designation}s.`, 
       details: e.message 
     };
   }

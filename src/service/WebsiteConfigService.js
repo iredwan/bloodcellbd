@@ -2,10 +2,22 @@ import WebsiteConfig from "../models/WebsiteConfigModel.js";
 import { deleteFile } from "../utility/fileUtils.js";
 import path from "path";
 
-// Create or Update Website Configuration
+/**
+ * Create or Update Website Configuration
+ * This is the main function for managing website configuration
+ * It handles both creation of new config and updating existing config
+ */
 export const UpsertWebsiteConfigService = async (req) => {
   try {
     const reqBody = req.body;
+    
+    // Validate required fields for new configuration
+    if (!req.body.logo && !await WebsiteConfig.findOne()) {
+      return {
+        status: false,
+        message: "Logo is required for website configuration."
+      };
+    }
     
     // Check if config exists
     let config = await WebsiteConfig.findOne();
@@ -20,6 +32,13 @@ export const UpsertWebsiteConfigService = async (req) => {
       // Handle favicon update
       if (reqBody.favicon && config.favicon && reqBody.favicon !== config.favicon) {
         const fileName = path.basename(config.favicon);
+        await deleteFile(fileName);
+      }
+      
+      // Handle meta tag image update
+      if (reqBody.metaTags?.image && config.metaTags?.image && 
+          reqBody.metaTags.image !== config.metaTags.image) {
+        const fileName = path.basename(config.metaTags.image);
         await deleteFile(fileName);
       }
       
@@ -55,7 +74,10 @@ export const UpsertWebsiteConfigService = async (req) => {
   }
 };
 
-// Get Website Configuration
+/**
+ * Get Website Configuration
+ * Retrieves the current website configuration
+ */
 export const GetWebsiteConfigService = async () => {
   try {
     const config = await WebsiteConfig.findOne();
@@ -81,18 +103,49 @@ export const GetWebsiteConfigService = async () => {
   }
 };
 
-// Update Contact Information
+/**
+ * Update Contact Information
+ * Updates only the contact info section of website configuration
+ */
 export const UpdateContactInfoService = async (req) => {
   try {
     const { email, phone, address } = req.body;
+    
+    // Validate input: at least one contact field should be provided
+    if (!email && !phone && !address) {
+      return {
+        status: false,
+        message: "At least one contact field (email, phone, or address) is required."
+      };
+    }
+    
+    // Validate email format if provided
+    if (email && !/^\S+@\S+\.\S+$/.test(email)) {
+      return {
+        status: false,
+        message: "Invalid email format."
+      };
+    }
     
     // Check if config exists
     let config = await WebsiteConfig.findOne();
     
     if (!config) {
+      // Create a basic config if it doesn't exist
+      config = new WebsiteConfig({
+        logo: req.body.logo || "",
+        contactInfo: {
+          email: email || "",
+          phone: phone || "",
+          address: address || ""
+        }
+      });
+      await config.save();
+      
       return {
-        status: false,
-        message: "Website configuration not found."
+        status: true,
+        message: "New website configuration created with contact information.",
+        data: config
       };
     }
     
@@ -101,10 +154,9 @@ export const UpdateContactInfoService = async (req) => {
       config._id,
       { 
         $set: { 
-          'contactInfo.email': email || config.contactInfo.email,
-          'contactInfo.phone': phone || config.contactInfo.phone,
-          'contactInfo.address': address || config.contactInfo.address,
-          lastUpdated: Date.now()
+          'contactInfo.email': email !== undefined ? email : config.contactInfo?.email,
+          'contactInfo.phone': phone !== undefined ? phone : config.contactInfo?.phone,
+          'contactInfo.address': address !== undefined ? address : config.contactInfo?.address
         } 
       },
       { new: true, runValidators: true }
@@ -113,236 +165,12 @@ export const UpdateContactInfoService = async (req) => {
     return {
       status: true,
       message: "Contact information updated successfully.",
-      data: config
+      data: config.contactInfo
     };
   } catch (e) {
     return {
       status: false,
       message: "Failed to update contact information.",
-      details: e.message
-    };
-  }
-};
-
-// Update Social Media Links
-export const UpdateSocialMediaService = async (req) => {
-  try {
-    const { facebook, twitter, instagram, linkedin, youtube } = req.body;
-    
-    // Check if config exists
-    let config = await WebsiteConfig.findOne();
-    
-    if (!config) {
-      return {
-        status: false,
-        message: "Website configuration not found."
-      };
-    }
-    
-    // Update social media links
-    config = await WebsiteConfig.findByIdAndUpdate(
-      config._id,
-      { 
-        $set: { 
-          'socialMedia.facebook': facebook || config.socialMedia.facebook,
-          'socialMedia.twitter': twitter || config.socialMedia.twitter,
-          'socialMedia.instagram': instagram || config.socialMedia.instagram,
-          'socialMedia.linkedin': linkedin || config.socialMedia.linkedin,
-          'socialMedia.youtube': youtube || config.socialMedia.youtube,
-          lastUpdated: Date.now()
-        } 
-      },
-      { new: true, runValidators: true }
-    );
-    
-    return {
-      status: true,
-      message: "Social media links updated successfully.",
-      data: config
-    };
-  } catch (e) {
-    return {
-      status: false,
-      message: "Failed to update social media links.",
-      details: e.message
-    };
-  }
-};
-
-// Update About Us Information
-export const UpdateAboutUsService = async (req) => {
-  try {
-    const { aboutUs, mission, vision } = req.body;
-    
-    if (!aboutUs && !mission && !vision) {
-      return {
-        status: false,
-        message: "At least one field (aboutUs, mission, vision) is required."
-      };
-    }
-    
-    // Check if config exists
-    let config = await WebsiteConfig.findOne();
-    
-    if (!config) {
-      return {
-        status: false,
-        message: "Website configuration not found."
-      };
-    }
-    
-    // Prepare update object
-    const updateObj = { lastUpdated: Date.now() };
-    if (aboutUs) updateObj.aboutUs = aboutUs;
-    if (mission) updateObj.mission = mission;
-    if (vision) updateObj.vision = vision;
-    
-    // Update about us information
-    config = await WebsiteConfig.findByIdAndUpdate(
-      config._id,
-      { $set: updateObj },
-      { new: true, runValidators: true }
-    );
-    
-    return {
-      status: true,
-      message: "About us information updated successfully.",
-      data: config
-    };
-  } catch (e) {
-    return {
-      status: false,
-      message: "Failed to update about us information.",
-      details: e.message
-    };
-  }
-};
-
-// Update Meta Tags
-export const UpdateMetaTagsService = async (req) => {
-  try {
-    const { title, description, keywords } = req.body;
-    
-    // Check if config exists
-    let config = await WebsiteConfig.findOne();
-    
-    if (!config) {
-      return {
-        status: false,
-        message: "Website configuration not found."
-      };
-    }
-    
-    // Update meta tags
-    config = await WebsiteConfig.findByIdAndUpdate(
-      config._id,
-      { 
-        $set: { 
-          'metaTags.title': title || config.metaTags.title,
-          'metaTags.description': description || config.metaTags.description,
-          'metaTags.keywords': keywords || config.metaTags.keywords,
-          lastUpdated: Date.now()
-        } 
-      },
-      { new: true, runValidators: true }
-    );
-    
-    return {
-      status: true,
-      message: "Meta tags updated successfully.",
-      data: config
-    };
-  } catch (e) {
-    return {
-      status: false,
-      message: "Failed to update meta tags.",
-      details: e.message
-    };
-  }
-};
-
-// Toggle Maintenance Mode
-export const ToggleMaintenanceModeService = async (req) => {
-  try {
-    // Check if config exists
-    let config = await WebsiteConfig.findOne();
-    
-    if (!config) {
-      return {
-        status: false,
-        message: "Website configuration not found."
-      };
-    }
-    
-    // Toggle maintenance mode
-    config = await WebsiteConfig.findByIdAndUpdate(
-      config._id,
-      { 
-        $set: { 
-          maintenanceMode: !config.maintenanceMode,
-          lastUpdated: Date.now()
-        } 
-      },
-      { new: true }
-    );
-    
-    return {
-      status: true,
-      message: `Maintenance mode ${config.maintenanceMode ? 'enabled' : 'disabled'} successfully.`,
-      data: config
-    };
-  } catch (e) {
-    return {
-      status: false,
-      message: "Failed to toggle maintenance mode.",
-      details: e.message
-    };
-  }
-};
-
-// Update Analytics Code
-export const UpdateAnalyticsCodeService = async (req) => {
-  try {
-    const { analyticsCode } = req.body;
-    
-    if (!analyticsCode) {
-      return {
-        status: false,
-        message: "Analytics code is required."
-      };
-    }
-    
-    // Check if config exists
-    let config = await WebsiteConfig.findOne();
-    
-    if (!config) {
-      return {
-        status: false,
-        message: "Website configuration not found."
-      };
-    }
-    
-    // Update analytics code
-    config = await WebsiteConfig.findByIdAndUpdate(
-      config._id,
-      { 
-        $set: { 
-          analyticsCode,
-          lastUpdated: Date.now()
-        } 
-      },
-      { new: true }
-    );
-    
-    return {
-      status: true,
-      message: "Analytics code updated successfully.",
-      data: config
-    };
-  } catch (e) {
-    return {
-      status: false,
-      message: "Failed to update analytics code.",
       details: e.message
     };
   }

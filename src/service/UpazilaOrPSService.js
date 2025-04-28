@@ -53,6 +53,26 @@ export const CreateUpazilaOrPSService = async (data) => {
   }
 };
 
+// Get all Upazila/PS
+export const GetAllUpazilaOrPSService = async () => {
+  try {
+    const upazilas = await UpazilaOrPSModel.find({}).sort({ order: 1 });
+    return {
+      status: true, 
+      message: "Upazilas/PS retrieved successfully.",
+      data: upazilas
+    };
+  } catch (e) {
+    return {
+      status: false,  
+      message: "Failed to retrieve Upazilas/PS.",
+      details: e.message
+    };
+  }
+};
+
+
+
 export const GetUpazilaOrPSByDistrict = async (req  ) => {
   try {
     const { districtId } = req.params;

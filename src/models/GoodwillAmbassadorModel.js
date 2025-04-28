@@ -13,31 +13,19 @@ const goodwillAmbassadorSchema = new Schema({
     trim: true,
     enum: ['Goodwill Ambassador', 'Honorable Member']
   },
-  email: {
-    type: String,
-    required: [true, 'Email is required'],
-    unique: true,
-    trim: true,
-    lowercase: true,
-    match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email address']
-  },
-  phone: {
-    type: String,
-    trim: true
-  },
   profileImage: {
     type: String,
+    required: [true, 'Profile image is required'],
     default: ''
-  },
-  bio: {
-    type: String,
-    trim: true
   },
   socialMedia: {
     facebook: { type: String, default: '' },
-    twitter: { type: String, default: '' },
+    youtube: { type: String, default: '' },
     instagram: { type: String, default: '' },
-    linkedin: { type: String, default: '' }
+    linkedin: { type: String, default: '' },
+    tiktok: { type: String, default: '' },
+    x: { type: String, default: '' },
+    website: { type: String, default: '' }
   },
   position: {
     type: String,
@@ -59,16 +47,18 @@ const goodwillAmbassadorSchema = new Schema({
   featured: {
     type: Boolean,
     default: false
+  },
+  createdBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  updatedBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
   }
 }, {
   timestamps: true,
   versionKey: false
-});
-
-// Update the updatedAt field on save
-goodwillAmbassadorSchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
-  next();
 });
 
 const GoodwillAmbassador = mongoose.model('GoodwillAmbassador', goodwillAmbassadorSchema);

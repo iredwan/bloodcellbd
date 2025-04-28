@@ -267,7 +267,7 @@ export const GetRequestsByBloodGroupService = async (req) => {
 export const FulfillRequestService = async (req) => {
   try {
     const requestId = new ObjectId(req.params.id);
-    const donorId = req.body.user_id || req.headers.user_id || req.cookies.user_id;
+    const donorId = req.body.fulfilledBy || req.headers.user_id || req.cookies.user_id;
 
   
     

@@ -6,6 +6,11 @@ const eventSchema = new mongoose.Schema({
     required: [true, 'Event title is required'],
     trim: true
   },
+  eventCard: {
+    type: String,
+    required: [true, 'Event cart is required'],
+    default: ''
+  },
   description: {
     type: String,
     required: [true, 'Event description is required'],
@@ -19,24 +24,48 @@ const eventSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Event time is required']
   },
-  location: {
-    type: String,
-    required: [true, 'Event location is required'],
-    trim: true
+  upazila: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'UpazilaOrPS',
+    required: [true, 'Upazila is required']
   },
-  image: {
+  district: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'District',
+    required: [true, 'District is required']
+  },
+  googleMapLink: {
     type: String,
     default: ''
+  },
+  image: {
+    type: [String],
+    default: [],
+    validate: {
+      validator: function(v) {
+        return v.length <= 5;
+      },
+      message: 'Maximum 5 images allowed'
+    }
   },
   organizer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Sponsor',
-    required: [true, 'Event organizer is required']
+    default: null
+
   },
   status: {
     type: String,
     enum: ['upcoming', 'ongoing', 'completed', 'cancelled'],
     default: 'upcoming'
+  },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  updatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   }
 }, {
   timestamps: true,
