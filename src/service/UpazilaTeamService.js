@@ -144,6 +144,34 @@ export const GetUpazilaTeamByIdService = async (req) => {
   }
 };
 
+// Get UpazilaTeam By Upazila Coordinators User ID
+export const GetUpazilaTeamByUpazilaCoordinatorsUserIdService = async (req) => {
+  try {
+    const userId = req.headers.user_id || req.cookies.user_id;
+
+    //check if user role is not set upazila coordinator, sub-coordinator, it-media coordinator, logistics coordinator
+    if (req.user.role !== "Upazila Coordinator" && req.user.role !== "Upazila Sub-Coordinator" && req.user.role !== "Upazila IT & Media Coordinator" && req.user.role !== "Upazila Logistics Coordinator") {
+      return { status: false, message: "You are not authorized to access this resource" };
+    }
+
+    const upazilaTeam = await UpazilaTeam.find({
+      $or: [
+        { upazilaCoordinator: userId },
+        { upazilaSubCoordinator: userId },
+        { upazilaITMediaCoordinator: userId },
+        { upazilaLogisticsCoordinator: userId }
+      ]
+    }).populate("upazilaName", "name")
+    .populate("upazilaCoordinator", "name email phone profileImage role roleSuffix")
+    .populate("upazilaSubCoordinator", "name email phone profileImage role roleSuffix")
+    .populate("upazilaITMediaCoordinator", "name email phone profileImage role roleSuffix")
+    .populate("upazilaLogisticsCoordinator", "name email phone profileImage role roleSuffix");
+    return { status: true, message: "Upazila team retrieved successfully", data: upazilaTeam };
+  } catch (error) {
+    return { status: false, message: "Error retrieving upazila team", error: error.message };
+  }
+};
+
 // Update UpazilaTeam Service
 export const UpdateUpazilaTeamService = async (req) => {
   try {

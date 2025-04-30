@@ -4,7 +4,8 @@ import {
   GetAllDistrictTeams,
   GetDistrictTeamById,
   UpdateDistrictTeam,
-  DeleteDistrictTeam
+  DeleteDistrictTeam,
+  GetDistrictTeamByDistrictCoordinatorsUserId
 } from '../controllers/DistrictTeamControllers.js';
 import { protect, restrictTo } from '../middleware/auth.js';
 
@@ -15,6 +16,8 @@ router.get('/all', protect, GetAllDistrictTeams);
 // Get district team by ID
 router.get('/get/:id', protect, GetDistrictTeamById);
 
+// Get district team by district coordinators user ID
+router.get('/get-by-district-coordinators-user-id', protect, GetDistrictTeamByDistrictCoordinatorsUserId);
 
 // Create a new district team
 router.post('/create', protect, restrictTo('Divisional Coordinator', 'Divisional Sub-Coordinator', 'Admin'), CreateDistrictTeam);

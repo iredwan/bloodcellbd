@@ -1,5 +1,5 @@
 import express from 'express';
-import { ProfileRegister, ProfileLogin, ProfileLogout, ProfileRegisterWithRef, GetUserById, UpdateUserByIdSelf, UpdateUserByIdRef, GetAllUser, EligibleUser, DeleteUser, GetUserByBloodGroup, GetUserByUpazila, GetPendingUser, GetApprovedUser, GetBannedUser, GetUserByDistrict, GetUserByName, GetUserByNIDOrBirthRegistration, GetAllUserForAdmin } from '../controllers/UserControllers.js';
+import { ProfileRegister, ProfileLogin, ProfileLogout, ProfileRegisterWithRef, GetUserById, UpdateUserByIdSelf, UpdateUserByIdRef, GetAllUser, EligibleUser, DeleteUser, GetUserByBloodGroup, GetUserByUpazila, GetPendingUser, GetApprovedUser, GetBannedUser, GetUserByDistrict, GetUserByName, GetUserByNIDOrBirthRegistration, GetAllUserForAdmin, GetUserByUserId } from '../controllers/UserControllers.js';
 import { protect, restrictTo } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -14,6 +14,7 @@ router.get('/bloodgroup/:bloodGroup', protect, GetUserByBloodGroup);
 router.get('/upazila/:upazila', protect, GetUserByUpazila);
 router.get('/district/:district', protect, GetUserByDistrict);
 router.get('/all', protect, GetAllUser);
+router.get('/profile-by-user-id', protect, GetUserByUserId);
 
 // Protected routes
 router.post('/register', protect, ProfileRegister);

@@ -4,7 +4,8 @@ import {
   GetAllUpazilaTeams,
   GetUpazilaTeamById,
   UpdateUpazilaTeam,
-  DeleteUpazilaTeam
+  DeleteUpazilaTeam,
+  GetUpazilaTeamByUpazilaCoordinatorsUserId
 } from '../controllers/UpazilaTeamControllers.js';
 import { protect, restrictTo } from '../middleware/auth.js';
 
@@ -15,6 +16,9 @@ router.get('/all', protect, GetAllUpazilaTeams);
 
 // Get upazila team by ID
 router.get('/get/:id', protect, GetUpazilaTeamById);
+
+// Get upazila team by upazila coordinators user ID
+router.get('/get-by-upazila-coordinators-user-id', protect, GetUpazilaTeamByUpazilaCoordinatorsUserId);
 
 // Create a new upazila team
 router.post('/create', protect, restrictTo('District Coordinator', 'District Sub-Coordinator', 'Division Coordinator', 'Division Sub-Coordinator', 'Admin'), CreateUpazilaTeam);

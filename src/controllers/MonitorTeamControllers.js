@@ -4,6 +4,7 @@ import {
   GetMonitorTeamByIdService,
   UpdateMonitorTeamService,
   DeleteMonitorTeamService,
+  GetMonitorTeamByMonitorUserIdService,
 } from '../service/MonitorTeamService.js';
 
 // Create Monitor Team
@@ -49,6 +50,24 @@ export const GetMonitorTeamById = async (req, res) => {
   try {
     const result = await GetMonitorTeamByIdService(req);
     
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Error retrieving monitor team",
+      error: error.message
+    });
+  }
+};
+
+// Get Monitor Team By Monitor User ID
+export const GetMonitorTeamByMonitorUserId = async (req, res) => {
+  try {
+    const result = await GetMonitorTeamByMonitorUserIdService(req);
     if (result.status) {
       return res.status(200).json(result);
     } else {

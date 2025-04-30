@@ -170,6 +170,28 @@ export const GetDistrictTeamByIdService = async (req) => {
   }
 };
 
+// Get DistrictTeam By District Coordinators User ID Service
+export const GetDistrictTeamByDistrictCoordinatorsUserIdService = async (req, res) => {
+  try {
+    const userId = req.headers.user_id || req.cookies.user_id;
+    const districtTeam = await DistrictTeam.find({
+      $or: [
+        { districtCoordinatorID: userId },
+        { districtSubCoordinatorID: userId },
+        { districtITMediaCoordinatorID: userId },
+        { districtLogisticsCoordinatorID: userId }
+      ] 
+    }).populate("districtId", "name")
+    .populate("districtCoordinatorID", "name email phone profileImage role roleSuffix")
+    .populate("districtSubCoordinatorID", "name email phone profileImage role roleSuffix")
+    .populate("districtITMediaCoordinatorID", "name email phone profileImage role roleSuffix")
+    .populate("districtLogisticsCoordinatorID", "name email phone profileImage role roleSuffix");
+    return { status: true, message: "District team retrieved successfully", data: districtTeam };
+  } catch (error) {
+    return { status: false, message: "Error retrieving district team", error: error.message };
+  }
+};
+
 // Update DistrictTeam Service
 export const UpdateDistrictTeamService = async (req) => {
   try {

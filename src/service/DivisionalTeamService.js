@@ -157,6 +157,23 @@ export const GetDivisionalTeamByIdService = async (req) => {
   }
 };
 
+// Get DivisionalTeam By Divisional Coordinators User ID Service
+export const GetDivisionalTeamByDivisionalCoordinatorsUserIdService = async (req, res) => {
+  try {
+    const userId = req.headers.user_id || req.cookies.user_id;
+    const divisionalTeam = await DivisionalTeam.find({
+      $or: [
+        { divisionalCoordinatorID: userId },
+        { divisionalSubCoordinatorID: userId }
+      ]
+    });
+    return { status: true, message: "Divisional team retrieved successfully", data: divisionalTeam };
+  } catch (error) {
+    return { status: false, message: "Error retrieving divisional team", error: error.message };
+  }
+};
+
+
 // Update DivisionalTeam Service
 export const UpdateDivisionalTeamService = async (req) => {
   try {

@@ -257,6 +257,36 @@ export const GetMonitorTeamByIdService = async (req) => {
   }
 };
 
+// Get Monitor Team By Monitor User ID
+export const GetMonitorTeamByMonitorUserIdService = async (req) => {
+  try {
+    const userId = req.headers.user_id || req.cookies.user_id;
+    const monitorTeam = await MonitorTeamModel.find({ teamMonitor: userId })
+    .populate("teamMonitor", "name email phone role profileImage")
+    .populate({
+      path: "moderatorTeamID",
+      populate: {
+        path: "moderatorName",
+        select: "name email phone role profileImage"
+      }
+    })
+    .populate("createdBy", "name email phone role profileImage")
+    .populate("updatedBy", "name email phone role profileImage")
+    .lean();
+    return {
+      status: true,
+      message: "Monitor team retrieved successfully.",
+      data: monitorTeam,
+    };
+  } catch (e) {
+    return {
+      status: false,
+      message: "Failed to retrieve monitor team.",
+      details: e.message
+    };
+  }
+};
+
 // Update Monitor Team
 export const UpdateMonitorTeamService = async (req) => {
   try {

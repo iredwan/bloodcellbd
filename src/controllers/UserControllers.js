@@ -1,4 +1,4 @@
-import { UserRegisterService, UserLoginService, UserLogoutService, GetUserByIdService, UpdateUserByIdSelfService, UpdateUserByIdRefService, GetAllUserService, EligibleUserService, DeleteUserService, GetUserByBloodGroupService, GetUserByUpazilaService, GetPendingUserService, GetApprovedUserService, GetBannedUserService, GetUserByDistrictService, GetUserByNameService, GetUserByNIDOrBirthRegistrationService, UserRegisterWithRefService, GetAllUserForAdminService } from "../service/UserService.js";
+import { UserRegisterService, UserLoginService, UserLogoutService, GetUserByIdService, UpdateUserByIdSelfService, UpdateUserByIdRefService, GetAllUserService, EligibleUserService, DeleteUserService, GetUserByBloodGroupService, GetUserByUpazilaService, GetPendingUserService, GetApprovedUserService, GetBannedUserService, GetUserByDistrictService, GetUserByNameService, GetUserByNIDOrBirthRegistrationService, UserRegisterWithRefService, GetAllUserForAdminService, GetUserByUserIdService } from "../service/UserService.js";
 
 // Profile Register
 export const ProfileRegister = async (req, res) => {
@@ -69,12 +69,25 @@ export const UpdateUserByIdRef = async (req, res) => {
   }
 };
 
-
 // Get All User
 export const GetAllUser = async (req, res) => { 
   try {
     const result = await GetAllUserService();
     return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+// Get User By User ID
+export const GetUserByUserId = async (req, res) => {
+  try {
+    const result = await GetUserByUserIdService(req, res);
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }

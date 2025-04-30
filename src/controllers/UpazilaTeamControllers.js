@@ -3,7 +3,8 @@ import {
   GetAllUpazilaTeamsService,
   GetUpazilaTeamByIdService,
   UpdateUpazilaTeamService,
-  DeleteUpazilaTeamService
+  DeleteUpazilaTeamService,
+  GetUpazilaTeamByUpazilaCoordinatorsUserIdService
 } from '../service/UpazilaTeamService.js';
 
 // Create Upazila Team
@@ -62,6 +63,26 @@ export const GetUpazilaTeamById = async (req, res) => {
     });
   }
 };
+
+// Get Upazila Team By Upazila Coordinators User ID
+export const GetUpazilaTeamByUpazilaCoordinatorsUserId = async (req, res) => {
+  try {
+    const result = await GetUpazilaTeamByUpazilaCoordinatorsUserIdService(req);
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    } 
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Error retrieving upazila team",
+      error: error.message
+    });
+  }
+};
+
+
 
 // Update Upazila Team
 export const UpdateUpazilaTeam = async (req, res) => {

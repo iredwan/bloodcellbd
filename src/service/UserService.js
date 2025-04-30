@@ -332,6 +332,19 @@ export const GetAllUserService = async () => {
   }
 };
 
+//Get User By User ID Service
+export const GetUserByUserIdService = async (req) => {
+  try {
+    const userId = req.headers.user_id || req.cookies.user_id;
+    console.log(userId);
+    const user = await UserModel.findById(userId);
+    return { status: true, message: "User retrieved successfully", data: user };
+  } catch (error) {
+    return { status: false, message: "Error retrieving user", error: error.message };
+  }
+}
+
+
 export const GetAllUserForAdminService = async () => {
   try {
     const users = await UserModel.find({});
