@@ -26,6 +26,7 @@ import moderatorTeamRoutes from './src/routes/ModeratorTeamRoutes.js';
 import monitorTeamRoutes from './src/routes/MonitorTeamRoutes.js';
 import divisionRoutes from './src/routes/DivisionRoutes.js';
 import wantToDonateBloodRoutes from './src/routes/WantToDonateBloodRoutes.js';
+import reviewRoutes from './src/routes/reviewRoutes.js';
 // Load environment variables
 dotenv.config();
 
@@ -79,6 +80,7 @@ app.use('/api/moderator-team', moderatorTeamRoutes);
 app.use('/api/monitor-team', monitorTeamRoutes);
 app.use('/api/divisions', divisionRoutes);
 app.use('/api/want-to-donate', wantToDonateBloodRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // Root route
 app.get('/', (req, res) => {
