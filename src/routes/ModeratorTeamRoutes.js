@@ -6,7 +6,8 @@ import {
   UpdateModeratorTeam,
   DeleteModeratorTeam,
   AddTeamMember,
-  RemoveTeamMember
+  RemoveTeamMember,
+  GetModeratorTeamByModeratorUserId
 } from '../controllers/ModeratorTeamControllers.js';
 import { protect, restrictTo } from '../middleware/auth.js';
 
@@ -16,6 +17,9 @@ router.get('/all',protect, GetAllModeratorTeams);
 
 // Get moderator team by ID
 router.get('/get/:id', protect, GetModeratorTeamById);
+
+// Get moderator team by moderator user ID
+router.get('/get-by-moderator-user-id', protect, GetModeratorTeamByModeratorUserId);
 
 // Create a new moderator team (Admin only)
 router.post('/create', protect, restrictTo('Monitor', 'Upazila Coordinator', 'Upazila Sub-Coordinator', 'District Coordinator', 'District Sub-Coordinator', 'Admin'), CreateModeratorTeam);

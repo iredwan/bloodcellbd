@@ -102,7 +102,6 @@ export const getReviewsByUserIdService = async (req) => {
   try {
 
     const user_id = req.headers.user_id || req.cookies.user_id;
-    console.log(user_id);
     const reviews = await ReviewsModel.find({ user: user_id })
       .populate('user', 'name phone profileImage isVerified');
 

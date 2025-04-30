@@ -257,6 +257,34 @@ export const GetModeratorTeamByIdService = async (req) => {
   }
 };
 
+// Get Moderator Team By Moderator User ID
+export const GetModeratorTeamByModeratorUserIdService = async (req) => {
+  try {
+    const userId = req.headers.user_id || req.cookies.user_id;
+    console.log(userId);
+    const moderatorTeam = await ModeratorTeamModel.find({ moderatorName: userId }).populate(
+      "moderatorName",
+      "name email phone role roleSuffix profileImage"
+    )
+    .populate(
+      "moderatorTeamMembers",
+      "name email phone eligibility nextDonationDate alternatePhone whatsappNumber role roleSuffix profileImage"
+    )
+    .populate("createdBy", "name email phone role roleSuffix profileImage")
+    .populate("updatedBy", "name email phone role roleSuffix profileImage");
+    return {
+      status: true,
+      message: "Moderator team retrieved successfully.",
+      data: moderatorTeam,
+    };
+  } catch (e) {
+    return {
+      status: false,
+      message: "Failed to retrieve moderator team.",
+      details: e.message,
+    };
+  }
+}
 // Update Moderator Team
 export const UpdateModeratorTeamService = async (req) => {
   try {
