@@ -4,7 +4,8 @@ import {
   GetWantToDonateBloodByIdService,
   UpdateWantToDonateBloodService,
   DeleteWantToDonateBloodService,
-  UpdateBloodCollectedByService
+  UpdateBloodCollectedByService,
+  GetWantToDonateBloodByUserIdService
 } from "../service/WantToDonateBloodService.js";
 
 // Create blood donation request
@@ -82,6 +83,26 @@ export const UpdateWantToDonateBlood = async (req, res) => {
     });
   }
 };
+
+// Get blood donation requests by user ID
+export const GetWantToDonateBloodByUserId = async (req, res) => {
+  try {
+    const result = await GetWantToDonateBloodByUserIdService(req);  
+
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
+  } catch (error) { 
+    return res.status(500).json({
+      status: false,
+      message: "Error retrieving blood donation requests by user ID",
+      error: error.message
+    });
+  }
+};
+
 
 // Update blood collected by
 export const UpdateBloodCollectedBy = async (req, res) => {

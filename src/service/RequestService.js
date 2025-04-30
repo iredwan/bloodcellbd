@@ -59,7 +59,6 @@ export const GetAllRequestsService = async () => {
 export const GetRequestByIdService = async (req) => {
   try {
     const requestId = new ObjectId(req.params.id);
-    
     const request = await RequestModel.findById(requestId)
       .populate('userId', 'name email phone profileImage isVerified')
       .populate('fulfilledBy', 'name email phone profileImage isVerified')
@@ -203,15 +202,14 @@ export const GetFulfilledRequestsService = async () => {
 // Get User's Requests (Requested by a specific user)
 export const GetUserRequestsService = async (req) => {
   try {
-    const userId = req.params.userId || req.headers.user_id;
-    
+    const userId = req.headers.user_id || req.cookies.user_id;
     if (!userId || !ObjectId.isValid(userId)) {
       return { status: false, message: "Invalid user ID." };
     }
     
     const userRequests = await RequestModel.find({ userId: userId })
-      .populate('userId', 'name email phone')
-      .populate('fulfilledBy', 'name email phone');
+      .populate('userId', 'name phone profileImage')
+      .populate('fulfilledBy', 'name phone profileImage');
     
     if (!userRequests || userRequests.length === 0) {
       return { status: false, message: "No blood requests found for this user." };

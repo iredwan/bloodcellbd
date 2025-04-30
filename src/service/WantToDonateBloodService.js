@@ -7,7 +7,7 @@ export const CreateWantToDonateBloodService = async (req) => {
   try {
     const reqBody = req.body;
 
-    const bloodDonorUserId = req.body.bloodDonorUserId || req.headers.user._id|| req.cookies.user._id;
+    const bloodDonorUserId = req.headers.user_id || req.cookies.user_id;
     
     // Validate required fields
     if (!bloodDonorUserId || !reqBody.date || !reqBody.district || !reqBody.upazila) {
@@ -106,6 +106,48 @@ export const GetWantToDonateBloodByIdService = async (req) => {
   }
 };
 
+//Get Blood Donation Requests By User ID
+export const GetWantToDonateBloodByUserIdService = async (req) => {
+  try {
+    const userId = req.headers.user_id || req.cookies.user_id;
+    
+    const donationRequests = await WantToDonateBlood.find({ bloodDonorUserId: userId })
+      .populate("bloodDonorUserId", "name phone bloodGroup smoking isVerified profileImage lastDonate") 
+      .populate("bloodCollectedBy", "name phone profileImage")
+
+    return {
+      status: true,
+      message: "Blood donation requests retrieved successfully.",
+      data: donationRequests
+    };  
+  } catch (e) {
+    return {
+      status: false,
+      message: "Failed to retrieve blood donation requests.",
+      details: e.message
+    };
+  }
+};
+
+//Get Pending Donation Requests
+export const GetPendingDonationRequestsService = async () => {
+  try {
+    const donationRequests = await WantToDonateBlood.find({ status: "pending" })
+      .populate("bloodDonorUserId", "name phone bloodGroup smoking isVerified profileImage lastDonate")
+
+    return {
+      status: true,
+      message: "Pending blood donation requests retrieved successfully.", 
+      data: donationRequests
+    };
+  } catch (e) {
+    return {
+      status: false,
+      message: "Failed to retrieve pending blood donation requests.",
+      details: e.message  
+    };
+  }
+};
 
 export const UpdateWantToDonateBloodService = async (req) => {
   try {

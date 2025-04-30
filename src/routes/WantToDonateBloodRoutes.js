@@ -5,7 +5,8 @@ import {
   GetWantToDonateBloodById,
   UpdateWantToDonateBlood,
   DeleteWantToDonateBlood,
-  UpdateBloodCollectedBy
+  UpdateBloodCollectedBy,
+  GetWantToDonateBloodByUserId
 } from '../controllers/WantToDonateBloodControllers.js';
 import { protect, restrictTo } from '../middleware/auth.js';
 
@@ -18,6 +19,7 @@ router.get('/get/:id', GetWantToDonateBloodById);
 // Protected routes - require login
 router.post('/create', protect, CreateWantToDonateBlood);
 router.put('/update/:id', protect, UpdateWantToDonateBlood);
+router.get('/user', protect, GetWantToDonateBloodByUserId);
 router.put('/update-blood-collected-by/:id', protect, UpdateBloodCollectedBy);
 router.delete('/delete/:id', protect, DeleteWantToDonateBlood);
 
