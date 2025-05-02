@@ -17,9 +17,6 @@ const Toast = () => {
       draggable
       pauseOnHover
       theme="light"
-      style={{
-        maxWidth: "200px",
-      }}
 
       // ✅ Type-based custom class
       toastClassName={({ type }) => {

@@ -1,10 +1,17 @@
 import { Provider } from './Provider';
-import { Inter } from 'next/font/google';
+import { Poppins } from 'next/font/google';
 import './globals.css';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import TopLoaderWrapper from '../components/TopLoaderWrapper';
 import { ToastContainer} from 'react-toastify';
-const inter = Inter({ subsets: ['latin'] });
+import 'react-toastify/dist/ReactToastify.css';
+
+const poppins = Poppins({ 
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap'
+});
 
 export const metadata = {
   title: 'BloodCellBD',
@@ -14,14 +21,15 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={poppins.className}>
         <Provider>
-        <TopLoaderWrapper />
-        <ToastContainer />
+            <TopLoaderWrapper />
+            <ToastContainer />
             <Navbar />
             <main className="min-h-screen">
-        {children}
+              {children}
             </main>
+            <Footer />
         </Provider>
       </body>
     </html>

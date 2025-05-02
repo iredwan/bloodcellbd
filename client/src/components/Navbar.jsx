@@ -12,7 +12,8 @@ import {
 import {getCookie, setCookie, deleteCookie} from 'cookies-next';
 import { logout } from "@/features/auth/authSlice";
 import { jwtDecode } from "jwt-decode";
-
+import { toast } from "react-toastify";
+import Toast from "@/utils/toast";
 const Navbar = () => {
   const currentPath = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -38,14 +39,15 @@ const Navbar = () => {
 
   const logOutFunction = async () => {
     try {
-      const result = await logout();
+      const result = logout();
       if (result) {
+        toast.success("Logout successful");
         deleteCookie("token");
         setIsAuthenticated(false);
         setUserRole(null);
         setTimeout(() => {
           window.location.href = "/";
-        }, 500);
+        }, 3000);
       }
     } catch (error) {
       console.error("Logout failed:", error);
@@ -94,18 +96,21 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden md:flex items-center text-center">
             <NavLink href="/" current={currentPath}>
               Home
             </NavLink>
-            <NavLink href="/sponsors" current={currentPath}>
-              Sponsors
+            <NavLink href="/register" current={currentPath}>
+              Become a Donor
             </NavLink>
             <NavLink href="/ambassador-members" current={currentPath}>
             Ambassador Member
             </NavLink>
-            <NavLink href="/register" current={currentPath}>
-              Become a Donor
+            <NavLink href="/events" current={currentPath}>
+            Events
+            </NavLink>
+            <NavLink href="/sponsors" current={currentPath}>
+              Sponsors
             </NavLink>
             <NavLink href="/about" current={currentPath}>
               About
@@ -147,7 +152,7 @@ const Navbar = () => {
             {isAuthenticated ? (
               <button
                 onClick={logOutFunction}
-                className="bg-white text-[#8a0303] px-6 py-2 rounded-full font-medium hover:bg-gray-100 transition-all duration-300 shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer"
+                className="bg-white text-[#8a0303] px-2 py-1.5 rounded-full font-sm hover:bg-gray-100 transition-all duration-300 shadow-md hover:shadow-lg flex items-center gap-1 cursor-pointer"
               >
                 <FiLogOut className="h-4 w-4" />
                 Logout
@@ -155,7 +160,7 @@ const Navbar = () => {
             ) : (
               <Link
                 href="/login"
-                className="flex justify-center items-center text-center leading-normal bg-white text-[#8a0303] px-3 py-1.5 rounded-full font-medium shadow-md gap-2 cursor-pointer hover:bg-gray-100"
+                className="flex justify-center items-center text-center leading-normal bg-white text-[#8a0303] px-2 py-1.5 rounded-full font-sm shadow-md gap-1 cursor-pointer hover:bg-gray-100"
               >
                 <FiUser className="h-4 w-4" />
                 Login
@@ -164,11 +169,11 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="flex items-center gap-3 md:hidden">
+          <div className="flex items-center gap-2 md:hidden">
             {isAuthenticated ? (
               <button
                 onClick={logOutFunction}
-                className="flex justify-center items-center text-center leading-normal bg-white text-[#8a0303] px-3 py-1.5 rounded-md font-medium shadow-md gap-2 cursor-pointer hover:bg-gray-100"
+                className="flex justify-center items-center text-center leading-normal bg-white text-[#8a0303] px-2 py-1.5 rounded-full font-sm shadow-md gap-1 cursor-pointer hover:bg-gray-100"
               >
                 <FiLogOut className="h-4 w-4" />
                 Logout
@@ -176,7 +181,7 @@ const Navbar = () => {
             ) : (
               <Link
                 href="/login"
-                className="flex justify-center items-center text-center leading-normal bg-white text-[#8a0303] px-3 py-1.5 rounded-full font-medium shadow-md gap-2 cursor-pointer hover:bg-gray-100"
+                className="flex justify-center items-center text-center leading-normal bg-white text-[#8a0303] px-2 py-1.5 rounded-full font-sm shadow-md gap-1 cursor-pointer hover:bg-gray-100"
               >
                 <FiUser className="h-4 w-4" />
                 Login
@@ -206,18 +211,21 @@ const Navbar = () => {
             isMenuOpen ? "max-h-[500px]" : "max-h-0"
           }`}
         >
-          <div className="px-4 py-3 space-y-2 bg-white shadow-md border-t">
+          <div className="px-4 py-3 space-y-2 bg-white shadow-md border-t text-center">
             <MobileNavLink href="/" current={currentPath}>
               Home
             </MobileNavLink>
-            <MobileNavLink href="/sponsors" current={currentPath}>
-              Sponsors
+            <MobileNavLink href="/register" current={currentPath}>
+              Become a Donor
             </MobileNavLink>
             <MobileNavLink href="/ambassador-members" current={currentPath}>
               Ambassador Member
             </MobileNavLink>
-            <MobileNavLink href="/register" current={currentPath}>
-              Become a Donor
+            <MobileNavLink href="/events" current={currentPath}>
+            Events
+            </MobileNavLink>
+            <MobileNavLink href="/sponsors" current={currentPath}>
+              Sponsors
             </MobileNavLink>
             <MobileNavLink href="/about" current={currentPath}>
               About
@@ -250,6 +258,7 @@ const Navbar = () => {
           </div>
         </div>
       </div>
+      <Toast />
     </nav>
   );
 };
@@ -260,10 +269,10 @@ const NavLink = ({ href, current, children }) => {
   return (
     <Link
       href={href}
-      className={`px-3 py-2 transition-all rounded-md ${
+      className={`px-2 py-1 transition-all rounded-md ${
         isActive
-          ? "text-white font-semibold border-b-2 border-white"
-          : "text-gray-100 hover:text-white"
+          ? "text-white text-sm font-semibold border-b-2 border-white"
+          : "text-gray-100 hover:text-white text-sm hover:font-semibold hover:border-b-2 hover:border-white"
       }`}
     >
       {children}
@@ -279,8 +288,8 @@ const MobileNavLink = ({ href, current, children }) => {
       href={href}
       className={`block px-4 py-2 rounded-md text-center transition-all duration-200 ${
         isActive
-          ? "bg-[#8a0303] text-white font-medium"
-          : "text-gray-600 hover:bg-gray-100 hover:text-[#8a0303]"
+          ? "bg-[#8a0303] text-white text-sm font-medium"
+          : "text-gray-600 hover:bg-gray-100 hover:text-[#8a0303] text-sm hover:font-medium hover:border-b-2 hover:border-white"
       }`}
     >
       {children}

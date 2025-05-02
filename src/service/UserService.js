@@ -578,6 +578,7 @@ export const GetUserByUpazilaService = async (req) => {
 export const GetUserByDistrictService = async (req) => {
   try {
     const district = req.params.district;
+    
 
     if (!district) {
       return { status: false, message: "District parameter is required." };

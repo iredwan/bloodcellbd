@@ -7,12 +7,17 @@ import "react-toastify/dist/ReactToastify.css";
 import { useLoginMutation } from "@/features/auth/authApiSlice";
 import { setCookie } from "cookies-next";
 import Toast from "../../utils/toast";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "@/features/auth/authSlice";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [formErrors, setFormErrors] = useState({});
+  
+  // Get the dispatch function at the component level
+  const dispatch = useDispatch();
   
   // Using the Redux RTK Query mutation hook
   const [login, { isLoading, error }] = useLoginMutation();
@@ -56,6 +61,11 @@ export default function Login() {
       // Call the login mutation with credentials
       const result = await login({ email, password }).unwrap();
       if (result.status === true) {
+        // Dispatch to Redux store to update auth state
+        dispatch(setCredentials({
+          user: result.user,
+          token: result.token
+        }));
         // Set token in cookie
         setCookie('token', result.token, { 
           maxAge: 60 * 60 * 24 * 7, // 7 days
@@ -145,7 +155,7 @@ export default function Login() {
           >
             {isLoading ? (
               <>
-                <div className="blood-drop mr-2"></div>
+                <div className="mr-2"></div>
                 <span>Logging in...</span>
               </>
             ) : (

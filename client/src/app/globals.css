@@ -86,28 +86,81 @@ html {
   box-shadow: 0 2px 4px rgba(139, 3, 3, 0.2);
 }
 
-/* Blood drop animation for loading */
-.blood-drop {
-  position: relative;
-  width: 30px;
-  height: 30px;
+/* Footer styles */
+footer {
   background-color: var(--primary);
-  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-  transform: rotate(45deg);
-  animation: drip 1.5s infinite ease-in-out;
+  color: var(--text-primary);
 }
 
-@keyframes drip {
-  0% {
-    transform: rotate(45deg) translateY(0);
-    opacity: 1;
+footer h3 {
+  color: var(--text-primary);
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+footer h3::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 40px;
+  height: 2px;
+  background-color: var(--secondary);
+}
+
+footer .text-text-secondary {
+  color: var(--text-secondary);
+  opacity: 0.9;
+}
+
+footer a.text-text-secondary {
+  color: var(--text-secondary);
+  opacity: 0.9;
+  transition: all 0.3s ease;
+}
+
+footer a.text-text-secondary:hover {
+  opacity: 1;
+  color: white;
+}
+
+/* Social media icons hover effect */
+footer .social-icons a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+footer .social-icons a:hover {
+  background-color: var(--secondary);
+  transform: translateY(-3px);
+}
+
+/* Copyright section */
+footer .border-primary-dark {
+  border-color: var(--primary-dark);
+}
+
+/* Responsive styling */
+@media (max-width: 768px) {
+  footer h3::after {
+    left: 50%;
+    transform: translateX(-50%);
   }
-  70% {
-    opacity: 1;
+  footer .grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr);
   }
-  100% {
-    transform: rotate(45deg) translateY(20px);
-    opacity: 0;
+}
+
+@media (max-width: 480px) {
+  footer .grid-cols-4,
+  footer .grid-cols-2 {
+    grid-template-columns: 1fr;
   }
 }
 
