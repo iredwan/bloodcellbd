@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+:root {
+  /* Main color palette */
+  --background: #ffffff;
+  --foreground: #212121;
+  
+  /* Blood red theme based on #8a0303 */
+  --primary: #8a0303;       /* Deep blood red - main color */
+  --primary-light: #b52828; /* Lighter red for hover/accents */
+  --primary-dark: #6b0202;  /* Darker red for contrast */
+  
+  /* Accent colors - complementary to blood red */
+  --secondary: #03588a;     /* Deep blue for contrast against red */
+  --secondary-light: #2878a8;
+  --secondary-dark: #023e61;
+  
+  /* Neutral colors */
+  --neutral-50: #FAFAFA;
+  --neutral-100: #F5F5F5;
+  --neutral-200: #EEEEEE;
+  --neutral-300: #E0E0E0;
+  --neutral-400: #BDBDBD;
+  --neutral-500: #9E9E9E;
+  --neutral-600: #757575;
+  --neutral-700: #616161;
+  --neutral-800: #424242;
+  --neutral-900: #212121;
+  
+  /* Text colors */
+  --text-primary: #FFFFFF;
+  --text-secondary: #F5F5F5;
+  --text-dark: #212121;
+  
+  /* UI elements */
+  --success: #2E7D32;
+  --warning: #F57F17;
+  --error: #8a0303;
+  --info: #0277BD;
+  
+  /* Component specific */
+  --button-hover: var(--primary-dark);
+  --card-bg: var(--neutral-50);
+  --navbar-bg: var(--primary);
+  --footer-bg: var(--primary-dark);
+}
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+.text-primary {
+  color: var(--primary);
+}
+
+/* Navbar styles */
+.NaveBg {
+  background-color: var(--navbar-bg);
+  color: var(--text-primary);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+
+/* Button styles */
+.button {
+  background-color: var(--primary);
+  color: var(--text-primary);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.button:hover {
+  background-color: var(--button-hover);
+  box-shadow: 0 4px 8px rgba(139, 3, 3, 0.2);
+  }
+
+.button:active {
+  box-shadow: 0 2px 4px rgba(139, 3, 3, 0.2);
+}
+
+/* Blood drop animation for loading */
+.blood-drop {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  background-color: var(--primary);
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  transform: rotate(45deg);
+  animation: drip 1.5s infinite ease-in-out;
+}
+
+@keyframes drip {
+  0% {
+    transform: rotate(45deg) translateY(0);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(45deg) translateY(20px);
+    opacity: 0;
+  }
+}
+
+

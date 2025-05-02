@@ -15,5 +15,7 @@ dist/
 
 # Ignore all files in the .env.production file
 .env.production
+# Ignore all files in .next directory
+.next/
 
 

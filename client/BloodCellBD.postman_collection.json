@@ -1,0 +1,3074 @@
+{
+	"info": {
+		"_postman_id": "de77180f-36ba-47d1-b4db-ec1860b07217",
+		"name": "BloodCellBD",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38185357"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM0NDU4ZjhlNzIxMTM4ZDI5OTcwZiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQ1NjM0NDIyLCJleHAiOjE3NDgyMjY0MjJ9.GPXOfYQz057kt0WEoDESRZMySYIBw2pa3aloFuVMyJA",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \"name\": \"William Ford\",\r\n    \"dob\": \"1991-01-14\",\r\n    \"identificationNumber\": \"2426598844084\",\r\n    \"identificationType\": \"NID\",\r\n    \"gender\": \"Female\",\r\n    \"religion\": \"Hinduism\",\r\n    \"occupation\": \"Psychologist, counselling\",\r\n    \"fatherName\": \"Joseph Sanchez\",\r\n    \"fatherPhoneNumber\": \"+1-254-474-8853x042\",\r\n    \"motherName\": \"Jill Hood\",\r\n    \"motherPhoneNumber\": \"(484)481-2776x0139\",\r\n    \"smoking\": false,\r\n    \"email\": \"whernandez@rosario.com\",\r\n    \"phone\": \"(215)696-1452x9585\",\r\n    \"alternatePhone\": \"225.355.8572x665\",\r\n    \"whatsappNumber\": \"(126)445-7479x26735\",\r\n    \"password\": \"12345678\",\r\n    \"bloodGroup\": \"O+\",\r\n    \"lastDonate\": \"2024-08-08\",\r\n    \"eligibility\": true,\r\n    \"nextDonationDate\": \"2025-06-25\",\r\n    \"district\": \"Collierhaven\",\r\n    \"upazila\": \"stad\",\r\n    \"role\": \"District Sub-Coordinator\",\r\n    \"roleSuffix\": \"\",\r\n    \"isApproved\": true,\r\n    \"isBanned\": false,\r\n    \"profileImage\": \"https://www.lorempixel.com/1007/139\",\r\n    \"nidOrBirthRegistrationImage\": \"https://placeimg.com/914/491/any\",\r\n    \"isVerified\": false,\r\n    \"reference\": \"Self\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}users/register",
+							"host": [
+								"{{BASEURL}}users"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "register-with-ref",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Brandon Warner\",\r\n    \"dob\": \"2002-05-09\",\r\n    \"identificationNumber\": 1507747205,\r\n    \"identificationType\": \"NID\",\r\n    \"gender\": \"Male\",\r\n    \"religion\": \"Buddhism\",\r\n    \"occupation\": \"Engineer\",\r\n    \"fatherName\": \"Robert Castro\",\r\n    \"fatherPhoneNumber\": \"01738943960\",\r\n    \"motherName\": \"Laura Mcneil\",\r\n    \"motherPhoneNumber\": \"01820899009\",\r\n    \"smoking\": false,\r\n    \"email\": \"kelly42@perry.com\",\r\n    \"phone\": \"01785402943\",\r\n    \"alternatePhone\": \"01887965271\",\r\n    \"whatsappNumber\": \"01975498051\",\r\n    \"password\": \"12345678\",\r\n    \"bloodGroup\": \"AB+\",\r\n    \"lastDonate\": \"2024-10-04\",\r\n    \"eligibility\": false,\r\n    \"nextDonationDate\": \"2025-04-26\",\r\n    \"district\": \"Barisal\",\r\n    \"upazila\": \"Kotwali\",\r\n    \"role\": \"user\",\r\n    \"roleSuffix\": \"\",\r\n    \"isApproved\": true,\r\n    \"isBanned\": false,\r\n    \"profileImage\": \"https://example.com/uploads/profile_6.jpg\",\r\n    \"nidOrBirthRegistrationImage\": \"https://example.com/uploads/nid_6.jpg\",\r\n    \"isVerified\": true,\r\n    \"reference\": \"Self\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}users/register-with-ref",
+							"host": [
+								"{{BASEURL}}users"
+							],
+							"path": [
+								"register-with-ref"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "  {\r\n    \"email\": \"whernandez@rosario.com\",\r\n    \"password\": \"12345678\"\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}users/login",
+							"host": [
+								"{{BASEURL}}users"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "profile",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM0NDU4ZjhlNzIxMTM4ZDI5OTcwZiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQ1NjM0NDIyLCJleHAiOjE3NDgyMjY0MjJ9.GPXOfYQz057kt0WEoDESRZMySYIBw2pa3aloFuVMyJA",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "  {\r\n    \"email\": \"imran@example.com\",\r\n    \"password\": \"imran456\"\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}users/profile/680c466bffc3251986417a61",
+							"host": [
+								"{{BASEURL}}users"
+							],
+							"path": [
+								"profile",
+								"680c466bffc3251986417a61"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "profile-by-user-id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "  {\r\n    \"email\": \"imran@example.com\",\r\n    \"password\": \"imran456\"\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}users/profile-by-user-id",
+							"host": [
+								"{{BASEURL}}users"
+							],
+							"path": [
+								"profile-by-user-id"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM0NDU4ZjhlNzIxMTM4ZDI5OTcwZiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQ1NjM0NDIyLCJleHAiOjE3NDgyMjY0MjJ9.GPXOfYQz057kt0WEoDESRZMySYIBw2pa3aloFuVMyJA",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}users/all",
+							"host": [
+								"{{BASEURL}}users"
+							],
+							"path": [
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "eligible",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM0NDU4ZjhlNzIxMTM4ZDI5OTcwZiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQ1NjM0NDIyLCJleHAiOjE3NDgyMjY0MjJ9.GPXOfYQz057kt0WEoDESRZMySYIBw2pa3aloFuVMyJA",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}users/eligible",
+							"host": [
+								"{{BASEURL}}users"
+							],
+							"path": [
+								"eligible"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "upazila",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM0NDU4ZjhlNzIxMTM4ZDI5OTcwZiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQ1NjM0NDIyLCJleHAiOjE3NDgyMjY0MjJ9.GPXOfYQz057kt0WEoDESRZMySYIBw2pa3aloFuVMyJA",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}users/upazila/stad",
+							"host": [
+								"{{BASEURL}}users"
+							],
+							"path": [
+								"upazila",
+								"stad"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "district",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM0NDU4ZjhlNzIxMTM4ZDI5OTcwZiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQ1NjM0NDIyLCJleHAiOjE3NDgyMjY0MjJ9.GPXOfYQz057kt0WEoDESRZMySYIBw2pa3aloFuVMyJA",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}users/district/Jacquelinemouth",
+							"host": [
+								"{{BASEURL}}users"
+							],
+							"path": [
+								"district",
+								"Jacquelinemouth"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "name",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM0NDU4ZjhlNzIxMTM4ZDI5OTcwZiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQ1NjM0NDIyLCJleHAiOjE3NDgyMjY0MjJ9.GPXOfYQz057kt0WEoDESRZMySYIBw2pa3aloFuVMyJA",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}users/name/Willia",
+							"host": [
+								"{{BASEURL}}users"
+							],
+							"path": [
+								"name",
+								"Willia"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "pending",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM0NDU4ZjhlNzIxMTM4ZDI5OTcwZiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQ1NjM0NDIyLCJleHAiOjE3NDgyMjY0MjJ9.GPXOfYQz057kt0WEoDESRZMySYIBw2pa3aloFuVMyJA",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}users/pending",
+							"host": [
+								"{{BASEURL}}users"
+							],
+							"path": [
+								"pending"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "approved",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM0NDU4ZjhlNzIxMTM4ZDI5OTcwZiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQ1NjM0NDIyLCJleHAiOjE3NDgyMjY0MjJ9.GPXOfYQz057kt0WEoDESRZMySYIBw2pa3aloFuVMyJA",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}users/approved",
+							"host": [
+								"{{BASEURL}}users"
+							],
+							"path": [
+								"approved"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "banned",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM0NDU4ZjhlNzIxMTM4ZDI5OTcwZiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQ1NjM0NDIyLCJleHAiOjE3NDgyMjY0MjJ9.GPXOfYQz057kt0WEoDESRZMySYIBw2pa3aloFuVMyJA",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}users/banned",
+							"host": [
+								"{{BASEURL}}users"
+							],
+							"path": [
+								"banned"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM0NDU4ZjhlNzIxMTM4ZDI5OTcwZiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQ1NjM0NDIyLCJleHAiOjE3NDgyMjY0MjJ9.GPXOfYQz057kt0WEoDESRZMySYIBw2pa3aloFuVMyJA",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}users/delete/680c4626ffc3251986417a5d",
+							"host": [
+								"{{BASEURL}}users"
+							],
+							"path": [
+								"delete",
+								"680c4626ffc3251986417a5d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all-for-admin",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM0NDU4ZjhlNzIxMTM4ZDI5OTcwZiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQ1NjM0NDIyLCJleHAiOjE3NDgyMjY0MjJ9.GPXOfYQz057kt0WEoDESRZMySYIBw2pa3aloFuVMyJA",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}users/all-for-admin",
+							"host": [
+								"{{BASEURL}}users"
+							],
+							"path": [
+								"all-for-admin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "profile-update-ref",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM0NjI2ZmZjMzI1MTk4NjQxN2E1ZCIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDEzMzMsImV4cCI6MTc0ODIzMzMzM30.7OkRA4bgO1qU385CAIMjr8z3pq9kMRqEdqGfjQXx6Us",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Denise Martinez\",\r\n    \"dob\": \"1970-04-02\",\r\n    \"identificationNumber\": \"9819163232381\",\r\n    \"identificationType\": \"Birth Registration\",\r\n    \"gender\": \"Other\",\r\n    \"religion\": \"Islam\",\r\n    \"occupation\": \"Solicitor\",\r\n    \"fatherName\": \"Austin Kelly\",\r\n    \"fatherPhoneNumber\": \"001-764-771-5854x0835\",\r\n    \"motherName\": \"Jennifer Bowman\",\r\n    \"motherPhoneNumber\": \"9541283510\",\r\n    \"smoking\": false,\r\n    \"email\": \"lopezlauren@barker-taylor.info\",\r\n    \"phone\": \"(731)932-8825x8225\",\r\n    \"alternatePhone\": \"243-521-7918x89332\",\r\n    \"whatsappNumber\": \"001-713-386-2695\",\r\n    \"password\": \"12345678\",\r\n    \"bloodGroup\": \"AB+\",\r\n    \"lastDonate\": \"2024-11-28\",\r\n    \"eligibility\": true,\r\n    \"nextDonationDate\": \"2025-05-15\",\r\n    \"district\": \"Kaylahaven\",\r\n    \"upazila\": \"shire\",\r\n    \"role\": \"Upazila Coordinator\",\r\n    \"roleSuffix\": \"\",\r\n    \"isApproved\": false,\r\n    \"isBanned\": false,\r\n    \"profileImage\": \"https://dummyimage.com/501x86\",\r\n    \"nidOrBirthRegistrationImage\": \"https://www.lorempixel.com/442/129\",\r\n    \"isVerified\": true,\r\n    \"reference\": \"Self\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}users/profile-update-ref/680c51bee4ad9b245757bfae",
+							"host": [
+								"{{BASEURL}}users"
+							],
+							"path": [
+								"profile-update-ref",
+								"680c51bee4ad9b245757bfae"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "profile-update",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM0NjI2ZmZjMzI1MTk4NjQxN2E1ZCIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDEzMzMsImV4cCI6MTc0ODIzMzMzM30.7OkRA4bgO1qU385CAIMjr8z3pq9kMRqEdqGfjQXx6Us",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n                \"name\": \"Joseph Gordon\",\r\n                \"dob\": \"1980-08-14\",\r\n                \"identificationNumber\": \"3228789944691\",\r\n                \"identificationType\": \"Birth Registration\",\r\n                \"gender\": \"Female\",\r\n                \"religion\": \"Hinduism\",\r\n                \"occupation\": \"Psychotherapist\",\r\n                \"fatherName\": \"Donald Ramirez\",\r\n                \"fatherPhoneNumber\": \"413.927.9873x1759\",\r\n                \"motherName\": \"Christine Romero\",\r\n                \"motherPhoneNumber\": \"7143258272\",\r\n                \"smoking\": true,\r\n                \"email\": \"ujones@yahoo.com\",\r\n                \"phone\": \"133.680.4975x07625\",\r\n                \"alternatePhone\": \"(668)112-7623\",\r\n                \"whatsappNumber\": \"(723)736-8962x605\",\r\n                \"password\": \"$2b$10$5/X.sUW.olfme3tjp8haAOzvvq4Ip7Wmq7LFfIaEpS8nQWl33TApW\",\r\n                \"bloodGroup\": \"A-\",\r\n                \"lastDonate\": \"2024-08-28\",\r\n                \"eligibility\": false,\r\n                \"nextDonationDate\": \"2025-06-05\",\r\n                \"district\": \"East Anaville\",\r\n                \"upazila\": \"port\",\r\n                \"role\": \"user\",\r\n                \"roleSuffix\": \"\",\r\n                \"isApproved\": true,\r\n                \"isBanned\": false,\r\n                \"profileImage\": \"https://placekitten.com/64/895\",\r\n                \"nidOrBirthRegistrationImage\": \"https://dummyimage.com/843x891\"\r\n            }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}users/profile-update/680c466bffc3251986417a61",
+							"host": [
+								"{{BASEURL}}users"
+							],
+							"path": [
+								"profile-update",
+								"680c466bffc3251986417a61"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "bloodgroup",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImltcmFuQGV4YW1wbGUuY29tIiwiaWQiOiI2ODA0ZTI5ZmNmODQzZDRmYjMyOTUwYjciLCJyb2xlIjoidm9sdW50ZWVyIiwiaWF0IjoxNzQ1MTUxNTY3LCJleHAiOjE3NDc3NDM1Njd9.hdv44JncRulrOYZ9mqdcnPBjX1pNH3YaObmPJrINgnc",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "  {\r\n    \"email\": \"imran@example.com\",\r\n    \"password\": \"imran456\"\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}users/profile/6804e29fcf843d4fb32950b7",
+							"host": [
+								"{{BASEURL}}users"
+							],
+							"path": [
+								"profile",
+								"6804e29fcf843d4fb32950b7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "nidOrBirthRegistrationNumber",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRhbnZpckBleGFtcGxlLmNvbSIsImlkIjoiNjgwOTE1ZDg3NWZlZmJjODQ4MzI0MGY0Iiwicm9sZSI6InZvbHVudGVlciIsImlhdCI6MTc0NTQyNzU4MSwiZXhwIjoxNzQ4MDE5NTgxfQ.4-C8q0AJwiO_mGvtEpRrir2j8W-rw3k1vhMGIk_Ijfo",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}users/nid-or-birth-registration/1995123456789",
+							"host": [
+								"{{BASEURL}}users"
+							],
+							"path": [
+								"nid-or-birth-registration",
+								"1995123456789"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Request",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM0NDU4ZjhlNzIxMTM4ZDI5OTcwZiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQ1NjM0NDIyLCJleHAiOjE3NDgyMjY0MjJ9.GPXOfYQz057kt0WEoDESRZMySYIBw2pa3aloFuVMyJA",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userId\": \"\",\r\n    \"bloodGroup\": \"A+\",\r\n    \"bloodUnit\": 2,\r\n    \"hospitalName\": \"Dhaka Medical College Hospital\",\r\n    \"upazila\": \"Dhanmondi\",\r\n    \"district\": \"Dhaka\",\r\n    \"contactNumber\": \"01712345678\",\r\n    \"contactRelation\": \"Brother\",\r\n    \"description\": \"Accident emergency, needs 2 units A+ blood urgently.\",\r\n    \"status\": \"pending\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}requests/create",
+							"host": [
+								"{{BASEURL}}requests"
+							],
+							"path": [
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "  {\r\n    \"userId\": \"6625fa9ea7c78e0b9a789001\",\r\n    \"bloodGroup\": \"A+\",\r\n    \"bloodUnit\": 2,\r\n    \"hospitalName\": \"Dhaka Medical College Hospital\",\r\n    \"upazila\": \"Dhanmondi\",\r\n    \"district\": \"Dhaka\",\r\n    \"contactNumber\": \"01712345678\",\r\n    \"contactRelation\": \"Sister\",\r\n    \"description\": \"Accident emergency, needs 2 units A+ blood urgently.\",\r\n    \"status\": \"pending\"\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}requests/update/680ded89e05d949107da86c6",
+							"host": [
+								"{{BASEURL}}requests"
+							],
+							"path": [
+								"update",
+								"680ded89e05d949107da86c6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "fulfill-by",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "  {\r\n    \r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}requests/fulfill-by/680ded89e05d949107da86c6",
+							"host": [
+								"{{BASEURL}}requests"
+							],
+							"path": [
+								"fulfill-by",
+								"680ded89e05d949107da86c6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "bloodgroup",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}requests/bloodgroup/A+",
+							"host": [
+								"{{BASEURL}}requests"
+							],
+							"path": [
+								"bloodgroup",
+								"A+"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}requests/680ded89e05d949107da86c6",
+							"host": [
+								"{{BASEURL}}requests"
+							],
+							"path": [
+								"680ded89e05d949107da86c6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM0NDU4ZjhlNzIxMTM4ZDI5OTcwZiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQ1NjM0NDIyLCJleHAiOjE3NDgyMjY0MjJ9.GPXOfYQz057kt0WEoDESRZMySYIBw2pa3aloFuVMyJA",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \"name\": \"William Ford\",\r\n    \"dob\": \"1991-01-14\",\r\n    \"identificationNumber\": \"2426598844084\",\r\n    \"identificationType\": \"NID\",\r\n    \"gender\": \"Female\",\r\n    \"religion\": \"Hinduism\",\r\n    \"occupation\": \"Psychologist, counselling\",\r\n    \"fatherName\": \"Joseph Sanchez\",\r\n    \"fatherPhoneNumber\": \"+1-254-474-8853x042\",\r\n    \"motherName\": \"Jill Hood\",\r\n    \"motherPhoneNumber\": \"(484)481-2776x0139\",\r\n    \"smoking\": false,\r\n    \"email\": \"whernandez@rosario.com\",\r\n    \"phone\": \"(215)696-1452x9585\",\r\n    \"alternatePhone\": \"225.355.8572x665\",\r\n    \"whatsappNumber\": \"(126)445-7479x26735\",\r\n    \"password\": \"12345678\",\r\n    \"bloodGroup\": \"O+\",\r\n    \"lastDonate\": \"2024-08-08\",\r\n    \"eligibility\": true,\r\n    \"nextDonationDate\": \"2025-06-25\",\r\n    \"district\": \"Collierhaven\",\r\n    \"upazila\": \"stad\",\r\n    \"role\": \"District Sub-Coordinator\",\r\n    \"roleSuffix\": \"\",\r\n    \"isApproved\": true,\r\n    \"isBanned\": false,\r\n    \"profileImage\": \"https://www.lorempixel.com/1007/139\",\r\n    \"nidOrBirthRegistrationImage\": \"https://placeimg.com/914/491/any\",\r\n    \"isVerified\": false,\r\n    \"reference\": \"Self\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}requests/all",
+							"host": [
+								"{{BASEURL}}requests"
+							],
+							"path": [
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user-id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}requests/user/requests",
+							"host": [
+								"{{BASEURL}}requests"
+							],
+							"path": [
+								"user",
+								"requests"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM0NDU4ZjhlNzIxMTM4ZDI5OTcwZiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQ1NjM0NDIyLCJleHAiOjE3NDgyMjY0MjJ9.GPXOfYQz057kt0WEoDESRZMySYIBw2pa3aloFuVMyJA",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \"name\": \"William Ford\",\r\n    \"dob\": \"1991-01-14\",\r\n    \"identificationNumber\": \"2426598844084\",\r\n    \"identificationType\": \"NID\",\r\n    \"gender\": \"Female\",\r\n    \"religion\": \"Hinduism\",\r\n    \"occupation\": \"Psychologist, counselling\",\r\n    \"fatherName\": \"Joseph Sanchez\",\r\n    \"fatherPhoneNumber\": \"+1-254-474-8853x042\",\r\n    \"motherName\": \"Jill Hood\",\r\n    \"motherPhoneNumber\": \"(484)481-2776x0139\",\r\n    \"smoking\": false,\r\n    \"email\": \"whernandez@rosario.com\",\r\n    \"phone\": \"(215)696-1452x9585\",\r\n    \"alternatePhone\": \"225.355.8572x665\",\r\n    \"whatsappNumber\": \"(126)445-7479x26735\",\r\n    \"password\": \"12345678\",\r\n    \"bloodGroup\": \"O+\",\r\n    \"lastDonate\": \"2024-08-08\",\r\n    \"eligibility\": true,\r\n    \"nextDonationDate\": \"2025-06-25\",\r\n    \"district\": \"Collierhaven\",\r\n    \"upazila\": \"stad\",\r\n    \"role\": \"District Sub-Coordinator\",\r\n    \"roleSuffix\": \"\",\r\n    \"isApproved\": true,\r\n    \"isBanned\": false,\r\n    \"profileImage\": \"https://www.lorempixel.com/1007/139\",\r\n    \"nidOrBirthRegistrationImage\": \"https://placeimg.com/914/491/any\",\r\n    \"isVerified\": false,\r\n    \"reference\": \"Self\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}requests/delete/680deb97e05d949107da86b3",
+							"host": [
+								"{{BASEURL}}requests"
+							],
+							"path": [
+								"delete",
+								"680deb97e05d949107da86b3"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "UserOTP",
+			"item": [
+				{
+					"name": "generate",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "  {\r\n    \"email\": \"whernandez@rosario.com\"\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}otp/generate",
+							"host": [
+								"{{BASEURL}}otp"
+							],
+							"path": [
+								"generate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "verify",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "  {\r\n    \"email\": \"whernandez@rosario.com\",\r\n    \"otp\": \"763169\"\r\n    \r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}otp/verify",
+							"host": [
+								"{{BASEURL}}otp"
+							],
+							"path": [
+								"verify"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Sponsor",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "  {\r\n    \"name\": \"Square Pharmaceuticals Ltd.\",\r\n    \"logo\": \"https://example.com/uploads/sponsors/square-pharma-logo.png\",\r\n    \"coverImage\": \"https://example.com/uploads/sponsors/square-pharma-cover.jpg\",\r\n    \"website\": \"https://www.squarepharma.com.bd\",\r\n    \"description\": \"Leading pharmaceutical company promoting healthcare projects nationwide.\",\r\n    \"contactPerson\": {\r\n      \"name\": \"Dr. Nazmul Islam\",\r\n      \"email\": \"nazmul.islam@squarepharma.com.bd\",\r\n      \"phone\": \"01911123456\"\r\n    },\r\n    \"sponsorType\": \"silver\",\r\n    \"events\": [],\r\n    \"active\": true\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}sponsors/create",
+							"host": [
+								"{{BASEURL}}sponsors"
+							],
+							"path": [
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "  {\r\n    \"name\": \"Square Pharmaceuticals Ltd.\",\r\n    \"logo\": \"https://example.com/uploads/sponsors/square-pharma-logo.png\",\r\n    \"coverImage\": \"https://example.com/uploads/sponsors/square-pharma-cover.jpg\",\r\n    \"website\": \"https://www.squarepharma.com.bd\",\r\n    \"description\": \"Leading pharmaceutical company promoting healthcare projects nationwide.\",\r\n    \"contactPerson\": {\r\n      \"name\": \"Dr. Nazmul Islam\",\r\n      \"email\": \"nazmul.islam@squarepharma.com.bd\",\r\n      \"phone\": \"01911123456\"\r\n    },\r\n    \"sponsorType\": \"Gold\",\r\n    \"events\": [],\r\n    \"active\": true\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}sponsors/update/680e00e40d8b6119bfc9029e",
+							"host": [
+								"{{BASEURL}}sponsors"
+							],
+							"path": [
+								"update",
+								"680e00e40d8b6119bfc9029e"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}sponsors/delete/680e00e40d8b6119bfc9029e",
+							"host": [
+								"{{BASEURL}}sponsors"
+							],
+							"path": [
+								"delete",
+								"680e00e40d8b6119bfc9029e"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}sponsors/all",
+							"host": [
+								"{{BASEURL}}sponsors"
+							],
+							"path": [
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}sponsors/get/680e00d30d8b6119bfc9029a",
+							"host": [
+								"{{BASEURL}}sponsors"
+							],
+							"path": [
+								"get",
+								"680e00d30d8b6119bfc9029a"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Upazila Team",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n  \"upazilaName\": \"6807a6f2129c464db1923d76\",\r\n  \"upazilaCoordinator\": \"680ce238df5e9f511a062aa1\",\r\n  \"upazilaSubCoordinator\": \"680ce22adf5e9f511a062a9c\",\r\n  \"upazilaITMediaCoordinator\": \"680ce1b2df5e9f511a062a91\",\r\n  \"upazilaLogisticsCoordinator\": \"680ca5f9ba2c8d039d9ac758\",\r\n  \"monitorTeams\": [\r\n    \"680ce3cfdf5e9f511a062aa9\"\r\n  ]\r\n}\r\n  ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}upazila-team/create",
+							"host": [
+								"{{BASEURL}}upazila-team"
+							],
+							"path": [
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}upazila-team/all",
+							"host": [
+								"{{BASEURL}}upazila-team"
+							],
+							"path": [
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}upazila-team/get/680d160c135fb8e5de71a6f3",
+							"host": [
+								"{{BASEURL}}upazila-team"
+							],
+							"path": [
+								"get",
+								"680d160c135fb8e5de71a6f3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-by-upazila-coordinators-user-id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}upazila-team/get-by-upazila-coordinators-user-id",
+							"host": [
+								"{{BASEURL}}upazila-team"
+							],
+							"path": [
+								"get-by-upazila-coordinators-user-id"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n  \"upazilaName\": \"6807a6f2129c464db1923d76\",\r\n  \"upazilaCoordinator\": \"680ca5f9ba2c8d039d9ac758\",\r\n  \"upazilaSubCoordinator\": \"680ce22adf5e9f511a062a9c\",\r\n  \"upazilaITMediaCoordinator\": \"680ce1b2df5e9f511a062a91\",\r\n  \"upazilaLogisticsCoordinator\": \"680ca5f9ba2c8d039d9ac758\",\r\n  \"monitorTeams\": [\r\n    \"680ce3cfdf5e9f511a062aa9\"\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}upazila-team/update/680d160c135fb8e5de71a6f3",
+							"host": [
+								"{{BASEURL}}upazila-team"
+							],
+							"path": [
+								"update",
+								"680d160c135fb8e5de71a6f3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update Copy",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}upazila-team/delete/680d160c135fb8e5de71a6f3",
+							"host": [
+								"{{BASEURL}}upazila-team"
+							],
+							"path": [
+								"delete",
+								"680d160c135fb8e5de71a6f3"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Board Team",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n   \"userId\": \"680c73ea6f1b81f6b3f65fe7\",\r\n    \"designation\": \"Treasurer\",\r\n    \"bio\": \"Mr. Zahidul Islam is responsible for maintaining the financial and donation records of the organization.\",\r\n    \"socialLinks\": {\r\n      \"facebook\": \"https://facebook.com/zahidulislam\",\r\n      \"whatsapp\": \"01912345678\",\r\n      \"linkedin\": \"https://linkedin.com/in/zahidulislam\",\r\n      \"instagram\": \"https://instagram.com/zahidulislam\"\r\n    },\r\n    \"active\": true,\r\n    \"featured\": false,\r\n    \"order\": 3\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}board-team/create",
+							"host": [
+								"{{BASEURL}}board-team"
+							],
+							"path": [
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n   \"userId\": \"680e0776cf7e742a6056417e\",\r\n    \"designation\": \"Board Member\",\r\n    \"bio\": \"Mr. Zahidul Islam is responsible for maintaining the financial and donation records of the organization.\",\r\n    \"socialLinks\": {\r\n      \"facebook\": \"https://facebook.com/zahidulislam\",\r\n      \"whatsapp\": \"01912345678\",\r\n      \"linkedin\": \"https://linkedin.com/in/zahidulislam\",\r\n      \"instagram\": \"https://instagram.com/zahidulislam\"\r\n    },\r\n    \"active\": true,\r\n    \"featured\": false,\r\n    \"order\": 3\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}board-team/update/680e0776cf7e742a6056417e",
+							"host": [
+								"{{BASEURL}}board-team"
+							],
+							"path": [
+								"update",
+								"680e0776cf7e742a6056417e"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update Copy",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}board-team/delete/680e0776cf7e742a6056417e",
+							"host": [
+								"{{BASEURL}}board-team"
+							],
+							"path": [
+								"delete",
+								"680e0776cf7e742a6056417e"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}board-team/all",
+							"host": [
+								"{{BASEURL}}board-team"
+							],
+							"path": [
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}board-team/get/680e065fe25aaf9f6bbca2c5",
+							"host": [
+								"{{BASEURL}}board-team"
+							],
+							"path": [
+								"get",
+								"680e065fe25aaf9f6bbca2c5"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Divisional Team",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"divisionID\": \"680dd08b80cec08d125b660f\",\r\n  \"divisionalCoordinatorID\": \"680dca3a7988d8daf2065ea3\",\r\n  \"divisionalSubCoordinatorID\": \"680dca477988d8daf2065ea8\",\r\n  \"districtTeamID\": [\r\n    \"680dba0ee79e57078865f343\"\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}divisional-team/create",
+							"host": [
+								"{{BASEURL}}divisional-team"
+							],
+							"path": [
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userId\": \"6804e099cf843d4fb32950a4\",\r\n    \"designation\": \"Chairman\",\r\n    \"bio\": \"Visionary leader guiding the organization with experience and integrity.\",\r\n    \"socialLinks\": {\r\n      \"facebook\": \"https://facebook.com/chairman.user\",\r\n      \"whatsapp\": \"https://wa.me/8801123456789\",\r\n      \"linkedin\": \"https://linkedin.com/in/chairman-user\",\r\n      \"instagram\": \"https://instagram.com/chairman.user\"\r\n    },\r\n    \"active\": true,\r\n    \"featured\": true,\r\n    \"order\": 1\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}divisional-team/all",
+							"host": [
+								"{{BASEURL}}divisional-team"
+							],
+							"path": [
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}divisional-team/get/680dd0c19214ff84588d996c",
+							"host": [
+								"{{BASEURL}}divisional-team"
+							],
+							"path": [
+								"get",
+								"680dd0c19214ff84588d996c"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-by-divisional-coordinators-user-id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}divisional-team/get-by-divisional-coordinators-user-id",
+							"host": [
+								"{{BASEURL}}divisional-team"
+							],
+							"path": [
+								"get-by-divisional-coordinators-user-id"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"divisionID\": \"680dd08b80cec08d125b660f\",\r\n  \"divisionalCoordinatorID\": \"680dd4f3fc39d83bea1177dc\",\r\n  \"divisionalSubCoordinatorID\": \"680dca477988d8daf2065ea8\",\r\n  \"districtTeamID\": [\r\n    \"680dba0ee79e57078865f343\"\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}divisional-team/update/680dd0c19214ff84588d996c",
+							"host": [
+								"{{BASEURL}}divisional-team"
+							],
+							"path": [
+								"update",
+								"680dd0c19214ff84588d996c"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}divisional-team/delete/680dd0c19214ff84588d996c",
+							"host": [
+								"{{BASEURL}}divisional-team"
+							],
+							"path": [
+								"delete",
+								"680dd0c19214ff84588d996c"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "District Team",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"districtId\": \"680788f7c153dc03ebfeed54\",\r\n  \"districtCoordinatorID\": \"680db4117b1bff97ba327eec\",\r\n  \"districtSubCoordinatorID\": \"680db43d7b1bff97ba327ef1\",\r\n  \"districtITMediaCoordinatorID\": \"680db4b47b1bff97ba327ef6\",\r\n  \"districtLogisticsCoordinatorID\": \"680db4df7b1bff97ba327efb\",\r\n  \"upazilaTeamID\": [\r\n    \"680d160c135fb8e5de71a6f3\"\r\n  ]\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}district-team/create",
+							"host": [
+								"{{BASEURL}}district-team"
+							],
+							"path": [
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}district-team/all",
+							"host": [
+								"{{BASEURL}}district-team"
+							],
+							"path": [
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}district-team/get/680dba0ee79e57078865f343",
+							"host": [
+								"{{BASEURL}}district-team"
+							],
+							"path": [
+								"get",
+								"680dba0ee79e57078865f343"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-by-district-coordinators-user-id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}district-team/get-by-district-coordinators-user-id",
+							"host": [
+								"{{BASEURL}}district-team"
+							],
+							"path": [
+								"get-by-district-coordinators-user-id"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"districtId\": \"680788f7c153dc03ebfeed54\",\r\n  \"districtCoordinatorID\": \"680ce238df5e9f511a062aa1\",\r\n  \"districtSubCoordinatorID\": \"680db43d7b1bff97ba327ef1\",\r\n  \"districtITMediaCoordinatorID\": \"680db4b47b1bff97ba327ef6\",\r\n  \"districtLogisticsCoordinatorID\": \"680db4df7b1bff97ba327efb\",\r\n  \"upazilaTeamID\": [\r\n    \"680d160c135fb8e5de71a6f3\"\r\n  ]\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}district-team/update/680dba0ee79e57078865f343",
+							"host": [
+								"{{BASEURL}}district-team"
+							],
+							"path": [
+								"update",
+								"680dba0ee79e57078865f343"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"districtId\": \"680788f7c153dc03ebfeed54\",\r\n  \"districtCoordinatorID\": \"680ce238df5e9f511a062aa1\",\r\n  \"districtSubCoordinatorID\": \"680db43d7b1bff97ba327ef1\",\r\n  \"districtITMediaCoordinatorID\": \"680db4b47b1bff97ba327ef6\",\r\n  \"districtLogisticsCoordinatorID\": \"680db4df7b1bff97ba327efb\",\r\n  \"upazilaTeamID\": [\r\n    \"680d160c135fb8e5de71a6f3\"\r\n  ]\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}district-team/delete/680dba0ee79e57078865f343",
+							"host": [
+								"{{BASEURL}}district-team"
+							],
+							"path": [
+								"delete",
+								"680dba0ee79e57078865f343"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Districts",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImZhaGltQGV4YW1wbGUuY29tIiwiaWQiOiI2ODA0ZTI4MWNmODQzZDRmYjMyOTUwYjEiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDUyNzg4OTMsImV4cCI6MTc0Nzg3MDg5M30.7nUfY9wTsqH9_sgunXSjmte8mSyhdDxIriNPMo1uF9s",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \"name\": \"Gopalganj\", \"bengaliName\": \"গোপালগঞ্জ\", \"order\": 20 }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}districts/create",
+							"host": [
+								"{{BASEURL}}districts"
+							],
+							"path": [
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImZhaGltQGV4YW1wbGUuY29tIiwiaWQiOiI2ODA0ZTI4MWNmODQzZDRmYjMyOTUwYjEiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDUyNzg4OTMsImV4cCI6MTc0Nzg3MDg5M30.7nUfY9wTsqH9_sgunXSjmte8mSyhdDxIriNPMo1uF9s",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}districts/all",
+							"host": [
+								"{{BASEURL}}districts"
+							],
+							"path": [
+								"all"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "UpazilasOrPS",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImZhaGltQGV4YW1wbGUuY29tIiwiaWQiOiI2ODA0ZTI4MWNmODQzZDRmYjMyOTUwYjEiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDUyNzg4OTMsImV4cCI6MTc0Nzg3MDg5M30.7nUfY9wTsqH9_sgunXSjmte8mSyhdDxIriNPMo1uF9s",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "  {\r\n    \"name\": \"TITAS\",\r\n    \"bengaliName\": \"তিতাস\",\r\n    \"district\": \"68078899c153dc03ebfeed3c\",\r\n    \"order\": 18\r\n  }\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}upazilas-or-ps/create",
+							"host": [
+								"{{BASEURL}}upazilas-or-ps"
+							],
+							"path": [
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "upazilas-or-ps",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImZhaGltQGV4YW1wbGUuY29tIiwiaWQiOiI2ODA0ZTI4MWNmODQzZDRmYjMyOTUwYjEiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDUyNzg4OTMsImV4cCI6MTc0Nzg3MDg5M30.7nUfY9wTsqH9_sgunXSjmte8mSyhdDxIriNPMo1uF9s",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}upazilas-or-ps/by-district/68078899c153dc03ebfeed3c",
+							"host": [
+								"{{BASEURL}}upazilas-or-ps"
+							],
+							"path": [
+								"by-district",
+								"68078899c153dc03ebfeed3c"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ModeratorTeam",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"moderatorTeamName\": \"\",\r\n    \"moderatorName\": \"680c788e5244985fd6f114ba\",\r\n    \"moderatorTeamMembers\": [\r\n      \"680c96663db7461a659b0e77\",\r\n      \"680c96873db7461a659b0e7c\"\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}moderator-team/create",
+							"host": [
+								"{{BASEURL}}moderator-team"
+							],
+							"path": [
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"moderatorTeamMembers\": [\r\n      \"680c78ca5244985fd6f114c4\"\r\n\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}moderator-team/update/680c7d99cbd16bad5d44a335",
+							"host": [
+								"{{BASEURL}}moderator-team"
+							],
+							"path": [
+								"update",
+								"680c7d99cbd16bad5d44a335"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add-member",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"memberId\": \"680c788e5244985fd6f114ba\"\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}moderator-team/add-member/680c7d99cbd16bad5d44a335",
+							"host": [
+								"{{BASEURL}}moderator-team"
+							],
+							"path": [
+								"add-member",
+								"680c7d99cbd16bad5d44a335"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "remove-member",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"memberId\": \"680c788e5244985fd6f114ba\"\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}moderator-team/remove-member/680c7d99cbd16bad5d44a335",
+							"host": [
+								"{{BASEURL}}moderator-team"
+							],
+							"path": [
+								"remove-member",
+								"680c7d99cbd16bad5d44a335"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"memberId\": \"680c788e5244985fd6f114ba\"\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}moderator-team/delete/680c7d99cbd16bad5d44a335",
+							"host": [
+								"{{BASEURL}}moderator-team"
+							],
+							"path": [
+								"delete",
+								"680c7d99cbd16bad5d44a335"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}moderator-team/all",
+							"host": [
+								"{{BASEURL}}moderator-team"
+							],
+							"path": [
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}moderator-team/get/680c95c33db7461a659b0e62",
+							"host": [
+								"{{BASEURL}}moderator-team"
+							],
+							"path": [
+								"get",
+								"680c95c33db7461a659b0e62"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-by-moderator-user-id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}moderator-team/get-by-moderator-user-id",
+							"host": [
+								"{{BASEURL}}moderator-team"
+							],
+							"path": [
+								"get-by-moderator-user-id"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Monitor Team",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"teamName\": \"\",\r\n  \"teamMonitor\": \"680ca5f9ba2c8d039d9ac758\",\r\n  \"moderatorTeamID\": [\r\n    \"680c95c33db7461a659b0e62\",\r\n    \"680c96ae3db7461a659b0e88\"\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}monitor-team/create",
+							"host": [
+								"{{BASEURL}}monitor-team"
+							],
+							"path": [
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"teamName\": \"\",\r\n  \"teamMonitor\": \"680c96873db7461a659b0e7c\",\r\n  \"moderatorTeamID\": [\r\n    \"680c95c33db7461a659b0e62\",\r\n    \"680c96ae3db7461a659b0e88\"\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}monitor-team/update/680cba6b78c9af6cdd22dd12",
+							"host": [
+								"{{BASEURL}}monitor-team"
+							],
+							"path": [
+								"update",
+								"680cba6b78c9af6cdd22dd12"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"teamName\": \"\",\r\n  \"teamMonitor\": \"680ca5f9ba2c8d039d9ac758\",\r\n  \"moderatorTeamID\": [\r\n    \"680c95c33db7461a659b0e62\",\r\n    \"680c96ae3db7461a659b0e88\"\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}monitor-team/delete/680cba6b78c9af6cdd22dd12",
+							"host": [
+								"{{BASEURL}}monitor-team"
+							],
+							"path": [
+								"delete",
+								"680cba6b78c9af6cdd22dd12"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}monitor-team/all",
+							"host": [
+								"{{BASEURL}}monitor-team"
+							],
+							"path": [
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}monitor-team/get/680ce3cfdf5e9f511a062aa9",
+							"host": [
+								"{{BASEURL}}monitor-team"
+							],
+							"path": [
+								"get",
+								"680ce3cfdf5e9f511a062aa9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-by-monitor-user-id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}monitor-team/get-by-monitor-user-id",
+							"host": [
+								"{{BASEURL}}monitor-team"
+							],
+							"path": [
+								"get-by-monitor-user-id"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Carousel",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n \"imageUrl\": \"https://example.com/uploads/carousels/blood-donor-day.jpg\",\r\n    \"linkUrl\": \"https://example.com/events/world-blood-donor-day\",\r\n    \"isActive\": true,\r\n    \"order\": 3\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}carousel/create",
+							"host": [
+								"{{BASEURL}}carousel"
+							],
+							"path": [
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n \"imageUrl\": \"https://example.com/uploads/carousels/1111111blood-donor-day.jpg\",\r\n    \"linkUrl\": \"https://example.com/events/world-blood-donor-day\",\r\n    \"isActive\": false,\r\n    \"order\": 3\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}carousel/update/680e0b3ecec6553363b69944",
+							"host": [
+								"{{BASEURL}}carousel"
+							],
+							"path": [
+								"update",
+								"680e0b3ecec6553363b69944"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}carousel/delete/680e0b3ecec6553363b69944",
+							"host": [
+								"{{BASEURL}}carousel"
+							],
+							"path": [
+								"delete",
+								"680e0b3ecec6553363b69944"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}carousel/all",
+							"host": [
+								"{{BASEURL}}carousel"
+							],
+							"path": [
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}carousel/680e0b21cec6553363b6993e",
+							"host": [
+								"{{BASEURL}}carousel"
+							],
+							"path": [
+								"680e0b21cec6553363b6993e"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "active",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}carousel/active",
+							"host": [
+								"{{BASEURL}}carousel"
+							],
+							"path": [
+								"active"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Event",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Emergency Blood Collection Drive - Chattogram\",\r\n    \"eventCard\": \"Be a Lifesaver Today\",\r\n    \"description\": \"Urgent blood collection for critical patients in Chattogram Medical Hospital.\",\r\n    \"date\": \"2025-05-28T02:33:33.910739\",\r\n    \"time\": \"11:00 AM - 5:00 PM\",\r\n    \"upazila\": \"6807aa250fc568abe34a36fb\",\r\n    \"district\": \"6807873d392bdb4b0ecb2f40\",\r\n    \"googleMapLink\": \"https://goo.gl/maps/efgh5678\",\r\n    \"image\": [\r\n    ],\r\n    \"organizer\": \"680667f30a8c96983e95def6\",\r\n    \"status\": \"upcoming\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}events/create",
+							"host": [
+								"{{BASEURL}}events"
+							],
+							"path": [
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Emergency Blood Collection Drive - Chattogram\",\r\n    \"eventCard\": \"Be a Lifesaver Today\",\r\n    \"description\": \"Urgent blood collection for critical patients in Chattogram Medical Hospital.\",\r\n    \"date\": \"2025-05-28T02:33:33.910739\",\r\n    \"time\": \"11:00 AM - 5:00 PM\",\r\n    \"upazila\": \"6807aa250fc568abe34a36fb\",\r\n    \"district\": \"6807873d392bdb4b0ecb2f40\",\r\n    \"googleMapLink\": \"https://goo.gl/maps/efgh5678\",\r\n    \"image\": [\r\n    \"https://example.com/image1.jpg\",\r\n    \"https://example.com/image2.jpg\"\r\n  ],\r\n    \"organizer\": \"680667f30a8c96983e95def6\",\r\n    \"status\": \"completed\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}events/update/680f3cf0cd7ad65d7f46b122",
+							"host": [
+								"{{BASEURL}}events"
+							],
+							"path": [
+								"update",
+								"680f3cf0cd7ad65d7f46b122"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update Copy",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Emergency Blood Collection Drive - Chattogram\",\r\n    \"eventCard\": \"Be a Lifesaver Today\",\r\n    \"description\": \"Urgent blood collection for critical patients in Chattogram Medical Hospital.\",\r\n    \"date\": \"2025-05-28T02:33:33.910739\",\r\n    \"time\": \"11:00 AM - 5:00 PM\",\r\n    \"upazila\": \"6807aa250fc568abe34a36fb\",\r\n    \"district\": \"6807873d392bdb4b0ecb2f40\",\r\n    \"googleMapLink\": \"https://goo.gl/maps/efgh5678\",\r\n    \"image\": [\r\n    \"https://example.com/image1.jpg\",\r\n    \"https://example.com/image2.jpg\"\r\n  ],\r\n    \"organizer\": \"680667f30a8c96983e95def6\",\r\n    \"status\": \"completed\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}events/delete/680f3c2acd7ad65d7f46b114",
+							"host": [
+								"{{BASEURL}}events"
+							],
+							"path": [
+								"delete",
+								"680f3c2acd7ad65d7f46b114"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Blood Donation Awareness Campaign - Sylhet\",\r\n    \"eventCard\": \"Donate Blood, Save Lives\",\r\n    \"description\": \"Let's join hands and donate blood to save lives in Sylhet region.\",\r\n    \"date\": \"2025-05-23T02:33:33.910710\",\r\n    \"time\": \"10:00 AM - 4:00 PM\",\r\n    \"upazila\": \"6625fb8aa7c78e0b9a777001\",\r\n    \"district\": \"6625fb8aa7c78e0b9a777101\",\r\n    \"googleMapLink\": \"https://goo.gl/maps/abcd1234\",\r\n    \"image\": [\r\n      \"https://example.com/uploads/events/event1_img1.jpg\",\r\n      \"https://example.com/uploads/events/event1_img2.jpg\"\r\n    ],\r\n    \"organizer\": \"6625fb8aa7c78e0b9a777201\",\r\n    \"status\": \"upcoming\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}events/all",
+							"host": [
+								"{{BASEURL}}events"
+							],
+							"path": [
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Blood Donation Awareness Campaign - Sylhet\",\r\n    \"eventCard\": \"Donate Blood, Save Lives\",\r\n    \"description\": \"Let's join hands and donate blood to save lives in Sylhet region.\",\r\n    \"date\": \"2025-05-23T02:33:33.910710\",\r\n    \"time\": \"10:00 AM - 4:00 PM\",\r\n    \"upazila\": \"6625fb8aa7c78e0b9a777001\",\r\n    \"district\": \"6625fb8aa7c78e0b9a777101\",\r\n    \"googleMapLink\": \"https://goo.gl/maps/abcd1234\",\r\n    \"image\": [\r\n      \"https://example.com/uploads/events/event1_img1.jpg\",\r\n      \"https://example.com/uploads/events/event1_img2.jpg\"\r\n    ],\r\n    \"organizer\": \"6625fb8aa7c78e0b9a777201\",\r\n    \"status\": \"upcoming\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}events/get/680f3cf0cd7ad65d7f46b122",
+							"host": [
+								"{{BASEURL}}events"
+							],
+							"path": [
+								"get",
+								"680f3cf0cd7ad65d7f46b122"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "upcoming",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Blood Donation Awareness Campaign - Sylhet\",\r\n    \"eventCard\": \"Donate Blood, Save Lives\",\r\n    \"description\": \"Let's join hands and donate blood to save lives in Sylhet region.\",\r\n    \"date\": \"2025-05-23T02:33:33.910710\",\r\n    \"time\": \"10:00 AM - 4:00 PM\",\r\n    \"upazila\": \"6625fb8aa7c78e0b9a777001\",\r\n    \"district\": \"6625fb8aa7c78e0b9a777101\",\r\n    \"googleMapLink\": \"https://goo.gl/maps/abcd1234\",\r\n    \"image\": [\r\n      \"https://example.com/uploads/events/event1_img1.jpg\",\r\n      \"https://example.com/uploads/events/event1_img2.jpg\"\r\n    ],\r\n    \"organizer\": \"6625fb8aa7c78e0b9a777201\",\r\n    \"status\": \"upcoming\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}events/upcoming",
+							"host": [
+								"{{BASEURL}}events"
+							],
+							"path": [
+								"upcoming"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Want To Donate Blood",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"date\": \"2025-05-10\",\r\n    \"district\": \"Dhaka\",\r\n    \"upazila\": \"Dhanmondi\",\r\n    \"message\": \"I want to donate blood for thalassemia patients.\",\r\n    \"bloodCollectedBy\": null,\r\n    \"status\": \"pending\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}want-to-donate/create",
+							"host": [
+								"{{BASEURL}}want-to-donate"
+							],
+							"path": [
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Emergency Blood Collection Drive - Chattogram\",\r\n    \"eventCard\": \"Be a Lifesaver Today\",\r\n    \"description\": \"Urgent blood collection for critical patients in Chattogram Medical Hospital.\",\r\n    \"date\": \"2025-05-28T02:33:33.910739\",\r\n    \"time\": \"11:00 AM - 5:00 PM\",\r\n    \"upazila\": \"6807aa250fc568abe34a36fb\",\r\n    \"district\": \"6807873d392bdb4b0ecb2f40\",\r\n    \"googleMapLink\": \"https://goo.gl/maps/efgh5678\",\r\n    \"image\": [\r\n    \"https://example.com/image1.jpg\",\r\n    \"https://example.com/image2.jpg\"\r\n  ],\r\n    \"organizer\": \"680667f30a8c96983e95def6\",\r\n    \"status\": \"completed\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}want-to-donate/delete/680fa894e7088674c47fe301",
+							"host": [
+								"{{BASEURL}}want-to-donate"
+							],
+							"path": [
+								"delete",
+								"680fa894e7088674c47fe301"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"bloodDonorUserId\": \"680c78ca5244985fd6f114c4\",\r\n    \"date\": \"2025-06-10\",\r\n    \"district\": \"Dhaka\",\r\n    \"upazila\": \"Dhanmondi\",\r\n    \"message\": \"I want to donate blood for thalassemia patients.\",\r\n    \"bloodCollectedBy\": null,\r\n    \"status\": \"pending\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}want-to-donate/update/680fa386ae6e7aa6bb915292",
+							"host": [
+								"{{BASEURL}}want-to-donate"
+							],
+							"path": [
+								"update",
+								"680fa386ae6e7aa6bb915292"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}want-to-donate/all",
+							"host": [
+								"{{BASEURL}}want-to-donate"
+							],
+							"path": [
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Blood Donation Awareness Campaign - Sylhet\",\r\n    \"eventCard\": \"Donate Blood, Save Lives\",\r\n    \"description\": \"Let's join hands and donate blood to save lives in Sylhet region.\",\r\n    \"date\": \"2025-05-23T02:33:33.910710\",\r\n    \"time\": \"10:00 AM - 4:00 PM\",\r\n    \"upazila\": \"6625fb8aa7c78e0b9a777001\",\r\n    \"district\": \"6625fb8aa7c78e0b9a777101\",\r\n    \"googleMapLink\": \"https://goo.gl/maps/abcd1234\",\r\n    \"image\": [\r\n      \"https://example.com/uploads/events/event1_img1.jpg\",\r\n      \"https://example.com/uploads/events/event1_img2.jpg\"\r\n    ],\r\n    \"organizer\": \"6625fb8aa7c78e0b9a777201\",\r\n    \"status\": \"upcoming\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}want-to-donate/get/680fa386ae6e7aa6bb915292",
+							"host": [
+								"{{BASEURL}}want-to-donate"
+							],
+							"path": [
+								"get",
+								"680fa386ae6e7aa6bb915292"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Blood Donation Awareness Campaign - Sylhet\",\r\n    \"eventCard\": \"Donate Blood, Save Lives\",\r\n    \"description\": \"Let's join hands and donate blood to save lives in Sylhet region.\",\r\n    \"date\": \"2025-05-23T02:33:33.910710\",\r\n    \"time\": \"10:00 AM - 4:00 PM\",\r\n    \"upazila\": \"6625fb8aa7c78e0b9a777001\",\r\n    \"district\": \"6625fb8aa7c78e0b9a777101\",\r\n    \"googleMapLink\": \"https://goo.gl/maps/abcd1234\",\r\n    \"image\": [\r\n      \"https://example.com/uploads/events/event1_img1.jpg\",\r\n      \"https://example.com/uploads/events/event1_img2.jpg\"\r\n    ],\r\n    \"organizer\": \"6625fb8aa7c78e0b9a777201\",\r\n    \"status\": \"upcoming\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}want-to-donate/user",
+							"host": [
+								"{{BASEURL}}want-to-donate"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-blood-collected-by",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"bloodCollectedBy\": \"680c78b55244985fd6f114bf\",\r\n    \"status\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}want-to-donate/update-blood-collected-by/680fa386ae6e7aa6bb915292",
+							"host": [
+								"{{BASEURL}}want-to-donate"
+							],
+							"path": [
+								"update-blood-collected-by",
+								"680fa386ae6e7aa6bb915292"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Website Config",
+			"item": [
+				{
+					"name": "upsert",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"logo\": \"https://example.com/uploads/logo/logo.png\",\r\n  \"favicon\": \"https://example.com/uploads/logo/favicon.ico\",\r\n  \"contactInfo\": {\r\n    \"email\": \"info@blooddonationbd.org\",\r\n    \"phone\": \"+8801712345678\",\r\n    \"address\": \"123, Dhanmondi, Dhaka-1209, Bangladesh\"\r\n  },\r\n  \"socialMedia\": {\r\n    \"facebook\": \"https://facebook.com/blooddonationbd\",\r\n    \"instagram\": \"https://instagram.com/blooddonationbd\",\r\n    \"linkedin\": \"https://linkedin.com/company/blooddonationbd\",\r\n    \"youtube\": \"https://youtube.com/@blooddonationbd\"\r\n  },\r\n  \"metaTags\": {\r\n    \"title\": \"Blood Donation Bangladesh - Save Lives Today\",\r\n    \"image\": \"https://example.com/uploads/meta/meta-image.jpg\",\r\n    \"description\": \"Join Blood Donation Bangladesh and save precious lives through voluntary blood donations.\",\r\n    \"keywords\": \"blood donation, donate blood, save lives, Bangladesh, voluntary blood donation\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}config/upsert",
+							"host": [
+								"{{BASEURL}}config"
+							],
+							"path": [
+								"upsert"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}config/get",
+							"host": [
+								"{{BASEURL}}config"
+							],
+							"path": [
+								"get"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Review",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user\": \"66260123a7c78e0b9a123001\",\r\n    \"rating\": 5,\r\n    \"review\": \"Excellent blood donation experience! The team was professional and everything was well organized.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}reviews/create",
+							"host": [
+								"{{BASEURL}}reviews"
+							],
+							"path": [
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n   \r\n    \"rating\": 4,\r\n    \"review\": \"Excellent blood donation experience! The team was professional and everything was well organized. Update\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}reviews/update/681183e3c1fc2925db514de8",
+							"host": [
+								"{{BASEURL}}reviews"
+							],
+							"path": [
+								"update",
+								"681183e3c1fc2925db514de8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n   \r\n    \"status\": \"approved\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASEURL}}reviews/status/681183e3c1fc2925db514de8",
+							"host": [
+								"{{BASEURL}}reviews"
+							],
+							"path": [
+								"status",
+								"681183e3c1fc2925db514de8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}reviews/all",
+							"host": [
+								"{{BASEURL}}reviews"
+							],
+							"path": [
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "approved",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}reviews/approved",
+							"host": [
+								"{{BASEURL}}reviews"
+							],
+							"path": [
+								"approved"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}reviews/get/681183e3c1fc2925db514de8",
+							"host": [
+								"{{BASEURL}}reviews"
+							],
+							"path": [
+								"get",
+								"681183e3c1fc2925db514de8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user-id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}reviews/user-id",
+							"host": [
+								"{{BASEURL}}reviews"
+							],
+							"path": [
+								"user-id"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IndoZXJuYW5kZXpAcm9zYXJpby5jb20iLCJpZCI6IjY4MGM3M2VhNmYxYjgxZjZiM2Y2NWZlNyIsInJvbGUiOiJEaXN0cmljdCBTdWItQ29vcmRpbmF0b3IiLCJpYXQiOjE3NDU2NDcwNTAsImV4cCI6MTc0ODIzOTA1MH0.mprx7KUOhYVhaE-deUrNUCqyiCK5gFooh2Nq03hk2Rs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASEURL}}reviews/delete/68103f7fc1fc2925db514de1",
+							"host": [
+								"{{BASEURL}}reviews"
+							],
+							"path": [
+								"delete",
+								"68103f7fc1fc2925db514de1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BASEURL",
+			"value": "http://localhost:5000/api/",
+			"type": "string"
+		}
+	]
+}

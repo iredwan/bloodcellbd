@@ -108,16 +108,7 @@ export const UserLoginService = async (req, res) => {
 
     let token = EncodeToken(email, user_id, role);
 
-    // Set cookie
-    // let options = {
-    //   maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-    //   httpOnly: false, // Prevents client-side access to the cookie
-    //   sameSite: "none", // Required for cross-site cookies
-    //   secure: true, // true in production
-    // };
-
-    // res.cookie("token", token, options);
-
+   
     return {
       status: true,
       token: token,
@@ -336,7 +327,6 @@ export const GetAllUserService = async () => {
 export const GetUserByUserIdService = async (req) => {
   try {
     const userId = req.headers.user_id || req.cookies.user_id;
-    console.log(userId);
     const user = await UserModel.findById(userId);
     return { status: true, message: "User retrieved successfully", data: user };
   } catch (error) {
