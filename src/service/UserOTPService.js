@@ -72,7 +72,6 @@ export const VerifyOTPService = async(req, res) =>{
 
     let token = EncodeToken(email, user._id.toString(), user.role);
     
-    
     // OTP is correct → Clear OTP fields after successful verification
     await UserOTPModel.updateOne(
         { email: email.trim() },

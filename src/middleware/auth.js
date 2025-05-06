@@ -8,7 +8,6 @@ export const protect = async (req, res, next) => {
     token = req.cookies['token'];
   }
   
-  
   // If no token found in authorization header with Bearer format
   if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];

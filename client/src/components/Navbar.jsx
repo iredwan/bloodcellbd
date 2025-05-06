@@ -9,7 +9,7 @@ import {
   FiClipboard,
   FiUsers,
 } from "react-icons/fi";
-import {getCookie, setCookie, deleteCookie} from 'cookies-next';
+import { getCookie, setCookie, deleteCookie } from "cookies-next";
 import { logout } from "@/features/auth/authSlice";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
@@ -20,6 +20,7 @@ const Navbar = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
 
+  console.log(userRole);
 
   useEffect(() => {
     const token = getCookie("token");
@@ -55,25 +56,33 @@ const Navbar = () => {
   };
   const isAdmin = userRole === "Admin";
   const isUser = userRole === "user";
-  const isTechnician = userRole === "Technician";
   const isMember = userRole === "Member";
   const isModerator = userRole === "Moderator";
-  const isMonitor = userRole === "Monitor";
-  const isUpazilaCoordinator = userRole === "Upazila Coordinator";
-  const isUpazilaSubCoordinator = userRole === "Upazila Sub-Coordinator";
-  const isUpazilaITMediaCoordinator = userRole === "Upazila IT & Media Coordinator";
-  const isUpazilaLogisticsCoordinator = userRole === "Upazila Logistics Coordinator";
-  const isDistrictCoordinator = userRole === "District Coordinator";
-  const isDistrictSubCoordinator = userRole === "District Sub-Coordinator";
-  const isDistrictITMediaCoordinator = userRole === "District IT & Media Coordinator";
-  const isDistrictLogisticsCoordinator = userRole === "District Logistics Coordinator";
-  const isDivisionalCoordinator = userRole === "Divisional Coordinator";
-  const isDivisionalSubCoordinator = userRole === "Divisional Sub-Coordinator";
-  const isHeadOfITMedia = userRole === "Head of IT & Media";
-  const isHeadOfLogistics = userRole === "Head of Logistics";
+  const isMonitor = userRole === "Monitor" || userRole === "Technician";
+
+  const isUpazilaCoordinator =
+    userRole === "Upazila Coordinator" ||
+    userRole === "Upazila Sub-Coordinator" ||
+    userRole === "Upazila IT & Media Coordinator" ||
+    userRole === "Upazila Logistics Coordinator";
+
+  const isDistrictCoordinator =
+    userRole === "District Coordinator" ||
+    userRole === "District Sub-Coordinator" ||
+    userRole === "District IT & Media Coordinator" ||
+    userRole === "District Logistics Coordinator";
+
+  const isDivisionalCoordinator =
+    userRole === "Divisional Coordinator" ||
+    userRole === "Divisional Sub-Coordinator" ||
+    userRole === "Head of IT & Media" ||
+    userRole === "Head of Logistics";
 
   return (
-    <nav className="NaveBG shadow-md sticky top-0 z-50" style={{ backgroundColor: '#8a0303', color: 'white' }}>
+    <nav
+      className="NaveBG shadow-md sticky top-0 z-50"
+      style={{ backgroundColor: "#8a0303", color: "white" }}
+    >
       <div className="max-w-[1200px] mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -100,14 +109,16 @@ const Navbar = () => {
             <NavLink href="/" current={currentPath}>
               Home
             </NavLink>
-            <NavLink href="/register" current={currentPath}>
-              Become a Donor
-            </NavLink>
+            {!isAuthenticated && (
+              <NavLink href="/register" current={currentPath}>
+                Become a Donor
+              </NavLink>
+            )}
             <NavLink href="/ambassador-members" current={currentPath}>
-            Ambassador Member
+              Ambassador Member
             </NavLink>
             <NavLink href="/events" current={currentPath}>
-            Events
+              Events
             </NavLink>
             <NavLink href="/sponsors" current={currentPath}>
               Sponsors
@@ -122,9 +133,7 @@ const Navbar = () => {
             {/* Admin Menu (Desktop) */}
             {isAdmin && (
               <div className="hidden md:flex">
-                <NavLink
-                  href="/dashboard"
-                  current={currentPath}>
+                <NavLink href="/dashboard" current={currentPath}>
                   <div className="flex items-center transition-all rounded-md">
                     <FiSettings className="mr-1" />
                     Admin
@@ -132,15 +141,57 @@ const Navbar = () => {
                 </NavLink>
               </div>
             )}
-            
+
             {isUser && (
               <div className="hidden md:flex">
-                <NavLink 
-                href="/profile" 
-                current={currentPath}>
+                <NavLink href="/profile" current={currentPath}>
                   <div className="flex items-center transition-all rounded-md">
                     <FiUser className="mr-1" />
                     Profile
+                  </div>
+                </NavLink>
+              </div>
+            )}
+
+            {isMonitor && (
+              <div className="hidden md:flex">
+                <NavLink href="/monitor-dashboard" current={currentPath}>
+                  <div className="flex items-center transition-all rounded-md">
+                    <FiUser className="mr-1" />
+                    Dashboard
+                  </div>
+                </NavLink>
+              </div>
+            )}
+
+            {isUpazilaCoordinator && (
+              <div className="hidden md:flex">
+                <NavLink href="/upazila-coordinator-dashboard" current={currentPath}>
+                  <div className="flex items-center transition-all rounded-md">
+                    <FiUser className="mr-1" />
+                    Dashboard
+                  </div>
+                </NavLink>
+              </div>
+            )}
+
+            {isDistrictCoordinator && (
+              <div className="hidden md:flex">
+                <NavLink href="/district-coordinator-dashboard" current={currentPath}>
+                  <div className="flex items-center transition-all rounded-md">
+                    <FiUser className="mr-1" />
+                    Dashboard
+                  </div>
+                </NavLink>
+              </div>
+            )}
+
+            {isDivisionalCoordinator && (
+              <div className="hidden md:flex">
+                <NavLink href="/divisional-coordinator-dashboard" current={currentPath}>
+                  <div className="flex items-center transition-all rounded-md">
+                    <FiUser className="mr-1" />
+                    Dashboard
                   </div>
                 </NavLink>
               </div>
@@ -215,14 +266,16 @@ const Navbar = () => {
             <MobileNavLink href="/" current={currentPath}>
               Home
             </MobileNavLink>
-            <MobileNavLink href="/register" current={currentPath}>
-              Become a Donor
-            </MobileNavLink>
+            {!isAuthenticated && (
+              <MobileNavLink href="/register" current={currentPath}>
+                Become a Donor
+              </MobileNavLink>
+            )}
             <MobileNavLink href="/ambassador-members" current={currentPath}>
               Ambassador Member
             </MobileNavLink>
             <MobileNavLink href="/events" current={currentPath}>
-            Events
+              Events
             </MobileNavLink>
             <MobileNavLink href="/sponsors" current={currentPath}>
               Sponsors

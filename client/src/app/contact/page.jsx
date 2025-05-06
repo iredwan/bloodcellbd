@@ -9,7 +9,6 @@ import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaSearch, FaSpinner, FaUser,} from
 import { getCookie } from 'cookies-next';
 import { toast } from 'react-toastify';
 import Toast from '@/utils/toast';
-import { FiArrowDown, FiDroplet } from 'react-icons/fi';
 
 export default function ContactPage() {
   const { config, loading } = useWebsiteConfig();
@@ -66,24 +65,33 @@ export default function ContactPage() {
   
   // Filter districts based on search input with debounce
   const filteredDistricts = useMemo(() => {
+    if (!Array.isArray(districts)) {
+      console.warn('Districts is not an array:', districts);
+      return [];
+    }
+    
     return districts
-      .filter(district => 
-        typeof district === 'string' && district.toLowerCase().includes(debouncedSearchInput.toLowerCase())
-      )
+      .filter(district => {
+        // Handle both string districts and object districts
+        if (typeof district === 'string') {
+          return district.toLowerCase().includes(debouncedSearchInput.toLowerCase());
+        } else if (district && typeof district === 'object') {
+          // Check if district has name property
+          const districtName = district.name || '';
+          return districtName.toLowerCase().includes(debouncedSearchInput.toLowerCase());
+        }
+        return false;
+      })
       .slice(0, 10); // Limit to 10 suggestions
   }, [districts, debouncedSearchInput]);
   
   // Filter district coordinators when district users data is available
   useEffect(() => {
-    
     if (districtUsers.length > 0) {
-      
       const coordinators = districtUsers.filter(
         user => user.role === 'District Coordinator' || user.role === 'District Sub-Coordinator'
       );
-      console.log(coordinators)
       setDistrictCoordinators(coordinators);
-      console.log('coordinators:', coordinators);
     } else if (districtUsersData && !isLoadingUsers) {
       // Clear coordinators if we got data but no users match
       setDistrictCoordinators([]);
@@ -98,8 +106,10 @@ export default function ContactPage() {
        return;
      }
      
-    setSelectedDistrict(district);
-    setSearchInput(district);
+    // Handle both string and object district formats
+    const districtValue = typeof district === 'string' ? district : district.name;
+    setSelectedDistrict(districtValue);
+    setSearchInput(districtValue);
     setShowSuggestions(false);
   };
 
@@ -190,13 +200,13 @@ export default function ContactPage() {
                 {showSuggestions && (
                   <div className="bg-white border border-gray-300 rounded-md max-h-40 overflow-y-auto dark:bg-gray-700 dark:text-white">
                     {filteredDistricts.length > 0 ? (
-                      filteredDistricts.map((district) => (
+                      filteredDistricts.map((district, index) => (
                         <div 
-                          key={district} 
+                          key={typeof district === 'string' ? district : district._id || index} 
                           className="px-4 py-2 hover:bg-gray-100 cursor-pointer dark:text-white dark:hover:bg-gray-600"
                           onClick={() => handleSelectDistrict(district)}
                         >
-                          {district}
+                          {typeof district === 'string' ? district : district.name}
                         </div>
                       ))
                     ) : (

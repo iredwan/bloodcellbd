@@ -27,6 +27,7 @@ import monitorTeamRoutes from './src/routes/MonitorTeamRoutes.js';
 import divisionRoutes from './src/routes/DivisionRoutes.js';
 import wantToDonateBloodRoutes from './src/routes/WantToDonateBloodRoutes.js';
 import reviewRoutes from './src/routes/reviewRoutes.js';
+import uploadFileRoutes from './src/routes/UploadFileRoute.js';
 // Load environment variables
 dotenv.config();
 
@@ -81,13 +82,14 @@ app.use('/api/monitor-team', monitorTeamRoutes);
 app.use('/api/divisions', divisionRoutes);
 app.use('/api/want-to-donate', wantToDonateBloodRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api', uploadFileRoutes);
 
 // Root route
 app.get('/', (req, res) => {
   res.send('Blood Cell BD API is running');
 });
 
-app.use("/upload-file", express.static("uploads"));
+app.use("/uploads", express.static("uploads"));
 
 // Start server
 const PORT = process.env.PORT || 5000;

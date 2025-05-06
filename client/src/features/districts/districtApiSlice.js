@@ -6,7 +6,14 @@ import { setDistricts, setLoading, setError, selectAllDistricts, selectDistricts
 
 // Default Bangladesh districts (sample data - we'll get the real data from the API)
 const defaultDistricts = [
-  'Dhaka', 'Chittagong', 'Rajshahi', 'Khulna', 'Barisal', 'Sylhet', 'Rangpur', 'Mymensingh'
+  { _id: 'dhaka', name: 'Dhaka', bengaliName: 'ঢাকা' },
+  { _id: 'chittagong', name: 'Chittagong', bengaliName: 'চট্টগ্রাম' },
+  { _id: 'rajshahi', name: 'Rajshahi', bengaliName: 'রাজশাহী' },
+  { _id: 'khulna', name: 'Khulna', bengaliName: 'খুলনা' },
+  { _id: 'barisal', name: 'Barisal', bengaliName: 'বরিশাল' },
+  { _id: 'sylhet', name: 'Sylhet', bengaliName: 'সিলেট' },
+  { _id: 'rangpur', name: 'Rangpur', bengaliName: 'রংপুর' },
+  { _id: 'mymensingh', name: 'Mymensingh', bengaliName: 'ময়মনসিংহ' }
 ];
 
 export const districtApiSlice = apiSlice.injectEndpoints({
@@ -15,24 +22,30 @@ export const districtApiSlice = apiSlice.injectEndpoints({
       query: () => 'districts/all',
       providesTags: ['District'],
       transformResponse: (response) => {
-        // Get the data from the API response
-        const districts = response.data || response || defaultDistricts;
+        // For HTTP 304 or invalid responses, handle properly
+        if (!response) return { status: false, data: defaultDistricts };
         
-        // If districts are objects with name property, extract the names
-        if (Array.isArray(districts) && districts.length > 0 && typeof districts[0] === 'object') {
-          const districtNames = districts.map(district => district.name || '');
-          return districtNames.sort();
+        // Handle API success response format
+        if (response.status && response.data) {
+          return response;
         }
         
-        // Sort districts alphabetically if they're already strings
-        return Array.isArray(districts) ? districts.sort() : defaultDistricts;
+        // Direct data format
+        if (Array.isArray(response)) {
+          return { status: true, data: response };
+        }
+        
+        console.warn('Unexpected district API response format:', response);
+        return { status: false, data: defaultDistricts };
       },
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           dispatch(setLoading(true));
           const { data } = await queryFulfilled;
-          dispatch(setDistricts(data));
+          // Store full district objects in Redux state
+          dispatch(setDistricts(data.data || defaultDistricts));
         } catch (error) {
+          console.error('Error fetching districts:', error);
           dispatch(setError(error.message || 'Failed to fetch districts'));
           // If the API fails, set default districts
           dispatch(setDistricts(defaultDistricts));

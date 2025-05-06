@@ -1,7 +1,22 @@
 import { apiSlice } from '../api/apiSlice';
+import { getCookie } from 'cookies-next';
 
 export const userApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
+    registerUser: builder.mutation({
+      query: (userData) => {
+        // Get token from cookies
+        const token = getCookie('token');
+        
+        return {
+          url: 'users/register',
+          method: 'POST',
+          body: userData,
+          headers: token ? { token } : {},
+        };
+      },
+      invalidatesTags: ['User'],
+    }),
     getAllUsers: builder.query({
       query: () => 'users/all',
       providesTags: ['User'],
@@ -73,6 +88,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
 });
 
 export const {
+  useRegisterUserMutation,
   useGetAllUsersQuery,
   useGetEligibleUsersQuery,
   useGetUsersByUpazilaQuery,

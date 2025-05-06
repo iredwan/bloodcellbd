@@ -20,6 +20,7 @@ export const UserRegisterService = async (req) => {
     }
 
     const newUser = new UserModel(reqBody);
+    console.log(newUser);
     await newUser.save();
     return { status: true, message: "Register success." };
   } catch (e) {

@@ -5,6 +5,7 @@ import authReducer from '../features/auth/authSlice';
 import userReducer from '../features/users/userSlice';
 import configReducer from '../features/wesiteConfig/configSlice';
 import districtsReducer from '../features/districts/districtSlice';
+import upazilasReducer from '../features/upazilas/upazilaSlice';
 import { apiSlice } from '../features/api/apiSlice';
 // import other reducers...
 
@@ -14,6 +15,7 @@ export const store = configureStore({
     users: userReducer,
     config: configReducer,
     districts: districtsReducer,
+    upazilas: upazilasReducer,
     [apiSlice.reducerPath]: apiSlice.reducer,
     // ...
   },

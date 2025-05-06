@@ -18,4 +18,6 @@ dist/
 # Ignore all files in .next directory
 .next/
 
+# Ignore Uploads folder
+uploads/
 

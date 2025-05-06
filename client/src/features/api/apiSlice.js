@@ -1,6 +1,7 @@
 'use client';
 
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { getCookie } from 'cookies-next';
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/';
 
@@ -10,7 +11,13 @@ export const apiSlice = createApi({
     baseUrl,
     prepareHeaders: (headers, { getState }) => {
       // For client-side requests
-      const token = getState().auth?.token;
+      let token = getState().auth?.token;
+      
+      // If token is not in Redux state, check cookies
+      if (!token && typeof window !== 'undefined') {
+        token = getCookie('token');
+      }
+      
       if (token) {
         headers.set('token', token);
       }
@@ -25,6 +32,6 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ['User', 'Request', 'Event', 'Sponsor', 'WantToDonate', 'Review', 'Team', 'WebsiteConfig', 'District'],
+  tagTypes: ['User', 'Request', 'Event', 'Sponsor', 'WantToDonate', 'Review', 'Team', 'WebsiteConfig', 'District', 'Files', 'Upazila'],
   endpoints: () => ({}),
 }); 

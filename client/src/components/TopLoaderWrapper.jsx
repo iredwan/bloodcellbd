@@ -8,7 +8,7 @@ export default function TopLoaderWrapper() {
   initialPosition={0.08}
   crawlSpeed={200}
   height={3}
-  showSpinner={true}
+  showSpinner={false}
   zIndex={1600}
 />;
 }

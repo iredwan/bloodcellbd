@@ -82,7 +82,6 @@ const userSchema = new mongoose.Schema({
   },
   lastDonate: {
     type: String,
-    required: true,
   },
   eligibility: {
     type: Boolean,
