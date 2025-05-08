@@ -63,7 +63,7 @@ export const GetAllEventsService = async () => {
     
     // Get events with filters, pagination, sorting, and populate relations
     const events = await Event.find()
-      .populate('organizer', 'name logo')
+      .populate('organizer', '_id name logo website')
       .populate('district', 'name')
       .populate('upazila', 'name')
       .populate('createdBy', 'name role roleSuffix')
@@ -99,7 +99,7 @@ export const GetEventByIdService = async (req) => {
     }
     
     const event = await Event.findById(eventId)
-      .populate('organizer', 'name logo description')
+      .populate('organizer', '_id name logo website description contactPerson sponsorType coverImage')
       .populate('district', 'name')
       .populate('upazila', 'name')
       .populate('createdBy', 'name role roleSuffix')
@@ -128,7 +128,6 @@ export const UpdateEventService = async (req) => {
   try {
     const eventId = req.params.id;
     const updateData = req.body;
-    console.log(updateData);
     
     if (!ObjectId.isValid(eventId)) {
       return { status: false, message: "Invalid event ID format." };
@@ -264,3 +263,37 @@ export const GetUpcomingEventsService = async () => {
     };
   }
 };
+
+// Get completed events
+export const GetCompletedEventsService = async () => {
+  try {
+    // Get completed events
+    const completedEvents = await Event.find({ status: 'completed' }) 
+      .sort({ date: -1 })
+      .populate('organizer', '_id name logo website')
+      .populate('district', 'name')
+      .populate('upazila', 'name')
+      .populate('createdBy', 'name role roleSuffix')
+      .populate('updatedBy', 'name role roleSuffix'); 
+
+    if (!completedEvents || completedEvents.length === 0) {
+      return { 
+        status: false, 
+        message: "No completed events found." 
+      };
+    }
+
+    return {
+      status: true,
+      data: completedEvents,
+      message: "Completed events retrieved successfully."
+    };
+  } catch (e) {
+    return { 
+      status: false, 
+      message: "Failed to retrieve completed events.", 
+      details: e.message 
+    };
+  }
+};
+

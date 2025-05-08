@@ -25,6 +25,7 @@ const sponsorSchema = new mongoose.Schema(
     },
     contactPerson: {
       name: String,
+      designation: String,
       email: String,
       phone: String
     },

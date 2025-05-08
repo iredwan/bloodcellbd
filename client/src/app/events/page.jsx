@@ -1,122 +1,109 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useState } from 'react';
+import { useGetAllEventsQuery } from '@/features/events/eventApiSlice';
+import EventCard from '@/components/EventCard';
+import { FaSpinner } from 'react-icons/fa';
 
 export default function EventsPage() {
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // Sample events data
-  const sampleEvents = [
-    {
-      id: 1,
-      title: 'World Blood Donor Day',
-      date: '2023-06-14',
-      location: 'Dhaka Medical College Hospital',
-      description: 'Join us in celebrating World Blood Donor Day. Donate blood and save lives.',
-      image: 'https://placehold.co/600x400/8a0303/FFFFFF?text=Blood+Donor+Day',
-    },
-    {
-      id: 2,
-      title: 'Emergency Blood Drive',
-      date: '2023-07-10',
-      location: 'Bangabandhu Sheikh Mujib Medical University',
-      description: 'Emergency blood drive to address critical shortages of blood supplies.',
-      image: 'https://placehold.co/600x400/8a0303/FFFFFF?text=Blood+Drive',
-    },
-    {
-      id: 3,
-      title: 'Blood Donation Camp',
-      date: '2023-08-05',
-      location: 'North South University',
-      description: 'Blood donation camp organized in collaboration with local universities.',
-      image: 'https://placehold.co/600x400/8a0303/FFFFFF?text=Donation+Camp',
-    },
-  ];
-
-  useEffect(() => {
-    // Simulate API call
-    const fetchEvents = async () => {
-      try {
-        setLoading(true);
-        // In a real app, you would fetch from your API
-        // const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events`);
-        // const data = await response.json();
-        
-        // Using sample data for now
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
-        setEvents(sampleEvents);
-      } catch (err) {
-        console.error('Error fetching events:', err);
-        setError('Failed to load events. Please try again later.');
-      } finally {
-        setLoading(false);
+  const [selectedFilter, setSelectedFilter] = useState('all');
+  const { data: eventsData, isLoading, error } = useGetAllEventsQuery();
+  
+  // Filter events based on status
+  const filterEvents = (events) => {
+    const now = new Date();
+    return events.filter(event => {
+      const eventDate = new Date(event.date);
+      switch(selectedFilter) {
+        case 'upcoming':
+          return eventDate > now;
+        case 'ongoing':
+          const endDate = new Date(event.endDate || event.date);
+          return eventDate <= now && endDate >= now;
+        case 'completed':
+          return eventDate < now;
+        default: // 'all'
+          return true;
       }
-    };
-
-    fetchEvents();
-  }, []);
-
-  // Format date to be more readable
-  const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+    });
   };
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-      <div className="text-center mb-12">
-        <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">Blood Donation Events</h1>
-        <p className="mt-4 text-lg text-gray-600">
-          Join our upcoming blood donation drives and events
-        </p>
-      </div>
+  // Get filtered events
+  const events = eventsData?.data || [];
+  const filteredEvents = filterEvents(events);
+  
+  // Grid column logic
+  const columnCount = 
+    filteredEvents.length === 1 ? 'grid-cols-1' :
+    filteredEvents.length === 2 ? 'md:grid-cols-2' :
+    'md:grid-cols-2 lg:grid-cols-3';
 
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="mr-2"></div>
-          <span>Loading events...</span>
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header with Filter */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-primary mb-4">
+            Blood Donation Events
+          </h1>
+          
+          {/* Filter Controls */}
+          <div className="flex flex-wrap justify-center gap-2 mb-6">
+            {['all', 'upcoming', 'ongoing', 'completed'].map((filter) => (
+              <button
+                key={filter}
+                onClick={() => setSelectedFilter(filter)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer
+                  ${
+                    selectedFilter === filter
+                      ? 'bg-primary text-white'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300'
+                  }`}
+              >
+                {filter.charAt(0).toUpperCase() + filter.slice(1)}
+              </button>
+            ))}
+          </div>
+
+          <p className="text-lg text-gray-600 dark:text-gray-400">
+            {selectedFilter === 'all' 
+              ? 'Showing all events'
+              : `Showing ${selectedFilter} events`}
+          </p>
         </div>
-      ) : error ? (
-        <div className="text-center text-red-600 p-4 bg-red-100 rounded-md">
-          {error}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {events.map((event) => (
-            <div key={event.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="h-48 overflow-hidden">
-                <img 
-                  src={event.image} 
-                  alt={event.title} 
-                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                />
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-primary mb-2">{event.title}</h3>
-                <div className="mb-4 text-gray-600">
-                  <p className="mb-1"><strong>Date:</strong> {formatDate(event.date)}</p>
-                  <p><strong>Location:</strong> {event.location}</p>
-                </div>
-                <p className="text-gray-600 mb-4">{event.description}</p>
-                <div className="flex justify-between items-center">
-                  <Link 
-                    href={`/events/${event.id}`}
-                    className="text-secondary hover:text-secondary-dark font-medium"
-                  >
-                    View Details
-                  </Link>
-                  <button className="button">
-                    Register
-                  </button>
-                </div>
-              </div>
+
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex justify-center items-center h-64">
+            <FaSpinner className="animate-spin text-4xl text-primary" />
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-12 text-red-500">
+            <p className="text-xl font-semibold">Error loading events</p>
+            <p className="text-sm mt-2">Please refresh the page or try again later</p>
+          </div>
+        )}
+
+        {/* Events Grid */}
+        {!isLoading && !error && (
+          filteredEvents.length > 0 ? (
+            <div className={`grid ${columnCount} gap-8`}>
+              {filteredEvents.map((event) => (
+                <EventCard key={event._id} event={event} />
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-xl text-gray-600 dark:text-gray-400">
+                No {selectedFilter} events found
+              </p>
+            </div>
+          )
+        )}
+      </div>
     </div>
   );
-} 
+}

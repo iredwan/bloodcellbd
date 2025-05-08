@@ -297,21 +297,74 @@ export const UpdateUserByIdRefService = async (req) => {
   }
 };
 
-export const GetAllUserService = async () => {
+//only eligible, approved, not banned users
+export const GetAllUserService = async (req) => {
   try {
-    const users = await UserModel.find({
+    let reqBody = req.body;
+    const { bloodGroup, district, upazila, search } = reqBody;
+    const page = 1;
+    const onlyEligible = false;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    // Eligibility Threshold Date (90 days ago)
+    const today = new Date();
+    const eligibilityThreshold = new Date(today.setDate(today.getDate() - 90)).toISOString();
+
+    // Base query
+    const baseQuery = {
       isApproved: true,
       isBanned: false,
-    }).select("-nidOrBirthRegistrationImage -password -reference -updatedBy");
-    const totalUsers = await UserModel.countDocuments({
-      isApproved: true,
-      isBanned: false,
-    });
+    };
+
+    // Add eligibility condition
+    if (onlyEligible) {
+      baseQuery.$or = [
+        { lastDonate: { $exists: false } },
+        { lastDonate: { $lt: eligibilityThreshold } },
+      ];
+    }
+
+    // Optional filters
+    if (bloodGroup) {
+      baseQuery.bloodGroup = bloodGroup;
+    }
+
+    if (district) {
+      baseQuery.district = district;
+    }
+
+    if (upazila) {
+      baseQuery.upazila = upazila;
+    }
+
+    if (search) {
+      const regex = new RegExp(search, "i");
+      baseQuery.$or = [
+        ...(baseQuery.$or || []), // merge with eligibility if exists
+        { name: regex },
+        { email: regex },
+        { phone: regex },
+      ];
+    }
+
+    const users = await UserModel.find(baseQuery)
+      .select("-nidOrBirthRegistrationImage -password -reference -updatedBy")
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    const totalUsers = await UserModel.countDocuments(baseQuery);
+
     return {
       status: true,
       data: {
-        users: users,
-        totalUsers: totalUsers,
+        users,
+        pagination: {
+          totalUsers,
+          currentPage: page,
+          totalPages: Math.ceil(totalUsers / limit),
+        },
       },
       message: "Users retrieved successfully.",
     };

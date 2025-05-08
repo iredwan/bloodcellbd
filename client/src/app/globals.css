@@ -28,7 +28,6 @@
   --neutral-900: #212121;
   
   /* Text colors */
-  --text-primary: #FFFFFF;
   --text-secondary: #F5F5F5;
   --text-dark: #212121;
   
@@ -65,7 +64,7 @@ html {
 /* Button styles */
 .button {
   background-color: var(--primary);
-  color: var(--text-primary);
+  color: white;
   border: none;
   border-radius: 8px;
   padding: 8px 16px;
@@ -110,6 +109,14 @@ html {
   background-color: var(--secondary-dark);
 }
 
+.bg-primary {
+  background-color: var(--primary);
+}
+
+.bg-secondary {
+  background-color: var(--secondary);
+}
+
 
 
 
@@ -122,7 +129,7 @@ html {
 /* Footer styles */
 footer {
   background-color: var(--primary);
-  color: var(--text-primary);
+  color: white;
 }
 
 footer h3 {
@@ -195,6 +202,117 @@ footer .border-primary-dark {
   footer .grid-cols-2 {
     grid-template-columns: 1fr;
   }
+}
+
+/* Carousel custom styling */
+.carousel-container .slick-slider {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  user-select: none;
+  touch-action: pan-y;
+}
+
+.carousel-container .slick-list {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+.carousel-container .slick-slide {
+  height: inherit;
+  display: none;
+  float: left;
+  min-height: 1px;
+}
+
+.carousel-container .slick-slide > div {
+  height: 100%;
+}
+
+.carousel-container .slick-initialized .slick-slide {
+  display: block;
+}
+
+.carousel-container .slick-dots {
+  position: absolute;
+  bottom: 20px;
+  display: block;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  text-align: center;
+  z-index: 1;
+}
+
+.carousel-container .slick-dots li {
+  position: relative;
+  display: inline-block;
+  margin: 0 5px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.carousel-container .slick-dots li button {
+  font-size: 0;
+  line-height: 0;
+  display: block;
+  width: 10px;
+  height: 10px;
+  padding: 5px;
+  cursor: pointer;
+  color: transparent;
+  border: 0;
+  outline: none;
+  background: transparent;
+}
+
+.carousel-container .slick-dots li button:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.5);
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.slick-dots li.slick-active button:before {
+  color: var(--primary);
+}
+
+.carousel-container .slick-dots li.slick-active button:before {
+  opacity: 1;
+  background-color: white;
+}
+
+/* Make sure the arrows are properly positioned and visible */
+.carousel-container .slick-prev,
+.carousel-container .slick-next {
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+}
+
+/* Fix image aspect ratio issues */
+.carousel-container img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+/* Make sure slider container takes full height */
+.carousel-container, 
+.carousel-container .slick-slider, 
+.carousel-container .slick-track {
+  height: 100%;
 }
 
 

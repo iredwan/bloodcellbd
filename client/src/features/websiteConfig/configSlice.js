@@ -23,6 +23,12 @@ const initialState = {
       image: '',
       description: 'Connect with blood donors in Bangladesh',
       keywords: 'blood donation, Bangladesh, donors'
+    },
+    stats: {
+      totalMembers: 0,
+      totalEligibleMembers: 0,
+      totalFulfilledRequests: 0,
+      totalPendingRequests: 0
     }
   },
   isLoading: false,

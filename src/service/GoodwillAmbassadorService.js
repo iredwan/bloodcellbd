@@ -23,11 +23,11 @@ export const CreateGoodwillAmbassadorService = async (req) => {
     if (userId) {
       reqBody.createdBy = userId;
     }
-    
+
+
     // Create new goodwill ambassador
     const newAmbassador = new GoodwillAmbassador(reqBody);
     await newAmbassador.save();
-    
     return { 
       status: true, 
       message: "Goodwill Ambassador created successfully.",

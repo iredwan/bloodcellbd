@@ -24,6 +24,12 @@ const defaultConfig = {
     image: '',
     description: 'Connect with blood donors in Bangladesh to save lives through voluntary blood donations.',
     keywords: 'blood donation, Bangladesh, donors, blood bank, save lives'
+  },
+  stats: {
+    totalMembers: 0,
+    totalEligibleMembers: 0,
+    totalFulfilledRequests: 0,
+    totalPendingRequests: 0
   }
 };
 
@@ -50,6 +56,12 @@ const ensureCompleteConfig = (config) => {
       image: config.metaTags?.image || defaultConfig.metaTags.image,
       description: config.metaTags?.description || defaultConfig.metaTags.description,
       keywords: config.metaTags?.keywords || defaultConfig.metaTags.keywords
+    },
+    stats: {
+      totalMembers: config.stats?.totalMembers || defaultConfig.stats.totalMembers,
+      totalEligibleMembers: config.stats?.totalEligibleMembers || defaultConfig.stats.totalEligibleMembers,
+      totalFulfilledRequests: config.stats?.totalFulfilledRequests || defaultConfig.stats.totalFulfilledRequests,
+      totalPendingRequests: config.stats?.totalPendingRequests || defaultConfig.stats.totalPendingRequests
     }
   };
 };

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { useWebsiteConfig } from '@/features/wesiteConfig/configApiSlice';
+import { useWebsiteConfig } from '@/features/websiteConfig/configApiSlice';
 import { useGetUsersByDistrictQuery } from '@/features/users/userApiSlice';
 import { useDistricts } from '@/features/districts/districtApiSlice';
 import { IoMdArrowDropdown } from "react-icons/io";

@@ -19,6 +19,7 @@ import {
 } from '@/utils/validations';
 import LocationSelector from '@/components/LocationSelector';
 import { FiFile, FiImage, FiUpload, FiFileText, FiInfo } from 'react-icons/fi';
+import CustomSelect from '@/components/CustomSelect';
 
 // Form steps
 const STEPS = {
@@ -80,7 +81,7 @@ export default function RegisterPage() {
   // Add state for district/upazila IDs
   const [selectedDistrictId, setSelectedDistrictId] = useState('');
   const [selectedUpazilaId, setSelectedUpazilaId] = useState('');
-  
+
   // Redux hooks
   const [generateOTP, { isLoading: isGeneratingOTP }] = useGenerateOTPMutation();
   const [verifyOTP, { isLoading: isVerifyingOTP }] = useVerifyOTPMutation();
@@ -537,75 +538,78 @@ export default function RegisterPage() {
               
               
               <div className="form-group">
-                <label htmlFor="gender" className="block text-sm font-medium text-neutral-700 mb-1 dark:text-white">
-                  Gender
-                </label>
-                <select
-                  id="gender"
-                  name="gender"
-                  className={`w-full px-4 py-2.5 border ${errors.gender ? 'border-red-500' : 'border-neutral-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white dark:bg-gray-700`}
-                  value={formData.gender}
-                  onChange={handleChange}
-                >
-                  <option value="" disabled>Select gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </select>
+                <CustomSelect
+                  options={['Male', 'Female', 'Other']}
+                  selected={formData.gender}
+                  setSelected={(value) => {
+                    const event = {
+                      target: { 
+                        name: 'gender',
+                        value: value
+                      }
+                    };
+                    handleChange(event);
+                  }}
+                  label="Gender"
+                  placeholder="Type to Select Gender"
+                />
+
                 {errors.gender && <span className="text-red-500 text-sm mt-1 block">{errors.gender}</span>}
               </div>
               
               <div className="form-group">
-                <label htmlFor="religion" className="block text-sm font-medium text-neutral-700 mb-1 dark:text-white">
-                  Religion
-                </label>
-                <select
-                  id="religion"
-                  name="religion"
-                  className={`w-full px-4 py-2.5 border ${errors.religion ? 'border-red-500' : 'border-neutral-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white dark:bg-gray-700`}
-                  value={formData.religion}
-                  onChange={handleChange}
-                >
-                  <option value="" disabled>Select religion</option>
-                  <option value="Islam">Islam</option>
-                  <option value="Hinduism">Hinduism</option>
-                  <option value="Christianity">Christianity</option>
-                  <option value="Buddhism">Buddhism</option>
-                  <option value="Other">Other</option>
-                </select>
+                  <CustomSelect
+                    options={['Islam', 'Hinduism', 'Christianity', 'Buddhism', 'Other']}
+                    selected={formData.religion}
+                    setSelected={(value) => {
+                      const event = {
+                        target: { 
+                          name: 'religion',
+                          value: value
+                        }
+                      };
+                      handleChange(event);
+                    }}
+                    label="Religion"
+                    placeholder="Type to Select Religion"
+                  />
                 {errors.religion && <span className="text-red-500 text-sm mt-1 block">{errors.religion}</span>}
               </div>
               
               <div className="form-group">
-                <label htmlFor="occupation" className="block text-sm font-medium text-neutral-700 mb-1 dark:text-white">
-                  Occupation
-                </label>
-                <input
-                  type="text"
-                  id="occupation"
-                  name="occupation"
-                  className={`w-full px-4 py-2.5 border ${errors.occupation ? 'border-red-500' : 'border-neutral-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
-                  value={formData.occupation}
-                  onChange={handleChange}
-                  placeholder="Enter your occupation"
-                />
+              <CustomSelect
+                    options={['Accountant', 'Adviser', 'Architect', 'Artist', 'Autonomous', 'Bachelor', 'Banker', 'Barber', 'Barrister At Law', 'Blacksmith', 'Boatman', 'Business', 'Chartered Secretary', 'Chief Adviser', 'Chief Justice', 'Cleaner', 'Contractor', 'Cook', 'Dependent On Diplomat', 'Doctor', 'Driver', 'Engineer', 'Farmer', 'Fisherman', 'Government Service', 'Guard', 'House Wife', 'Student', 'Journalist', 'Judge', 'Justice', 'Labor', 'Lawyer', 'Mechanic', 'Medical Technologist', 'Tailor','Teacher', 'Member Of Parliament', 'Merchant Marine Officer', 'Minister', 'Movie Director', 'Nurse', 'Others', 'Painter', 'Pharmacist', 'Pilot', 'Politician', 'Porter', 'Potter', 'President', 'Prime Minister', 'Private Service', 'Project Employee', 'Unemployed', 'Washerman']}
+                    selected={formData.occupation}
+                    setSelected={(value) => {
+                      const event = {
+                        target: { 
+                          name: 'occupation',
+                          value: value
+                        }
+                      };
+                      handleChange(event);
+                    }}
+                    label="Profession"
+                    placeholder="Type to Select Profession"
+                  />
                 {errors.occupation && <span className="text-red-500 text-sm mt-1 block">{errors.occupation}</span>}
               </div>
               
               <div className="form-group">
-                <label htmlFor="identificationType" className="block text-sm font-medium text-neutral-700 mb-1 dark:text-white">
-                  ID Type
-                </label>
-                <select
-                  id="identificationType"
-                  name="identificationType"
-                  className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white dark:bg-gray-700"
-                  value={formData.identificationType}
-                  onChange={handleChange}
-                >
-                  <option value="NID">NID</option>
-                  <option value="Birth Registration">Birth Registration</option>
-                </select>
+                <CustomSelect
+                    options={['NID', 'Birth Certificate']}
+                    selected={formData.identificationType}
+                    setSelected={(value) => {
+                      const event = {
+                        target: { 
+                          name: 'identificationType',
+                          value: value
+                        }
+                      };
+                      handleChange(event);
+                    }}
+                    label="ID Type"
+                  />
               </div>
               
               <div className="form-group">
@@ -619,7 +623,7 @@ export default function RegisterPage() {
                   className={`w-full px-4 py-2.5 border ${errors.identificationNumber ? 'border-red-500' : 'border-neutral-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
                   value={formData.identificationNumber}
                   onChange={handleChange}
-                  placeholder="Enter your ID number"
+                  placeholder={formData.identificationType === 'NID' ? 'Enter National ID Number' : 'Enter Birth Certificate Number'}
                 />
                 {errors.identificationNumber && <span className="text-red-500 text-sm mt-1 block">{errors.identificationNumber}</span>}
               </div>
@@ -940,27 +944,21 @@ export default function RegisterPage() {
             </div>
             
             <div className="max-w-sm mx-auto flex flex-col justify-between">
-              <div className="form-group">
-                <label htmlFor="bloodGroup" className="block text-sm font-medium text-neutral-700 mb-1 dark:text-white">
-                  Blood Group
-                </label>
-                <select
-                  id="bloodGroup"
-                  name="bloodGroup"
-                  className={`w-full mb-6 px-4 py-2.5 border ${errors.bloodGroup ? 'border-red-500' : 'border-neutral-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white dark:bg-gray-700`}
-                  value={formData.bloodGroup}
-                  onChange={handleChange}
-                >
-                  <option value="" disabled className="dark:text-gray-300">Select blood group</option>
-                  <option value="A+">A+</option>
-                  <option value="A-">A-</option>
-                  <option value="B+">B+</option>
-                  <option value="B-">B-</option>
-                  <option value="AB+">AB+</option>
-                  <option value="AB-">AB-</option>
-                  <option value="O+">O+</option>
-                  <option value="O-">O-</option>
-                </select>
+              <div className="form-group mb-3">
+                <CustomSelect
+                  options={['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']}
+                  selected={formData.bloodGroup}
+                  setSelected={(value) => {
+                    const event = {
+                      target: {
+                        name: 'bloodGroup',
+                        value: value
+                      }
+                    };
+                    handleChange(event);
+                  }}
+                  label="Blood Group"
+                />
                 {errors.bloodGroup && <span className="text-red-500 text-sm mt-1 block">{errors.bloodGroup}</span>}
               </div>
               

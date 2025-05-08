@@ -20,8 +20,6 @@ const Navbar = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
 
-  console.log(userRole);
-
   useEffect(() => {
     const token = getCookie("token");
     if (token) {

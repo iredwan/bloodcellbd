@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useWebsiteConfig } from "@/features/wesiteConfig/configApiSlice";
+import { useWebsiteConfig } from "@/features/websiteConfig/configApiSlice";
 import {
   FaFacebook,
   FaInstagram,
@@ -15,7 +15,6 @@ import {
 const Footer = () => {
   const { config, loading } = useWebsiteConfig();
   const { contactInfo, socialMedia, metaTags } = config;
-
   const currentYear = new Date().getFullYear();
 
   // Quick links for navigation

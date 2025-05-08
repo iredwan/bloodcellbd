@@ -26,7 +26,7 @@ router.get('/designation/:designation', GetGoodwillAmbassadorsByDesignation);
 
 
 // Create a new goodwill ambassador
-router.post('/create', protect, restrictTo('Admin'), CreateGoodwillAmbassador);
+router.post('/create', protect, CreateGoodwillAmbassador);
 
 // Update an existing goodwill ambassador
 router.put('/update/:id', protect, restrictTo('Admin'), UpdateGoodwillAmbassador);

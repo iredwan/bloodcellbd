@@ -6,6 +6,9 @@ import Footer from '../components/Footer';
 import TopLoaderWrapper from '../components/TopLoaderWrapper';
 import { ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+// Import slick carousel CSS files for global use
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 
 const poppins = Poppins({ 
   subsets: ['latin'],

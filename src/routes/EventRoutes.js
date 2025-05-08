@@ -6,6 +6,7 @@ import {
   UpdateEvent,
   DeleteEvent,
   GetUpcomingEvents,
+  GetCompletedEvents,
 } from "../controllers/EventControllers.js";
 import { protect, restrictTo } from "../middleware/auth.js";
 
@@ -16,6 +17,9 @@ router.get("/all", GetAllEvents);
 
 // Get upcoming events (paginated)
 router.get("/upcoming", GetUpcomingEvents);
+
+// Get completed events (paginated)
+router.get("/completed", GetCompletedEvents);
 
 // Get event details by ID
 router.get("/get/:id", GetEventById);

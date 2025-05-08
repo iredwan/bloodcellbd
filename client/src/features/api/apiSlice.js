@@ -32,6 +32,6 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ['User', 'Request', 'Event', 'Sponsor', 'WantToDonate', 'Review', 'Team', 'WebsiteConfig', 'District', 'Files', 'Upazila'],
+  tagTypes: ['User', 'Request', 'Event', 'Sponsor', 'WantToDonate', 'Review', 'Team', 'WebsiteConfig', 'District', 'Files', 'Upazila', 'Carousel', 'GoodwillAmbassador'],
   endpoints: () => ({}),
 }); 

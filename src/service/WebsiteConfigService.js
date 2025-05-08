@@ -1,6 +1,8 @@
 import WebsiteConfig from "../models/WebsiteConfigModel.js";
 import { deleteFile } from "../utility/fileUtils.js";
 import path from "path";
+import UserModel from './../models/UserModel.js';
+import RequestModel from './../models/RequestModel.js';
 
 
 export const UpsertWebsiteConfigService = async (req) => {
@@ -85,10 +87,40 @@ export const GetWebsiteConfigService = async () => {
       };
     }
     
+    // Get total members
+    const totalMembers = await UserModel.countDocuments({});
+    
+    // Get total eligible members (those who can donate)
+    // Eligibility Threshold Date (90 days ago)
+    const today = new Date();
+    const eligibilityThreshold = new Date(today.setDate(today.getDate() - 90)).toISOString();
+    
+    const totalEligibleMembers = await UserModel.countDocuments({
+      $or: [
+        { lastDonate: { $exists: false } },
+        { lastDonate: { $lt: eligibilityThreshold } }
+      ],
+      isApproved: true,
+      isBanned: false
+    });
+    
+    // Get total fulfilled and pending requests
+    // Assuming you have a RequestModel with status field
+    const totalFulfilledRequests = await RequestModel.countDocuments({ status: "fulfilled" });
+    const totalPendingRequests = await RequestModel.countDocuments({ status: "pending" });
+
     return {
       status: true,
       message: "Website configuration retrieved successfully.",
-      data: config
+      data: {
+        ...config.toObject(),
+        stats: {
+          totalMembers,
+          totalEligibleMembers,
+          totalFulfilledRequests,
+          totalPendingRequests
+        }
+      }
     };
   } catch (e) {
     return {

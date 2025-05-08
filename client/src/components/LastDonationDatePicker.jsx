@@ -22,7 +22,7 @@ const LastDonationDatePicker = ({
     }
   }, [formData.isFirstTimeDonor]);
   
-  // Calculate next donation date (120 days after last donation)
+  // Calculate next donation date (90 days after last donation)
   useEffect(() => {
     // Only update if not a first-time donor and has a last donation date
     if (!isFirstTimeDonor && formData.lastDonate) {
@@ -30,8 +30,8 @@ const LastDonationDatePicker = ({
         // Parse the date string to a Date object
         const lastDonateDate = parse(formData.lastDonate, 'dd/MM/yyyy', new Date());
         
-        // Calculate next donation date (120 days after last donation)
-        const nextDate = addDays(lastDonateDate, 120);
+        // Calculate next donation date (90 days after last donation)
+        const nextDate = addDays(lastDonateDate, 90);
         const formattedNextDate = format(nextDate, 'dd/MM/yyyy');
         
         // Update form data with the new next donation date
@@ -73,7 +73,7 @@ const LastDonationDatePicker = ({
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 mt-3">
       <div className="flex items-center">
         <input
           id="isFirstTimeDonor"

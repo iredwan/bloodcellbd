@@ -83,10 +83,6 @@ const userSchema = new mongoose.Schema({
   lastDonate: {
     type: String,
   },
-  eligibility: {
-    type: Boolean,
-    default: false,
-  },
   nextDonationDate: {
     type: String,
     required: true,
@@ -147,6 +143,17 @@ const userSchema = new mongoose.Schema({
   timestamps: true,
   versionKey: false
 });
+
+// Add eligibility checker method
+userSchema.methods.isEligible = function () {
+  if (!this.lastDonate) return true;
+
+  const lastDonateDate = new Date(this.lastDonate);
+  const today = new Date();
+  const diffInDays = Math.floor((today - lastDonateDate) / (1000 * 60 * 60 * 24));
+
+  return diffInDays >= 90; 
+};
 
 const userModel = mongoose.model("User", userSchema);
 
