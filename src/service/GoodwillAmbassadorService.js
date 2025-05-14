@@ -77,7 +77,7 @@ export const GetAllGoodwillAmbassadorsService = async (req) => {
     
     // Get all goodwill ambassadors with filters
     const ambassadors = await GoodwillAmbassador.find(filter)
-      .sort({ featured: -1, createdAt: -1 })
+      .sort({ order: 1 })
       .skip(skip)
       .limit(limit)
       .select('-events'); // Exclude events array for performance
@@ -268,7 +268,7 @@ export const GetGoodwillAmbassadorByDesignationService = async (req) => {
     
     // Get ambassadors by designation
     const ambassadors = await GoodwillAmbassador.find(filter)
-      .sort({ featured: -1, createdAt: -1 })
+      .sort({ order: 1 })
       .skip(skip)
       .limit(limit)
       .select('-events');

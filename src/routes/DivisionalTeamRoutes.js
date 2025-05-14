@@ -12,9 +12,9 @@ import { protect, restrictTo } from '../middleware/auth.js';
 const router = express.Router();
 
 // Get all divisional teams
-router.get('/all', protect, GetAllDivisionalTeams);
+router.get('/all', GetAllDivisionalTeams);
 // Get divisional team by ID
-router.get('/get/:id', protect, GetDivisionalTeamById);
+router.get('/get/:id', GetDivisionalTeamById);
 
 // Get divisional team by divisional coordinators user ID
 router.get('/get-by-divisional-coordinators-user-id', protect, GetDivisionalTeamByDivisionalCoordinatorsUserId);

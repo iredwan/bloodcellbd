@@ -48,6 +48,10 @@ export const CreateSponsorService = async (req) => {
 // Get All Sponsors
 export const GetAllSponsorsService = async (req) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 6;
+    const skip = (page - 1) * limit;
+
     // Optional query filters
     const filter = {};
     
@@ -72,7 +76,12 @@ export const GetAllSponsorsService = async (req) => {
     const total = await Sponsor.countDocuments(filter);
     
     // Get sponsors with filters and pagination
-    const sponsors = await Sponsor.find(filter).select('-events -contactPerson')
+    const sponsors = await Sponsor.find(filter)
+    .sort({ order: 1 })
+    .select('-events -contactPerson')
+    .skip(skip)
+    .limit(limit);
+
     
     if (!sponsors || sponsors.length === 0) {
       return { 

@@ -28,6 +28,7 @@ import divisionRoutes from './src/routes/DivisionRoutes.js';
 import wantToDonateBloodRoutes from './src/routes/WantToDonateBloodRoutes.js';
 import reviewRoutes from './src/routes/reviewRoutes.js';
 import uploadFileRoutes from './src/routes/UploadFileRoute.js';
+import userInfoRoutes from './src/routes/UserInfoRoute.js';
 // Load environment variables
 dotenv.config();
 
@@ -70,8 +71,8 @@ app.use('/api/events', eventRoutes);
 app.use('/api/sponsors', sponsorRoutes);
 app.use('/api/ambassadors', goodwillAmbassadorRoutes);
 app.use('/api/board-team', boardTeamRoutes);
-app.use('/api/divisional-team', divisionalTeamRoutes);
-app.use('/api/district-team', districtTeamRoutes);
+app.use('/api/divisional-teams', divisionalTeamRoutes);
+app.use('/api/district-teams', districtTeamRoutes);
 app.use('/api/upazila-team', upazilaTeamRoutes);
 app.use('/api/hospital', hospitalRoutes)
 app.use('/api/config', websiteConfigRoutes);
@@ -83,7 +84,7 @@ app.use('/api/divisions', divisionRoutes);
 app.use('/api/want-to-donate', wantToDonateBloodRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api', uploadFileRoutes);
-
+app.use('/api/get', userInfoRoutes);
 // Root route
 app.get('/', (req, res) => {
   res.send('Blood Cell BD API is running');

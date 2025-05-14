@@ -72,7 +72,7 @@ export const UpdateUserByIdRef = async (req, res) => {
 // Get All User
 export const GetAllUser = async (req, res) => { 
   try {
-    const result = await GetAllUserService();
+    const result = await GetAllUserService(req, res);
     return res.status(200).json(result);
   } catch (error) {
     return res.status(500).json({ error: error.message });

@@ -6,9 +6,10 @@ import { FaSpinner, FaFacebook, FaYoutube, FaInstagram, FaLinkedin, FaTiktok, Fa
 import Image from 'next/image';
 import Link from 'next/link';
 import Pagination from '@/components/Pagination';
+import AmbassadorCardSkeleton from '@/components/ui/Skeletons/AmbassadorCardSkeleton';
 
 const AmbassadorCard = ({ ambassador }) => {
-    const { name, designation, profileImage, position, organization, socialMedia, achievements = [] } = ambassador;
+    const { name, designation, profileImage, position, organization, socialMedia, achievements = [], _id } = ambassador;
   
     const icons = {
       facebook: <FaFacebook className="w-5 h-5 text-[#1877F2]" />,
@@ -23,8 +24,8 @@ const AmbassadorCard = ({ ambassador }) => {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group text-center">
         {/* Profile Image Container */}
-        <div className="relative w-full h-50 bg-primary flex justify-center items-end pb-4">
-          <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 w-60 h-60">
+        <div className="relative w-full h-40 bg-primary flex justify-center items-end pb-4">
+          <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 w-40 h-40">
             <div className="relative w-full h-full rounded-full ring-4 ring-white dark:ring-gray-800 shadow-lg overflow-hidden">
               <Image
                 src={profileImage || '/placeholder-profile.jpg'}
@@ -39,26 +40,28 @@ const AmbassadorCard = ({ ambassador }) => {
   
         {/* Content Section */}
         <div className="pt-20 pb-6 px-6 space-y-4">
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{name}</h3>
-          <p className="text-primary-600 dark:text-primary-400 font-medium">{designation}</p>
+          <Link href={`/ambassador-members/details?id=${_id}`} className="block">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white pb-3">{name}</h3>
+            <p className="text-primary font-medium pb-3">{designation}</p>
   
-          {(position || organization) && (
-            <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
-              {position && <p>{position}</p>}
-              {organization && <p>{organization}</p>}
-            </div>
-          )}
+            {(position || organization) && (
+              <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400 pb-3">
+                {position && <p>{position}</p>}
+                {organization && <p>{organization}</p>}
+              </div>
+            )}
   
-          {achievements.length > 0 && (
-            <div>
-              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Achievements</h4>
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                {achievements.slice(0, 2).map((a, i) => (
-                  <li key={i} className="truncate">{a}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+            {achievements.length > 0 && (
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Achievements</h4>
+                <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                  {achievements.slice(0, 2).map((a, i) => (
+                    <li key={i} className="truncate">{a}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </Link>
   
           <div className="flex justify-center gap-3 mt-4 flex-wrap">
             {Object.entries(socialMedia || {}).map(([platform, url]) =>
@@ -104,7 +107,7 @@ export default function AmbassadorMembersPage() {
     refetch
   } = useGetAllAmbassadorsQuery({
     page: currentPage,
-    limit: 10,
+    limit: 6,
     designation: selectedDesignation,
     search: debouncedSearch || undefined
   }, {
@@ -197,8 +200,10 @@ export default function AmbassadorMembersPage() {
 
         {/* Content */}
         {isPageLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <FaSpinner className="animate-spin text-4xl text-primary" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, idx) => (
+              <AmbassadorCardSkeleton key={idx} />
+            ))}
           </div>
         ) : error ? (
           <div className="text-center py-12 text-red-500">Failed to load ambassadors.</div>
@@ -228,6 +233,7 @@ export default function AmbassadorMembersPage() {
                 <Pagination
                   pageCount={pagination.totalPages}
                   onPageChange={handlePageChange}
+                  currentPage={currentPage - 1}
                 />
                 <div className="text-center mt-4 text-sm text-gray-600 dark:text-gray-400">
                   Showing page {pagination.currentPage} of {pagination.totalPages} • 

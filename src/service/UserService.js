@@ -4,33 +4,37 @@ import { EncodeToken } from "../utility/TokenHelper.js";
 import mongoose from "mongoose";
 const ObjectId = mongoose.Types.ObjectId;
 
-export const UserRegisterService = async (req) => {
+export const UserRegisterService = async (req, res) => {
   try {
-    let reqBody = req.body;
+    const reqBody = req.body;
 
-    // Check if user already exists
     const userExists = await UserModel.findOne({
       identificationNumber: reqBody.identificationNumber,
     });
     if (userExists) {
-      return {
+      return res.status(400).json({
         status: false,
         message: `User with this ${reqBody.identificationType} already exists.`,
-      };
+      });
     }
 
     const newUser = new UserModel(reqBody);
-    console.log(newUser);
     await newUser.save();
-    return { status: true, message: "Register success." };
+
+    return res.status(201).json({
+      status: true,
+      message: "Register success.",
+    });
+
   } catch (e) {
-    return {
+    return res.status(500).json({
       status: false,
-      message: "There is problem to Register you.",
-      details: e,
-    };
+      message: "There was a problem registering you.",
+      error: e.message,
+    });
   }
 };
+
 
 export const UserRegisterWithRefService = async (req) => {
   try {
@@ -109,11 +113,20 @@ export const UserLoginService = async (req, res) => {
 
     let token = EncodeToken(email, user_id, role);
 
+    // Set the token cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      // secure: process.env.NODE_ENV === "production",
+      // sameSite: "Strict",
+      secure: false,
+      sameSite: "Lax",
+      maxAge: 3600000, // 1 hour
+      path: "/",
+    });
+
    
     return {
       status: true,
-      token: token,
-      data: user,
       message: "Login success.",
     };
   } catch (e) {
@@ -125,9 +138,13 @@ export const UserLogoutService = async (req, res) => {
   try {
     // Clear the token cookie
     res.clearCookie("token", {
-      httpOnly: false,
-      sameSite: "none",
-      secure: true,
+      httpOnly: true,
+      // secure: process.env.NODE_ENV === "production",
+      // sameSite: "Strict",
+      secure: false,
+      sameSite: "Lax",
+      maxAge: 3600000, // 1 hour
+      path: "/",
     });
 
     return {
@@ -138,47 +155,6 @@ export const UserLogoutService = async (req, res) => {
     return {
       status: false,
       message: "Logout unsuccessful.",
-      details: e.message,
-    };
-  }
-};
-
-export const GetUserByIdService = async (req) => {
-  try {
-    const userId = new ObjectId(req.params.id);
-
-    const user = await UserModel.findById(userId).select(
-      "-nidOrBirthRegistrationImage"
-    );
-
-    if (!user) {
-      return { status: false, message: "User not found." };
-    }
-
-    let userData = user.toObject();
-
-    // Check if reference is an ObjectId
-    if (userData.reference && userData.reference !== "Self") {
-      const referenceUser = await UserModel.findById(userData.reference).select(
-        "name phone email district upazila role roleSuffix profileImage"
-      );
-
-      if (referenceUser) {
-        userData.referenceInfo = referenceUser;
-      }
-    } else {
-      userData.referenceInfo = "Self";
-    }
-
-    return {
-      status: true,
-      data: userData,
-      message: "User retrieved successfully.",
-    };
-  } catch (e) {
-    return {
-      status: false,
-      message: "Failed to retrieve user.",
       details: e.message,
     };
   }
@@ -298,32 +274,36 @@ export const UpdateUserByIdRefService = async (req) => {
 };
 
 //only eligible, approved, not banned users
-export const GetAllUserService = async (req) => {
+export const GetAllUserService = async (req, res) => {
   try {
-    let reqBody = req.body;
-    const { bloodGroup, district, upazila, search } = reqBody;
-    const page = 1;
-    const onlyEligible = false;
-    const limit = 10;
+    const reqBody = req.body;
+
+    const {
+      bloodGroup,
+      district,
+      upazila,
+      search,
+      page = 1,
+      limit = 10,
+    } = reqBody;
+
     const skip = (page - 1) * limit;
 
     // Eligibility Threshold Date (90 days ago)
-    const today = new Date();
-    const eligibilityThreshold = new Date(today.setDate(today.getDate() - 90)).toISOString();
+    const eligibilityDate = new Date();
+    eligibilityDate.setDate(eligibilityDate.getDate() - 90);
+    const eligibilityThreshold = eligibilityDate.toLocaleDateString('en-GB'); // DD/MM/YYYY format
+
 
     // Base query
     const baseQuery = {
       isApproved: true,
       isBanned: false,
-    };
-
-    // Add eligibility condition
-    if (onlyEligible) {
-      baseQuery.$or = [
+      $or: [
         { lastDonate: { $exists: false } },
         { lastDonate: { $lt: eligibilityThreshold } },
-      ];
-    }
+      ],
+    };
 
     // Optional filters
     if (bloodGroup) {
@@ -338,21 +318,33 @@ export const GetAllUserService = async (req) => {
       baseQuery.upazila = upazila;
     }
 
+    // Search (name, email, phone)
     if (search) {
       const regex = new RegExp(search, "i");
-      baseQuery.$or = [
-        ...(baseQuery.$or || []), // merge with eligibility if exists
+      const searchConditions = [
         { name: regex },
         { email: regex },
         { phone: regex },
       ];
+
+      // Merge search with existing $or using $and
+      baseQuery.$and = [{ $or: baseQuery.$or }, { $or: searchConditions }];
+      delete baseQuery.$or;
     }
 
+    // Query execution
     const users = await UserModel.find(baseQuery)
-      .select("-nidOrBirthRegistrationImage -password -reference -updatedBy")
+      .select("-nidOrBirthRegistrationImage -dob -identificationNumber -identificationType -religion -occupation -fatherName -fatherPhoneNumber -motherName -motherPhoneNumber -isApproved -isBanned -password -reference -updatedBy -createdAt -updatedAt")
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
+
+    if (users.length === 0) {
+      return {
+        status: false,
+        message: "No eligible users found in your desired location.",
+      };
+    }
 
     const totalUsers = await UserModel.countDocuments(baseQuery);
 
@@ -366,7 +358,7 @@ export const GetAllUserService = async (req) => {
           totalPages: Math.ceil(totalUsers / limit),
         },
       },
-      message: "Users retrieved successfully.",
+      message: "Eligible users retrieved successfully.",
     };
   } catch (e) {
     return {
@@ -377,11 +369,53 @@ export const GetAllUserService = async (req) => {
   }
 };
 
+export const GetUserByIdService = async (req) => {
+  try {
+    const userId = new ObjectId(req.params.id);
+
+    const user = await UserModel.findById(userId).select(
+      "-nidOrBirthRegistrationImage -password"
+    );
+
+    if (!user) {
+      return { status: false, message: "User not found." };
+    }
+
+    let userData = user.toObject();
+
+    // Check if reference is an ObjectId
+    if (userData.reference && userData.reference !== "Self") {
+      const referenceUser = await UserModel.findById(userData.reference).select(
+        "name phone email district upazila role roleSuffix profileImage"
+      );
+
+      if (referenceUser) {
+        userData.referenceInfo = referenceUser;
+      }
+    } else {
+      userData.referenceInfo = "Self";
+    }
+
+    return {
+      status: true,
+      data: userData,
+      message: "User retrieved successfully.",
+    };
+  } catch (e) {
+    return {
+      status: false,
+      message: "Failed to retrieve user.",
+      details: e.message,
+    };
+  }
+};
+
 //Get User By User ID Service
 export const GetUserByUserIdService = async (req) => {
   try {
     const userId = req.headers.user_id || req.cookies.user_id;
-    const user = await UserModel.findById(userId);
+    const user = await UserModel.findById(userId)
+      .select("-nidOrBirthRegistrationImage -dob -identificationNumber -identificationType -religion -occupation -fatherName -fatherPhoneNumber -motherName -motherPhoneNumber -isApproved -isBanned -password -reference -updatedBy -createdAt -updatedAt");
     return { status: true, message: "User retrieved successfully", data: user };
   } catch (error) {
     return { status: false, message: "Error retrieving user", error: error.message };

@@ -105,7 +105,7 @@ const EventCard = ({ event }) => {
     <div className="flex items-center gap-6">
       {/* Organizer Logo */}
       {safeEvent.organizer.logo && (
-        <Link href={`/sponsors/${safeEvent.organizer._id}`} className="min-w-[100px] h-[100px] rounded-full overflow-hidden border-2 border-gray-300 dark:border-gray-500 shadow-md">
+        <Link href={`/sponsors/details?id=${safeEvent.organizer._id}`}  className="min-w-[100px] h-[100px] rounded-full overflow-hidden border-2 border-gray-300 dark:border-gray-500 shadow-md">
           <Image
             src={safeEvent.organizer.logo}
             alt={safeEvent.organizer.name}

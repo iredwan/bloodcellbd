@@ -7,9 +7,9 @@ export const CreateUpazilaTeamService = async (req) => {
   try {
     const reqBody = req.body;
 
-    //check if user role is not set upazila coordinator, sub-coordinator, it-media coordinator, logistics coordinator
-    if (req.user.role !== "Upazila Coordinator" && req.user.role !== "Upazila Sub-Coordinator" && req.user.role !== "Upazila IT & Media Coordinator" && req.user.role !== "Upazila Logistics Coordinator") {
-      return { status: false, message: "You have to set user role as Upazila Coordinator, Upazila Sub-Coordinator, Upazila IT & Media Coordinator, Upazila Logistics Coordinator" };
+    //check if user role is not set upazila coordinator, Co-coordinator, it-media coordinator, logistics coordinator
+    if (req.user.role !== "Upazila Coordinator" && req.user.role !== "Upazila Co-coordinator" && req.user.role !== "Upazila IT & Media Coordinator" && req.user.role !== "Upazila Logistics Coordinator") {
+      return { status: false, message: "You have to set user role as Upazila Coordinator, Upazila Co-coordinator, Upazila IT & Media Coordinator, Upazila Logistics Coordinator" };
     }
 
     // Check if the team already exists for this upazila
@@ -61,31 +61,17 @@ export const GetAllUpazilaTeamsService = async () => {
   try {
     const upazilaTeams = await UpazilaTeam.find()
       .populate("upazilaName", "name")
-      .populate("upazilaCoordinator", "name email phone profileImage role roleSuffix")
-      .populate("upazilaSubCoordinator", "name email phone profileImage role roleSuffix")
-      .populate("upazilaITMediaCoordinator", "name email phone profileImage role roleSuffix")
-      .populate("upazilaLogisticsCoordinator", "name email phone profileImage role roleSuffix")
-      .populate({
-        path: "monitorTeams",
-        populate: [{
-          path: "teamMonitor",
-          select: "name email phone profileImage"
-        },
-        {
-          path: "moderatorTeamID",
-          populate: [{
-            path: "moderatorName",
-            select: "name email phone profileImage role roleSuffix"
-          }]
-        }]
-      })
+      .populate("upazilaCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
+      .populate("upazilaSubCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
+      .populate("upazilaITMediaCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
+      .populate("upazilaLogisticsCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
       .populate({
         path: "createdBy",
-        select: "name email phone profileImage role roleSuffix"
+        select: "name bloodGroup isVerified phone profileImage role roleSuffix"
       })
       .populate({
         path: "updatedBy", 
-        select: "name email phone profileImage role roleSuffix"
+        select: "name bloodGroup isVerified phone profileImage role roleSuffix"
       });
     
     if (!upazilaTeams || upazilaTeams.length === 0) {
@@ -113,32 +99,44 @@ export const GetUpazilaTeamByIdService = async (req) => {
     
     const upazilaTeam = await UpazilaTeam.findById(teamId)
       .populate("upazilaName", "name")
-      .populate("upazilaCoordinator", "name phone profileImage role roleSuffix")
-      .populate("upazilaSubCoordinator", "name phone profileImage role roleSuffix")
-      .populate("upazilaITMediaCoordinator", "name phone profileImage role roleSuffix")
-      .populate("upazilaLogisticsCoordinator", "name phone profileImage role roleSuffix")
+      .populate("upazilaCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
+      .populate("upazilaSubCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
+      .populate("upazilaITMediaCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
+      .populate("upazilaLogisticsCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
       .populate({
         path: "monitorTeams",
         populate: [{
           path: "teamMonitor",
-          select: "name email phone profileImage role roleSuffix"
+          select: "name bloodGroup isVerified phone profileImage role roleSuffix"
         },
         {
           path: "moderatorTeamID",
           populate: [{
             path: "moderatorName", 
-            select: "name email phone profileImage role roleSuffix"
+            select: "name bloodGroup isVerified phone profileImage role roleSuffix"
           }]
         }]
       })
-      .populate("createdBy", "name phone profileImage role roleSuffix")
-      .populate("updatedBy", "name phone profileImage role roleSuffix");
+      .populate("createdBy", "name bloodGroup isVerified phone profileImage role roleSuffix")
+      .populate("updatedBy", "name bloodGroup isVerified phone profileImage role roleSuffix");
     
     if (!upazilaTeam) {
       return { status: false, message: "Upazila team not found" };
     }
+
+    // Count total moderator teams
+    const totalModeratorTeams = upazilaTeam.monitorTeams.reduce((acc, team) => {
+      return acc + (team.moderatorTeamID ? 1 : 0);
+    }, 0);
     
-    return { status: true, message: "Upazila team retrieved successfully", data: upazilaTeam };
+    return { 
+      status: true, 
+      message: "Upazila team retrieved successfully", 
+      data: {
+        upazilaTeam,
+        totalModeratorTeams
+      }
+    };
   } catch (error) {
     return { status: false, message: "Error retrieving upazila team", error: error.message };
   }
@@ -149,8 +147,8 @@ export const GetUpazilaTeamByUpazilaCoordinatorsUserIdService = async (req) => {
   try {
     const userId = req.headers.user_id || req.cookies.user_id;
 
-    //check if user role is not set upazila coordinator, sub-coordinator, it-media coordinator, logistics coordinator
-    if (req.user.role !== "Upazila Coordinator" && req.user.role !== "Upazila Sub-Coordinator" && req.user.role !== "Upazila IT & Media Coordinator" && req.user.role !== "Upazila Logistics Coordinator") {
+    //check if user role is not set upazila coordinator, Co-coordinator, it-media coordinator, logistics coordinator
+    if (req.user.role !== "Upazila Coordinator" && req.user.role !== "Upazila Co-coordinator" && req.user.role !== "Upazila IT & Media Coordinator" && req.user.role !== "Upazila Logistics Coordinator") {
       return { status: false, message: "You are not authorized to access this resource" };
     }
 
@@ -162,11 +160,11 @@ export const GetUpazilaTeamByUpazilaCoordinatorsUserIdService = async (req) => {
         { upazilaLogisticsCoordinator: userId }
       ]
     }).populate("upazilaName", "name")
-    .populate("upazilaCoordinator", "name email phone profileImage role roleSuffix")
-    .populate("upazilaSubCoordinator", "name email phone profileImage role roleSuffix")
-    .populate("upazilaITMediaCoordinator", "name email phone profileImage role roleSuffix")
-    .populate("upazilaLogisticsCoordinator", "name email phone profileImage role roleSuffix");
-    return { status: true, message: "Upazila team retrieved successfully", data: upazilaTeam };
+    .populate("upazilaCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
+    .populate("upazilaSubCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
+    .populate("upazilaITMediaCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
+    .populate("upazilaLogisticsCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix");
+      return { status: true, message: "Upazila team retrieved successfully", data: upazilaTeam };
   } catch (error) {
     return { status: false, message: "Error retrieving upazila team", error: error.message };
   }
@@ -185,9 +183,9 @@ export const UpdateUpazilaTeamService = async (req) => {
     }
     reqBody.updatedBy = updatedBy;
 
-    //check if new user role is not set upazila coordinator, sub-coordinator, it-media coordinator, logistics coordinator
-    if (reqBody.upazilaCoordinator && reqBody.upazilaCoordinator.role !== "Upazila Coordinator" && reqBody.upazilaCoordinator.role !== "Upazila Sub-Coordinator" && reqBody.upazilaCoordinator.role !== "Upazila IT & Media Coordinator" && reqBody.upazilaCoordinator.role !== "Upazila Logistics Coordinator") {
-      return { status: false, message: "You have to set user role as Upazila Coordinator, Upazila Sub-Coordinator, Upazila IT & Media Coordinator, Upazila Logistics Coordinator" };
+    //check if new user role is not set upazila coordinator, Co-coordinator, it-media coordinator, logistics coordinator
+    if (reqBody.upazilaCoordinator && reqBody.upazilaCoordinator.role !== "Upazila Coordinator" && reqBody.upazilaCoordinator.role !== "Upazila Co-coordinator" && reqBody.upazilaCoordinator.role !== "Upazila IT & Media Coordinator" && reqBody.upazilaCoordinator.role !== "Upazila Logistics Coordinator") {
+      return { status: false, message: "You have to set user role as Upazila Coordinator, Upazila Co-coordinator, Upazila IT & Media Coordinator, Upazila Logistics Coordinator" };
     }
 
     //check if coordinator is already in other team

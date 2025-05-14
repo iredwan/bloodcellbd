@@ -1,12 +1,13 @@
 import ReactPaginate from 'react-paginate';
 
-export default function Pagination({ pageCount, onPageChange }) {
+export default function Pagination({ pageCount, onPageChange, currentPage = 0 }) {
   if (pageCount <= 1) return null;
 
   return (
     <ReactPaginate
       pageCount={pageCount}
       onPageChange={onPageChange}
+      forcePage={currentPage}
       containerClassName="flex justify-center items-center gap-1 mt-12 select-none"
       pageClassName="flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 bg-[#03588a] text-white dark:bg-gray-300 hover:scale-105 cursor-pointer"
       pageLinkClassName="w-full h-full flex items-center justify-center"

@@ -113,6 +113,10 @@ html {
   background-color: var(--primary);
 }
 
+.bg-primary-light {
+  background-color: rgba(139, 3, 3, 0.2);
+}
+
 .bg-secondary {
   background-color: var(--secondary);
 }

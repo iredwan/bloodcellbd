@@ -50,35 +50,9 @@ export const GetAllDivisionalTeamsService = async () => {
   try {
     const divisionalTeams = await DivisionalTeam.find()
       .populate("divisionID", "name")
-      .populate("divisionalCoordinatorID", "name email phone profileImage role roleSuffix")
-      .populate("divisionalSubCoordinatorID", "name email phone profileImage role roleSuffix")
-      .populate({
-        path: "districtTeamID",
-        populate: [
-          {
-            path: "districtId",
-            select: "name"
-          },
-          {
-            path: "districtCoordinatorID",
-            select: "name email phone profileImage role roleSuffix"
-          },
-          {
-            path: "districtSubCoordinatorID",
-            select: "name email phone profileImage role roleSuffix"
-          },
-          {
-            path: "districtITMediaCoordinatorID",
-            select: "name email phone profileImage role roleSuffix"
-          },
-          {
-            path: "districtLogisticsCoordinatorID",
-            select: "name email phone profileImage role roleSuffix"
-          }
-        ]
-      })
-      .populate("createdBy", "name email phone profileImage role roleSuffix")
-      .populate("updatedBy", "name email phone profileImage role roleSuffix");
+      .populate("divisionalCoordinatorID", "name isVerified bloodGroup phone profileImage role roleSuffix")
+      .populate("createdBy", "name bloodGroup phone profileImage role roleSuffix")
+      .populate("updatedBy", "name bloodGroup phone profileImage role roleSuffix");
     
     if (!divisionalTeams || divisionalTeams.length === 0) {
       return { status: false, message: "No divisional teams found" };
@@ -109,30 +83,31 @@ export const GetDivisionalTeamByIdService = async (req) => {
     
     const divisionalTeam = await DivisionalTeam.findById(teamId)
       .populate("divisionID", "name")
-      .populate("divisionalCoordinatorID", "name email phone profileImage role roleSuffix")
-      .populate("divisionalSubCoordinatorID", "name email phone profileImage role roleSuffix")
+      .populate("divisionalCoordinatorID", "name isVerified bloodGroup phone profileImage role roleSuffix")
+      .populate("divisionalSubCoordinatorID", "name isVerified bloodGroup phone profileImage role roleSuffix")
       .populate({
         path: "districtTeamID",
         populate: [
           {
             path: "districtId",
             select: "name"
+            
           },
           {
             path: "districtCoordinatorID",
-            select: "name email phone profileImage role roleSuffix"
+            select: "name isVerified bloodGroup phone profileImage role roleSuffix"
           },
           {
             path: "districtSubCoordinatorID",
-            select: "name email phone profileImage role roleSuffix"
+            select: "name isVerified bloodGroup phone profileImage role roleSuffix"
           },
           {
             path: "districtITMediaCoordinatorID",
-            select: "name email phone profileImage role roleSuffix"
+            select: "name isVerified bloodGroup phone profileImage role roleSuffix"
           },
           {
             path: "districtLogisticsCoordinatorID",
-            select: "name email phone profileImage role roleSuffix"
+            select: "name isVerified bloodGroup phone profileImage role roleSuffix"
           },
           {
             path: "upazilaTeamID",
@@ -150,8 +125,20 @@ export const GetDivisionalTeamByIdService = async (req) => {
     if (!divisionalTeam) {
       return { status: false, message: "Divisional team not found" };
     }
+
+    // Calculate total upazila teams
+    const totalUpazilaTeams = divisionalTeam.districtTeamID.reduce((acc, district) => {
+      return acc + (district.upazilaTeamID ? district.upazilaTeamID.length : 0);
+    }, 0);
     
-    return { status: true, message: "Divisional team retrieved successfully", data: divisionalTeam };
+    return { 
+      status: true, 
+      message: "Divisional team retrieved successfully", 
+      data: {
+        divisionalTeam,
+        totalUpazilaTeams
+      }
+    };
   } catch (error) {
     return { status: false, message: "Error retrieving divisional team", error: error.message };
   }

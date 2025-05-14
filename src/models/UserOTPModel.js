@@ -1,25 +1,23 @@
 import mongoose from "mongoose";
 
-const DataSchema = new mongoose.Schema(
+const userOTPSchema = new mongoose.Schema(
   {
-    email: { type: String, unique: true, required: true, lowercase: true },
-    role: { type: String, required: true, default: "user" },
-    otp: { type: String, required: false }, // OTP as string
-    otpExpiry: { 
-      type: Date, 
-      required: true, // Must be required for TTL to work
-      index: { expires: 120 } // TTL index - Deletes document after 120 seconds
-    }
+    email: { type: String, required: true, unique: true },
+    otp: { type: String },
+    otpExpiry: {
+      type: Date,
+      required: true,
+      index: { expires: 120 },
+    },
+    otpAttempts: { type: Number, default: 0 },
+    role: { type: String, default: "user" },
   },
   {
     timestamps: true,
-    versionKey: false
+    versionKey: false,
   }
 );
 
-// Ensure TTL index is created
-DataSchema.index({ expireAfterSeconds: 120, expires: 120 });
+userOTPSchema.index({ expireAfterSeconds: 120, expires: 120 });
 
-const UserModel = mongoose.model("userotps", DataSchema);
-
-export default UserModel;
+export default mongoose.model("UserOTP", userOTPSchema);

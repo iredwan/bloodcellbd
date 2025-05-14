@@ -5,7 +5,7 @@ import { useWebsiteConfig } from '@/features/websiteConfig/configApiSlice';
 import { useGetUsersByDistrictQuery } from '@/features/users/userApiSlice';
 import { useDistricts } from '@/features/districts/districtApiSlice';
 import { IoMdArrowDropdown } from "react-icons/io";
-import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaSearch, FaSpinner, FaUser,} from 'react-icons/fa';
+import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaSpinner, FaUser,} from 'react-icons/fa';
 import { getCookie } from 'cookies-next';
 import { toast } from 'react-toastify';
 import Toast from '@/utils/toast';
@@ -89,7 +89,7 @@ export default function ContactPage() {
   useEffect(() => {
     if (districtUsers.length > 0) {
       const coordinators = districtUsers.filter(
-        user => user.role === 'District Coordinator' || user.role === 'District Sub-Coordinator'
+        user => user.role === 'District Coordinator' || user.role === 'District Co-coordinator'
       );
       setDistrictCoordinators(coordinators);
     } else if (districtUsersData && !isLoadingUsers) {
@@ -251,11 +251,11 @@ export default function ContactPage() {
               
               {districtCoordinators
                 .sort((a, b) => {
-                  // Sort by role: Coordinator first, then Sub-coordinator
+                  // Sort by role: Coordinator first, then Co-coordinator
                   if (a.role === "District Coordinator" && b.role !== "District Coordinator") return -1;
                   if (a.role !== "District Coordinator" && b.role === "District Coordinator") return 1;
-                  if (a.role === "Sub-coordinator" && b.role !== "Sub-coordinator") return -1;
-                  if (a.role !== "Sub-coordinator" && b.role === "Sub-coordinator") return 1;
+                  if (a.role === "Co-coordinator" && b.role !== "Co-coordinator") return -1;
+                  if (a.role !== "Co-coordinator" && b.role === "Co-coordinator") return 1;
                   return 0;
                 })
                 .map((coordinator) => (
@@ -412,7 +412,7 @@ export default function ContactPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="flex items-start space-x-3">
                 <div className="bg-primary bg-opacity-10 p-3 rounded-full">
-                  <FaEnvelope className="text-primary dark:text-white" />
+                  <FaEnvelope className="text-white" />
                 </div>
                 <div>
                   <p className="font-medium">Email</p>
@@ -424,7 +424,7 @@ export default function ContactPage() {
               
               <div className="flex items-start space-x-3">
                 <div className="bg-primary bg-opacity-10 p-3 rounded-full">
-                  <FaPhone className="text-primary dark:text-white" />
+                  <FaPhone className="text-white" />
                 </div>
                 <div>
                   <p className="font-medium">Phone</p>
@@ -436,7 +436,7 @@ export default function ContactPage() {
               
               <div className="flex items-start space-x-3">
                 <div className="bg-primary bg-opacity-10 p-3 rounded-full">
-                  <FaMapMarkerAlt className="text-primary dark:text-white" />
+                  <FaMapMarkerAlt className="text-white" />
                 </div>
                 <div>
                   <p className="font-medium">Address</p>

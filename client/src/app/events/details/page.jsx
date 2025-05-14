@@ -1,30 +1,29 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useGetEventByIdQuery } from '@/features/events/eventApiSlice';
-import { FaSpinner, FaMapMarkerAlt, FaGlobe, FaGem, 
-  FaCrown, 
-  FaCoins, 
-  FaMedal, 
-  FaQuestionCircle,
-  FaInfoCircle,
-  FaUser,
-  FaEnvelope,
-  FaPhone } from 'react-icons/fa';
+import {
+  FaSpinner, FaMapMarkerAlt, FaGlobe, FaGem, FaCrown,
+  FaCoins, FaMedal, FaQuestionCircle, FaInfoCircle,
+  FaUser, FaEnvelope, FaPhone, FaArrowLeft
+} from 'react-icons/fa';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import Link from 'next/link';
-
+import EventDetailsSkeleton from '@/components/ui/Skeletons/EventDetailsSkeleton';
 export default function EventDetailsPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
   const { data: eventData, isLoading, isError } = useGetEventByIdQuery(id);
+  const router = useRouter();
+
+  const handleBack = () => {
+    router.replace('/events');
+  };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex justify-center items-center">
-        <FaSpinner className="animate-spin text-4xl text-primary" />
-      </div>
+      <EventDetailsSkeleton />
     );
   }
 
@@ -41,36 +40,44 @@ export default function EventDetailsPage() {
 
   const event = eventData.data;
   const organizer = event.organizer;
-
-  // Date formatting with Bengali locale
   const eventDate = format(new Date(event.date), 'dd MMMM yyyy');
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-      {/* Event Card */}
-      <div className="shadow-md">
-        <Image 
-        src={event.eventCard}
-        alt="Event Card" 
-        fill
-        sizes="(max-width: 768px) 100vw, 50vw"
-        className="object-cover w-full h-full rounded-lg" />
-      </div>
+        {/* 🔙 Back Button */}
+        <button
+          onClick={handleBack}
+          className="mb-6 inline-flex items-center button"
+        >
+          <FaArrowLeft className="mr-1" />
+          Back
+        </button>
+
+        {/* Event Card */}
+        {event.eventCard?.length > 0 && (
+          <div className="shadow-md">
+          <Image
+            src={event.eventCards}
+            alt="Event Card"
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover w-full h-full rounded-lg"
+          />
+        </div>
+        )}
+        
 
         {/* Event Header */}
         <div className="text-center my-8">
-          <h1 className="text-4xl font-bold text-primary mb-4">
-            {event.title}
-          </h1>
+          <h1 className="text-4xl font-bold text-primary mb-4">{event.title}</h1>
           <div className="flex justify-center items-center gap-2 text-gray-600 dark:text-gray-400">
-              <span className="bg-green-200 text-green-600 px-2 py-1 rounded-md">{event.status}</span>
+            <span className="bg-green-200 text-green-600 px-2 py-1 rounded-md">{event.status}</span>
             <span className='border-b-2 border-gray-300'>{eventDate}</span>
             <span className='border-b-2 border-gray-300'>{event.time}</span>
           </div>
         </div>
-
         {/* Main Content */}
         <div className="grid md:grid-cols-3 gap-8">
           {/* Event Details */}

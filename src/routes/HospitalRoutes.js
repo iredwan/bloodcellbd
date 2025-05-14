@@ -26,11 +26,11 @@ router.get("/upazila/:upazila", GetHospitalsByUpazila);
 
 
 // Create a new hospital (Admin only)
-router.post("/create", protect, restrictTo("Monitor","Upazila Coordinator", "Upazila Sub-Coordinator", "Upazila IT & Media Coordinator", "Upazila Logistics Coordinator", "District Coordinator", "District Sub-Coordinator", "District IT & Media Coordinator", "District Logistics Coordinator", "Admin"), CreateHospital);
+router.post("/create", protect, restrictTo("Monitor","Upazila Coordinator", "Upazila Co-coordinator", "Upazila IT & Media Coordinator", "Upazila Logistics Coordinator", "District Coordinator", "District Co-coordinator", "District IT & Media Coordinator", "District Logistics Coordinator", "Admin"), CreateHospital);
 // Update hospital (Admin only)
-router.put("/update/:id", protect, restrictTo("Monitor","Upazila Coordinator", "Upazila Sub-Coordinator", "Upazila IT & Media Coordinator", "Upazila Logistics Coordinator", "District Coordinator", "District Sub-Coordinator", "District IT & Media Coordinator", "District Logistics Coordinator", "Admin"), UpdateHospital);
+router.put("/update/:id", protect, restrictTo("Monitor","Upazila Coordinator", "Upazila Co-coordinator", "Upazila IT & Media Coordinator", "Upazila Logistics Coordinator", "District Coordinator", "District Co-coordinator", "District IT & Media Coordinator", "District Logistics Coordinator", "Admin"), UpdateHospital);
 
 // Delete hospital (Admin only)
-router.delete("/delete/:id", protect, restrictTo("Monitor","Upazila Coordinator", "Upazila Sub-Coordinator", "Upazila IT & Media Coordinator", "Upazila Logistics Coordinator", "District Coordinator", "District Sub-Coordinator", "District IT & Media Coordinator", "District Logistics Coordinator", "Admin"), DeleteHospital);
+router.delete("/delete/:id", protect, restrictTo("Monitor","Upazila Coordinator", "Upazila Co-coordinator", "Upazila IT & Media Coordinator", "Upazila Logistics Coordinator", "District Coordinator", "District Co-coordinator", "District IT & Media Coordinator", "District Logistics Coordinator", "Admin"), DeleteHospital);
 
 export default router; 

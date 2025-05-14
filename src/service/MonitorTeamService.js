@@ -107,18 +107,18 @@ export const CreateMonitorTeamService = async (req) => {
 export const GetAllMonitorTeamsService = async () => {
   try {
     const monitorTeams = await MonitorTeamModel.find()
-      .populate("teamMonitor", "name email phone role roleSuffix profileImage")
+      .populate("teamMonitor", "name bloodGroup isVerified phone role roleSuffix profileImage")
       .populate({
         path: "moderatorTeamID",
         populate: [
           {
             path: "moderatorName",
-            select: "name email phone role roleSuffix profileImage"
+            select: "name bloodGroup isVerified phone role roleSuffix profileImage"
           }
         ]
       })
-      .populate("createdBy", "name email phone role roleSuffix profileImage")
-      .populate("updatedBy", "name email phone role roleSuffix profileImage")
+      .populate("createdBy", "name bloodGroup isVerified phone role roleSuffix profileImage")
+      .populate("updatedBy", "name bloodGroup isVerified phone role roleSuffix profileImage")
       .sort({ createdAt: -1 })
       .lean();
     
@@ -194,16 +194,16 @@ export const GetMonitorTeamByIdService = async (req) => {
     }
     
     const monitorTeam = await MonitorTeamModel.findById(id)
-      .populate("teamMonitor", "name email phone role profileImage")
+      .populate("teamMonitor", "name bloodGroup isVerified phone role roleSuffix profileImage")
       .populate({
         path: "moderatorTeamID",
         populate: {
           path: "moderatorName",
-          select: "name email phone role profileImage"
+          select: "name bloodGroup isVerified phone role roleSuffix profileImage"
         }
       })
-      .populate("createdBy", "name email phone role profileImage")
-      .populate("updatedBy", "name email phone role profileImage")
+      .populate("createdBy", "name bloodGroup isVerified phone role roleSuffix profileImage")
+      .populate("updatedBy", "name bloodGroup isVerified phone role roleSuffix profileImage")
       .lean();
     
     if (!monitorTeam) {
@@ -262,16 +262,16 @@ export const GetMonitorTeamByMonitorUserIdService = async (req) => {
   try {
     const userId = req.headers.user_id || req.cookies.user_id;
     const monitorTeam = await MonitorTeamModel.find({ teamMonitor: userId })
-    .populate("teamMonitor", "name email phone role profileImage")
+    .populate("teamMonitor", "name bloodGroup isVerified phone role roleSuffix profileImage")
     .populate({
       path: "moderatorTeamID",
       populate: {
         path: "moderatorName",
-        select: "name email phone role profileImage"
+        select: "name bloodGroup isVerified phone role roleSuffix profileImage"
       }
     })
-    .populate("createdBy", "name email phone role profileImage")
-    .populate("updatedBy", "name email phone role profileImage")
+    .populate("createdBy", "name bloodGroup isVerified phone role roleSuffix profileImage")
+    .populate("updatedBy", "name bloodGroup isVerified phone role roleSuffix profileImage")
     .lean();
     return {
       status: true,
@@ -394,16 +394,6 @@ export const UpdateMonitorTeamService = async (req) => {
       updateObj,
       { new: true }
     )
-    .populate("teamMonitor", "name email phone role profileImage")
-    .populate({
-      path: "moderatorTeamID",
-      populate: {
-        path: "moderatorName",
-        select: "name email phone role profileImage"
-      }
-    })
-    .populate("createdBy", "name email phone role profileImage")
-    .populate("updatedBy", "name email phone role profileImage");
     
     return {
       status: true,

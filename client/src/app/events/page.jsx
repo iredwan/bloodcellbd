@@ -4,12 +4,16 @@ import { useState } from 'react';
 import { useGetAllEventsQuery } from '@/features/events/eventApiSlice';
 import EventCard from '@/components/EventCard';
 import { FaSpinner } from 'react-icons/fa';
+import Pagination from '@/components/Pagination';
+import EventCardSkeleton from '@/components/ui/Skeletons/EventCardSkeleton';
 
 export default function EventsPage() {
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 6;
+
   const { data: eventsData, isLoading, error } = useGetAllEventsQuery();
-  
-  // Filter events based on status
+
   const filterEvents = (events) => {
     const now = new Date();
     return events.filter(event => {
@@ -22,21 +26,26 @@ export default function EventsPage() {
           return eventDate <= now && endDate >= now;
         case 'completed':
           return eventDate < now;
-        default: // 'all'
+        default:
           return true;
       }
     });
   };
 
-  // Get filtered events
   const events = eventsData?.data || [];
   const filteredEvents = filterEvents(events);
-  
-  // Grid column logic
-  const columnCount = 
-    filteredEvents.length === 1 ? 'grid-cols-1' :
-    filteredEvents.length === 2 ? 'md:grid-cols-2' :
-    'md:grid-cols-2 lg:grid-cols-3';
+
+  const startIndex = currentPage * itemsPerPage;
+  const paginatedEvents = filteredEvents.slice(startIndex, startIndex + itemsPerPage);
+  const pageCount = Math.ceil(filteredEvents.length / itemsPerPage);
+
+  const handlePageChange = ({ selected }) => {
+    setCurrentPage(selected);
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
@@ -46,19 +55,20 @@ export default function EventsPage() {
           <h1 className="text-4xl font-bold text-primary mb-4">
             Blood Donation Events
           </h1>
-          
-          {/* Filter Controls */}
+
           <div className="flex flex-wrap justify-center gap-2 mb-6">
             {['all', 'upcoming', 'ongoing', 'completed'].map((filter) => (
               <button
                 key={filter}
-                onClick={() => setSelectedFilter(filter)}
+                onClick={() => {
+                  setSelectedFilter(filter);
+                  setCurrentPage(0); // reset pagination on filter change
+                }}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer
-                  ${
-                    selectedFilter === filter
-                      ? 'bg-primary text-white'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300'
-                  }`}
+                  ${selectedFilter === filter
+                    ? 'bg-primary text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300'}
+                `}
               >
                 {filter.charAt(0).toUpperCase() + filter.slice(1)}
               </button>
@@ -66,20 +76,22 @@ export default function EventsPage() {
           </div>
 
           <p className="text-lg text-gray-600 dark:text-gray-400">
-            {selectedFilter === 'all' 
+            {selectedFilter === 'all'
               ? 'Showing all events'
               : `Showing ${selectedFilter} events`}
           </p>
         </div>
 
-        {/* Loading State */}
+        {/* Loading */}
         {isLoading && (
-          <div className="flex justify-center items-center h-64">
-            <FaSpinner className="animate-spin text-4xl text-primary" />
-          </div>
-        )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, idx) => (
+                <EventCardSkeleton key={idx} />
+              ))}
+            </div>
+          )}
 
-        {/* Error State */}
+        {/* Error */}
         {error && (
           <div className="text-center py-12 text-red-500">
             <p className="text-xl font-semibold">Error loading events</p>
@@ -87,14 +99,31 @@ export default function EventsPage() {
           </div>
         )}
 
-        {/* Events Grid */}
+        {/* Event Grid */}
         {!isLoading && !error && (
           filteredEvents.length > 0 ? (
-            <div className={`grid ${columnCount} gap-8`}>
-              {filteredEvents.map((event) => (
-                <EventCard key={event._id} event={event} />
-              ))}
-            </div>
+            <>
+              <div className="flex justify-center">
+                <div className={`
+                  grid 
+                  ${paginatedEvents.length === 1 ? 'grid-cols-1 max-w-md' : ''}
+                  ${paginatedEvents.length === 2 ? 'grid-cols-1 md:grid-cols-2 max-w-3xl' : ''}
+                  ${paginatedEvents.length >= 3 ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : ''}
+                  gap-6 w-full
+                `}>
+                  {paginatedEvents.map((event) => (
+                    <EventCard key={event._id} event={event} />
+                  ))}
+                </div>
+              </div>
+
+              {/* Pagination */}
+              <Pagination
+                pageCount={pageCount}
+                onPageChange={handlePageChange}
+                currentPage={currentPage}
+              />
+            </>
           ) : (
             <div className="text-center py-12">
               <p className="text-xl text-gray-600 dark:text-gray-400">

@@ -20,6 +20,7 @@ import {
 import LocationSelector from '@/components/LocationSelector';
 import { FiFile, FiImage, FiUpload, FiFileText, FiInfo } from 'react-icons/fi';
 import CustomSelect from '@/components/CustomSelect';
+import DistrictSelector from '@/components/DistrictSelector';
 
 // Form steps
 const STEPS = {
@@ -68,8 +69,7 @@ const initialFormData = {
   nidOrBirthRegistrationImage: null,
   
   // OTP Information
-  otp: '',
-  token: ''
+  otp: ''
 };
 
 export default function RegisterPage() {
@@ -147,30 +147,29 @@ export default function RegisterPage() {
       setErrors(prev => ({ ...prev, otp: 'OTP is required' }));
       return;
     }
-    
+  
     try {
       const response = await verifyOTP({
         email: formData.email,
-        otp: formData.otp
+        otp: formData.otp,
       }).unwrap();
-      
+  
       if (response.status === true) {
-        toast.success(`${response.message}`);
-        
-        // Store token in state
-        setFormData(prev => ({ 
-          ...prev, 
-          token: response.token 
-        }));
-        
+        toast.success(response.message || 'OTP verified successfully');
+  
+  
+        // Proceed to next step (e.g. registration form)
         nextStep();
+  
       } else {
         toast.error(response.message || 'Invalid OTP');
       }
     } catch (error) {
+      console.error("OTP verification error:", error);
       toast.error(error?.data?.message || 'Failed to verify OTP');
     }
   };
+  
   
   // Handle file uploads
   const handleFileChange = (e) => {
@@ -325,10 +324,6 @@ export default function RegisterPage() {
   // Handle form submission for registration
   const handleRegister = async () => {
     setIsLoading(true);
-
-    //Set Cookie
-    setCookie('token', formData.token);
-    
     try {
       // Upload profile image
       let profileImageData = null;
@@ -365,9 +360,6 @@ export default function RegisterPage() {
       delete registrationData.confirmPassword;
       delete registrationData.otp;
       
-      // Token is now sent via headers from the cookie
-      // We don't need to include it in the request body
-      delete registrationData.token;
       
       // Register user
       const response = await registerUser(registrationData).unwrap();
@@ -375,8 +367,6 @@ export default function RegisterPage() {
       if (response.status === true) {
         toast.success(`${response.message}`);
 
-        // Remove token from cookie
-        deleteCookie('token');
         //set timeout to redirect to login page
         setTimeout(() => {
           router.push('/login');
@@ -831,6 +821,12 @@ export default function RegisterPage() {
                   onLocationChange={handleLocationChange}
                   initialDistrictId={selectedDistrictId}
                   initialUpazilaId={selectedUpazilaId}
+                  required={true}
+                  className="w-full"
+                />
+                <DistrictSelector
+                  onDistrictChange={handleDistrictChange}
+                  initialDistrictId={selectedDistrictId}
                   required={true}
                   className="w-full"
                 />

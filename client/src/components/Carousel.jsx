@@ -3,39 +3,6 @@
 import { useState, useEffect } from 'react';
 import Slider from 'react-slick';
 import Link from 'next/link';
-import { FaSpinner, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-
-// Import slick carousel CSS (these need to be imported in a layout file or in the component that uses this Carousel)
-// import 'slick-carousel/slick/slick.css';
-// import 'slick-carousel/slick/slick-theme.css';
-
-// Custom arrow components
-const PrevArrow = (props) => {
-  const { className, style, onClick } = props;
-  return (
-    <div
-      className={`z-10 bg-white bg-opacity-70 rounded-full p-2 shadow-md hover:bg-opacity-100 transition-all duration-300 absolute left-4 top-1/2`}
-      style={{ ...style, display: 'flex', justifyContent: 'center', alignItems: 'center', transform: 'translateY(-50%)', width: '40px', height: '40px', cursor: 'pointer', zIndex: 2 }}
-      onClick={onClick}
-    >
-      <FaChevronLeft className="text-primary" />
-    </div>
-  );
-};
-
-const NextArrow = (props) => {
-  const { className, style, onClick } = props;
-  return (
-    <div
-      className={`z-10 bg-white bg-opacity-70 rounded-full p-2 shadow-md hover:bg-opacity-100 transition-all duration-300 absolute right-4 top-1/2`}
-      style={{ ...style, display: 'flex', justifyContent: 'center', alignItems: 'center', transform: 'translateY(-50%)', width: '40px', height: '40px', cursor: 'pointer', zIndex: 2 }}
-      onClick={onClick}
-    >
-      <FaChevronRight className="text-primary" />
-    </div>
-  );
-};
-
 // Custom dot component to ensure dots are visible
 const CustomDot = (props) => {
   const { onClick, active } = props;
@@ -85,8 +52,6 @@ const Carousel = ({
     autoplay,
     autoplaySpeed,
     arrows,
-    prevArrow: <PrevArrow />,
-    nextArrow: <NextArrow />,
     responsive,
     cssEase: 'linear',
     fade: true,
@@ -101,9 +66,20 @@ const Carousel = ({
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center" >
-        <FaSpinner className="animate-spin text-4xl text-primary" />
-      </div>
+      <div className="animate-pulse">
+          {[...Array(1)].map((_, index) => (
+            <div
+              key={index}
+              className="w-full h-[200px] md:h-[400px] lg:h-[600px] bg-gray-200 dark:bg-gray-700 relative overflow-hidden"
+            >
+              <div className="flex justify-center items-end h-full">
+                <div className="w-3 h-3 mb-6 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+                <div className="w-3 h-3 mb-6 mx-2 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+                <div className="w-3 h-3 mb-6 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+              </div>
+            </div>
+          ))}
+        </div>
     );
   }
 
@@ -125,48 +101,52 @@ const Carousel = ({
   }
 
   return (
-      <div className="carousel-container relative overflow-hidden" style={{ width: width }}>
-      <Slider {...settings}>
-        {items.map((item, index) => (
-          <div key={item._id || index} className="outline-none h-full">
-            <div className="relative w-full h-full">
-              {item.linkUrl ? (
-                <Link href={item.linkUrl} className="block w-full h-full">
-                  <img 
-                    src={'/image/WhatsApp Image 2023-10-26 at 21.29.26_443ae622.jpg'}
-                    alt={item.title || `Carousel item ${index + 1}`} 
-                    className="w-full h-full object-contain md:object-cover"
-                    style={{ maxHeight: '100%', width: '100%' }}
-                  />
-                  {(item.title || item.subtitle) && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
-                      {item.title && <h3 className="text-xl font-bold">{item.title}</h3>}
-                      {item.subtitle && <p>{item.subtitle}</p>}
-                    </div>
-                  )}
-                </Link>
-              ) : (
-                <div className="relative">
-                  <img 
-                    src={item.imageUrl} 
-                    alt={item.title || `Carousel item ${index + 1}`} 
-                    className="w-full h-full object-contain md:object-cover"
-                    style={{ maxHeight: '100%', width: '100%' }}
-                  />
-                  {(item.title || item.subtitle) && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
-                      {item.title && <h3 className="text-xl font-bold">{item.title}</h3>}
-                      {item.subtitle && <p>{item.subtitle}</p>}
-                    </div>
-                  )}
-                </div>
-              )}
+    <div  className={`carousel-container relative overflow-hidden ${width === '100%' ? 'w-full' : ''}`}
+    style={width !== '100%' ? { width } : {}}>
+
+        <Slider {...settings}>
+          {items.map((item, index) => (
+            <div key={item._id || index} className="outline-none h-full">
+              <div className="relative w-full h-full">
+                {item.linkUrl ? (
+                  <Link href={item.linkUrl} className="block w-full h-full">
+                    <img
+                      src={'/image/WhatsApp Image 2023-10-26 at 21.29.26_443ae622.jpg'}
+                      alt={item.title || `Carousel item ${index + 1}`}
+                      className="w-full h-full object-contain md:object-cover"
+                      style={{ maxHeight: '100%', width: '100%' }}
+                    />
+                    {(item.title || item.subtitle) && (
+                      <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
+                        {item.title && <h3 className="text-xl font-bold">{item.title}</h3>}
+                        {item.subtitle && <p>{item.subtitle}</p>}
+                      </div>
+                    )}
+                  </Link>
+                ) : (
+                  <div className="relative">
+                    <img
+                      src={item.imageUrl}
+                      alt={item.title || `Carousel item ${index + 1}`}
+                      className="w-full h-full object-contain md:object-cover"
+                      style={{ maxHeight: '100%', width: '100%' }}
+                    />
+                    {(item.title || item.subtitle) && (
+                      <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
+                        {item.title && <h3 className="text-xl font-bold">{item.title}</h3>}
+                        {item.subtitle && <p>{item.subtitle}</p>}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
-      </Slider>
+          ))}
+        </Slider>
     </div>
   );
+  
+  
 };
 
 export default Carousel; 

@@ -97,7 +97,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["user", "Technician", "Member", "Moderator", "Monitor", "Upazila Coordinator", "Upazila Sub-Coordinator", "Upazila IT & Media Coordinator", "Upazila Logistics Coordinator", "District Coordinator", "District Sub-Coordinator", "District IT & Media Coordinator", "District Logistics Coordinator", "Divisional Coordinator", "Divisional Sub-Coordinator", "Head of IT & Media", "Head of Logistics", "Admin"],
+    enum: ["user", "Technician", "Member", "Moderator", "Monitor", "Upazila Coordinator", "Upazila Co-coordinator", "Upazila IT & Media Coordinator", "Upazila Logistics Coordinator", "District Coordinator", "District Co-coordinator", "District IT & Media Coordinator", "District Logistics Coordinator", "Divisional Coordinator", "Divisional Co-coordinator", "Head of IT & Media", "Head of Logistics", "Admin"],
     default: "user",
   },
   roleSuffix: {

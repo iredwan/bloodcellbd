@@ -8,14 +8,18 @@ export const otpApiSlice = apiSlice.injectEndpoints({
       query: (email) => ({
         url: 'otp/generate',
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: typeof email === 'string' ? { email } : email,
+        credentials: 'include', 
       }),
     }),
     verifyOTP: builder.mutation({
-      query: (credentials) => ({
+      query: (credentialsData) => ({
         url: 'otp/verify',
         method: 'POST',
-        body: credentials,
+        headers: { 'Content-Type': 'application/json' },
+        body: credentialsData,
+        credentials: 'include', 
       }),
     }),
   }),
@@ -24,4 +28,4 @@ export const otpApiSlice = apiSlice.injectEndpoints({
 export const { 
   useGenerateOTPMutation, 
   useVerifyOTPMutation 
-} = otpApiSlice; 
+} = otpApiSlice;

@@ -13,28 +13,28 @@ import { protect, restrictTo } from '../middleware/auth.js';
 
 const router = express.Router();
 // Get all moderator teams
-router.get('/all',protect, GetAllModeratorTeams);
+router.get('/all', GetAllModeratorTeams);
 
 // Get moderator team by ID
-router.get('/get/:id', protect, GetModeratorTeamById);
+router.get('/get/:id', GetModeratorTeamById);
 
 // Get moderator team by moderator user ID
 router.get('/get-by-moderator-user-id', protect, GetModeratorTeamByModeratorUserId);
 
 // Create a new moderator team (Admin only)
-router.post('/create', protect, restrictTo('Monitor', 'Upazila Coordinator', 'Upazila Sub-Coordinator', 'District Coordinator', 'District Sub-Coordinator', 'Admin'), CreateModeratorTeam);
+router.post('/create', protect, restrictTo('Monitor', 'Upazila Coordinator', 'Upazila Co-coordinator', 'District Coordinator', 'District Co-coordinator', 'Admin'), CreateModeratorTeam);
 
 
 // Update moderator team (Admin only)
-router.put('/update/:id', protect, restrictTo('Monitor', 'Upazila Coordinator', 'Upazila Sub-Coordinator', 'District Coordinator', 'District Sub-Coordinator', 'Admin'), UpdateModeratorTeam);
+router.put('/update/:id', protect, restrictTo('Monitor', 'Upazila Coordinator', 'Upazila Co-coordinator', 'District Coordinator', 'District Co-coordinator', 'Admin'), UpdateModeratorTeam);
 
 // Delete moderator team (Admin only)
-router.delete('/delete/:id', protect, restrictTo('Monitor', 'Upazila Coordinator', 'Upazila Sub-Coordinator', 'District Coordinator', 'District Sub-Coordinator', 'Admin'), DeleteModeratorTeam);
+router.delete('/delete/:id', protect, restrictTo('Monitor', 'Upazila Coordinator', 'Upazila Co-coordinator', 'District Coordinator', 'District Co-coordinator', 'Admin'), DeleteModeratorTeam);
 
 // Add member to team (Admin only)
-router.post('/add-member/:teamId', protect, restrictTo('Moderator', 'Monitor', 'Upazila Coordinator', 'Upazila Sub-Coordinator', 'District Coordinator', 'District Sub-Coordinator', 'Admin'), AddTeamMember);
+router.post('/add-member/:teamId', protect, restrictTo('Moderator', 'Monitor', 'Upazila Coordinator', 'Upazila Co-coordinator', 'District Coordinator', 'District Co-coordinator', 'Admin'), AddTeamMember);
 
 // Remove member from team (Admin only)
-router.delete('/remove-member/:teamId', protect, restrictTo('Moderator', 'Monitor', 'Upazila Coordinator', 'Upazila Sub-Coordinator', 'District Coordinator', 'District Sub-Coordinator', 'Admin'), RemoveTeamMember);
+router.delete('/remove-member/:teamId', protect, restrictTo('Moderator', 'Monitor', 'Upazila Coordinator', 'Upazila Co-coordinator', 'District Coordinator', 'District Co-coordinator', 'Admin'), RemoveTeamMember);
 
 export default router; 

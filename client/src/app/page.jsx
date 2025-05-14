@@ -10,7 +10,7 @@ import BloodBenefits from '@/components/BloodBenefits';
 import { GiDrop } from 'react-icons/gi';
 import { FaHandHoldingWater, FaUsers } from 'react-icons/fa';
 import { IoAlertCircle } from "react-icons/io5";
-import { FaSpinner } from 'react-icons/fa';
+import EventCardSkeleton from '@/components/ui/Skeletons/EventCardSkeleton';
 // Temporary placeholder carousel items for testing if API doesn't return any items
 const placeholderItems = [
   {
@@ -64,13 +64,6 @@ const HomePage = () => {
   const completedEvents = eventsData?.data || [];
   const eventsErrorMessage = eventsData?.message || "There are no completed events at the moment";
 
-  const columnCount =
-  completedEvents.length === 1
-    ? 'grid-cols-1'
-    : completedEvents.length === 2
-    ? 'md:grid-cols-2'
-    : 'md:grid-cols-2 lg:grid-cols-3';
-
 
   return (
     <div className='min-h-[100vh] dark:bg-gray-900'>
@@ -104,20 +97,30 @@ const HomePage = () => {
           </div>
 
           {eventsLoading ? (
-            <div className="flex justify-center items-center py-12 ">
-              <FaSpinner className="animate-spin text-4xl text-primary" />
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 3 }).map((_, idx) => (
+              <EventCardSkeleton key={idx} />
+            ))}
+          </div>
           ) : eventsError ? (
             <div className="text-center py-12">
               <p className="text-red-500">{eventsErrorMessage}</p>
             </div>
           ) : completedEvents.length > 0 ? (
             <>
-              <div className={`grid ${columnCount} gap-8 justify-center`}>
+              <div className="flex justify-center">
+              <div className={`
+                grid 
+                ${completedEvents.length === 1 ? 'grid-cols-1 max-w-md' : ''}
+                ${completedEvents.length === 2 ? 'grid-cols-1 md:grid-cols-2 max-w-3xl' : ''}
+                ${completedEvents.length >= 3 ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : ''}
+                gap-8 w-full
+              `}>
                 {completedEvents.slice(0, 6).map((event) => (
                   <EventCard key={event._id} event={event} />
                 ))}
               </div>
+            </div>
 
               {completedEvents.length > 6 && (
                 <div className="text-center mt-8">

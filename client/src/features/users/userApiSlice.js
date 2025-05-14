@@ -1,24 +1,35 @@
 import { apiSlice } from '../api/apiSlice';
-import { getCookie } from 'cookies-next';
 
 export const userApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     registerUser: builder.mutation({
-      query: (userData) => {
-        // Get token from cookies
-        const token = getCookie('token');
-        
-        return {
-          url: 'users/register',
-          method: 'POST',
-          body: userData,
-          headers: token ? { token } : {},
-        };
-      },
+      query: (userData) => ({
+        url: 'users/register',
+        method: 'POST',
+        body: userData,
+      }),
+      invalidatesTags: ['User'],
+    }),
+    loginUser: builder.mutation({
+      query: (userData) => ({
+        url: 'users/login',
+        method: 'POST',
+        body: userData,
+      }),
+    }),
+    logoutUser: builder.mutation({
+      query: () => ({
+        url: 'users/logout',
+        method: 'POST',
+      }),
       invalidatesTags: ['User'],
     }),
     getAllUsers: builder.query({
       query: () => 'users/all',
+      providesTags: ['User'],
+    }),
+    getUserById: builder.query({
+      query: (id) => `users/profile/${id}`,
       providesTags: ['User'],
     }),
     getEligibleUsers: builder.query({
@@ -89,7 +100,10 @@ export const userApiSlice = apiSlice.injectEndpoints({
 
 export const {
   useRegisterUserMutation,
+  useLoginUserMutation,
+  useLogoutUserMutation,
   useGetAllUsersQuery,
+  useGetUserByIdQuery,
   useGetEligibleUsersQuery,
   useGetUsersByUpazilaQuery,
   useGetUsersByDistrictQuery,
@@ -103,4 +117,4 @@ export const {
   useDeleteUserMutation,
   useUpdateUserProfileMutation,
   useUpdateUserProfileWithRefMutation,
-} = userApiSlice; 
+} = userApiSlice;

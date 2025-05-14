@@ -28,7 +28,7 @@ router.get("/get/:id", GetEventById);
 router.post(
   "/create",
   protect,
-  restrictTo("Upazila Coordinator", "Upazila Sub-Coordinator", "District Coordinator", "District Sub-Coordinator", "Admin"),
+  restrictTo("Upazila Coordinator", "Upazila Co-coordinator", "District Coordinator", "District Co-coordinator", "Admin"),
   CreateEvent
 );
 
@@ -36,7 +36,7 @@ router.post(
 router.patch(
   "/update/:id",
   protect,
-  restrictTo("Upazila Coordinator", "Upazila Sub-Coordinator", "District Coordinator", "District Sub-Coordinator", "Admin"),
+  restrictTo("Upazila Coordinator", "Upazila Co-coordinator", "District Coordinator", "District Co-coordinator", "Admin"),
   UpdateEvent
 );
 
@@ -44,7 +44,7 @@ router.patch(
 router.delete(
   "/delete/:id",
   protect,
-  restrictTo("Upazila Coordinator", "Upazila Sub-Coordinator", "District Coordinator", "District Sub-Coordinator", "Admin"),
+  restrictTo("Upazila Coordinator", "Upazila Co-coordinator", "District Coordinator", "District Co-coordinator", "Admin"),
   DeleteEvent
 );
 

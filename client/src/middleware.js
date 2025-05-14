@@ -6,7 +6,7 @@ export function middleware(request) {
 
   // Protected routes that require authentication
   const protectedRoutes = [
-    '/profile',
+  
     '/requests/create',
     '/manage-requests',
   ];

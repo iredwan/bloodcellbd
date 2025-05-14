@@ -13,10 +13,17 @@ const nextConfig = {
         hostname: 'unsplash.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+        pathname: '/**',
+      },
     ],
   },
+
   // Allow development origins
   allowedDevOrigins: ['192.168.1.228'],
+
   // Enable cross-origin requests in development
   async headers() {
     return [

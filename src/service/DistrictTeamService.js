@@ -58,35 +58,10 @@ export const GetAllDistrictTeamsService = async () => {
   try {
     const districtTeams = await DistrictTeam.find()
       .populate("districtId", "name")
-      .populate("districtCoordinatorID", "name email phone profileImage role roleSuffix")
-      .populate("districtSubCoordinatorID", "name email phone profileImage role roleSuffix")
-      .populate("districtITMediaCoordinatorID", "name email phone profileImage role roleSuffix")
-      .populate("districtLogisticsCoordinatorID", "name email phone profileImage role roleSuffix")
-      .populate({
-        path: "upazilaTeamID",
-        populate: [
-          {
-            path: "upazilaName",
-            select: "name"
-          },
-          {
-            path: "upazilaCoordinator",
-            select: "name email phone profileImage role roleSuffix"
-          },
-          {
-            path: "upazilaSubCoordinator",
-            select: "name email phone profileImage role roleSuffix"
-          },
-          {
-            path: "upazilaITMediaCoordinator",
-            select: "name email phone profileImage role roleSuffix"
-          },
-          {
-            path: "upazilaLogisticsCoordinator",
-            select: "name email phone profileImage role roleSuffix"
-          }
-        ]
-      })
+      .populate("districtCoordinatorID", "name isVerified bloodGroup phone profileImage role roleSuffix")
+      .populate("districtSubCoordinatorID", "name isVerified bloodGroup phone profileImage role roleSuffix")
+      .populate("districtITMediaCoordinatorID", "name isVerified bloodGroup phone profileImage role roleSuffix")
+      .populate("districtLogisticsCoordinatorID", "name isVerified bloodGroup phone profileImage role roleSuffix")
       .populate("createdBy", "name email phone profileImage role roleSuffix")
       .populate("updatedBy", "name email phone profileImage role roleSuffix");
     
