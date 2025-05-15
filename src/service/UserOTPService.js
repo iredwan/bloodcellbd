@@ -45,7 +45,7 @@ export const userOTPService = async (req) => {
 
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
-      return { status: false, message: "User already exists" };
+      return { status: false, message: `User already exist with ${email}` };
     }
 
     // Generate 6-digit OTP

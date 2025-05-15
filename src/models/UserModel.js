@@ -64,7 +64,6 @@ const userSchema = new mongoose.Schema({
   },
   alternatePhone: {
     type: String,
-    required: [true, "Alternate phone number is required"],
   },
   whatsappNumber: {
     type: String,

@@ -12,26 +12,26 @@ export const UserRegisterService = async (req, res) => {
       identificationNumber: reqBody.identificationNumber,
     });
     if (userExists) {
-      return res.status(400).json({
+      return {
         status: false,
         message: `User with this ${reqBody.identificationType} already exists.`,
-      });
+      };
     }
 
     const newUser = new UserModel(reqBody);
     await newUser.save();
 
-    return res.status(201).json({
+    return {
       status: true,
       message: "Register success.",
-    });
+    };
 
   } catch (e) {
-    return res.status(500).json({
+    return {
       status: false,
       message: "There was a problem registering you.",
-      error: e.message,
-    });
+      error: e.details,
+    };
   }
 };
 
@@ -374,7 +374,7 @@ export const GetUserByIdService = async (req) => {
     const userId = new ObjectId(req.params.id);
 
     const user = await UserModel.findById(userId).select(
-      "-nidOrBirthRegistrationImage -password"
+      "name gender religion smoking phone alternatePhone whatsappNumber bloodGroup lastDonate nextDonationDate district upazila isVerified"
     );
 
     if (!user) {

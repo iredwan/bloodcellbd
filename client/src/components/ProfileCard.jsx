@@ -39,16 +39,18 @@ export default function ProfileCard({
           {/* Info */}
           <div className="text-center md:text-left space-y-2 w-full">
             <h3 className="text-xl font-semibold text-gray-800 dark:text-white line-clamp-2 flex items-center justify-center md:justify-start">
-            <Link href={`/profile-detail?id=${id}`}>
-              {name}
-              </Link>
-              {isVerified && (
-                <span className="text-primary ml-1 inline-block align-middle">
-                  <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                </span>
-              )}
+              <span className="flex items-center">
+                <Link href={`/profile-detail?id=${id}`}>
+                  {name}
+                </Link>
+                {isVerified && (
+                  <span className="text-primary ml-1 inline-block">
+                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </span>
+                )}
+              </span>
             </h3>
             <p className="text-gray-600 dark:text-gray-300">{role} {roleSuffix}</p>
             <a 
