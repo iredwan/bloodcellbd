@@ -17,7 +17,7 @@ export default function UsersManagementPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [bloodGroupFilter, setBloodGroupFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0); // Changed to 0-indexed for ReactPaginate
   
   const router = useRouter();
 
@@ -37,7 +37,7 @@ export default function UsersManagementPage() {
 
   // Reset pagination when filters change
   useEffect(() => {
-    setCurrentPage(1);
+    setCurrentPage(0);
   }, [searchTerm, bloodGroupFilter, statusFilter]);
 
   // Filter and search users
@@ -74,13 +74,13 @@ export default function UsersManagementPage() {
   const totalPages = Math.ceil(filteredUsers.length / USERS_PER_PAGE);
   
   const currentUsers = useMemo(() => {
-    const startIndex = (currentPage - 1) * USERS_PER_PAGE;
+    const startIndex = currentPage * USERS_PER_PAGE;
     return filteredUsers.slice(startIndex, startIndex + USERS_PER_PAGE);
   }, [filteredUsers, currentPage]);
 
-  // Handle page change
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
+  // Handle page change - adjusted for ReactPaginate
+  const handlePageChange = (selectedItem) => {
+    setCurrentPage(selectedItem.selected);
   };
 
   // Handle delete user confirmation
@@ -134,33 +134,36 @@ export default function UsersManagementPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="flex md:flex-row flex-col justify-between items-center mb-6">
-        <h1 className="text-2xl text-center font-bold text-gray-800 dark:text-white">User Management</h1>
+    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-4 sm:mb-6 gap-3">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white text-center md:text-left">User Management</h1>
         
         <button
           onClick={() => router.push('/dashboard/add-new-user')}
-          className="mt-4 md:mt-0 px-4 py-2 bg-primary text-white rounded-lg flex items-center justify-center hover:bg-primary/90 transition-colors"
+          className="w-full md:w-auto px-4 py-2 bg-primary text-white rounded-lg flex items-center justify-center hover:bg-primary/90 transition-colors"
         >
           <FaUserPlus className="mr-2" /> Add New User
         </button>
       </div>
 
       {/* Filters and Search */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search users..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg pl-10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white"
-            />
-            <FaSearch className="absolute left-3 top-3 text-gray-400" />
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-3 sm:p-4 mb-4 sm:mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="relative flex flex-col">
+            <label className="mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Search</label>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search users..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg pl-10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white"
+              />
+              <FaSearch className="absolute left-3 top-3 text-gray-400" />
+            </div>
           </div>
           
-          <div>
+          <div className="flex flex-col">
             <CustomSelect
               options={['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']}
               selected={bloodGroupFilter}
@@ -170,7 +173,7 @@ export default function UsersManagementPage() {
             />
           </div>
           
-          <div>
+          <div className="flex flex-col">
             <CustomSelect
               options={['', 'approved', 'pending', 'banned']}
               selected={statusFilter}
@@ -180,14 +183,14 @@ export default function UsersManagementPage() {
             />
           </div>
           
-          <div className="flex items-end">
+          <div className="flex items-center justify-center mt-4">
             <button 
               onClick={() => {
                 setSearchTerm('');
                 setBloodGroupFilter('');
                 setStatusFilter('');
               }}
-              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+              className="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
             >
               Clear Filters
             </button>
@@ -215,56 +218,58 @@ export default function UsersManagementPage() {
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
-                    <th className="px-4 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">User</th>
-                    <th className="px-4 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Blood</th>
-                    <th className="px-4 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
-                    <th className="px-4 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Role</th>
-                    <th className="px-4 py-3.5 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                    <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">User</th>
+                    <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden sm:table-cell">Blood</th>
+                    <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden md:table-cell">Status</th>
+                    <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden lg:table-cell">Role</th>
+                    <th className="px-3 sm:px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                   {currentUsers.map((user) => (
                     <tr key={user._id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                      <td className="px-4 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-4 py-3 sm:py-4">
                         <div className="flex items-center">
-                          <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400 overflow-hidden">
+                          <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400 overflow-hidden flex-shrink-0">
                             {user.profileImage ? (
                               <img src={user.profileImage} alt={user.name} className="h-full w-full object-cover" />
                             ) : (
                               <FaUser />
                             )}
                           </div>
-                          <div className="ml-3">
-                            <div className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</div>
-                            <div className="text-sm text-gray-500 dark:text-gray-400">{user.email}</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">{user.phone}</div>
+                          <div className="ml-2 sm:ml-3">
+                            <div className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-[120px] sm:max-w-full">{user.name}</div>
+                            <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate max-w-[120px] sm:max-w-full">{user.email}</div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400 sm:hidden">{user.bloodGroup}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 whitespace-nowrap hidden sm:table-cell">
                         <BloodGroupBadge bloodGroup={user.bloodGroup} />
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 whitespace-nowrap hidden md:table-cell">
                         <UserStatusBadge user={user} />
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 hidden lg:table-cell">
                         {user.role} {user.roleSuffix}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                        <button
-                          onClick={() => handleViewUser(user)}
-                          className="text-blue-500 hover:text-blue-700 transition-colors"
-                          title="View Details"
-                        >
-                          <FaEye />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteUser(user._id, user.name)}
-                          className="text-red-500 hover:text-red-700 transition-colors"
-                          title="Delete User"
-                        >
-                          <FaTrash />
-                        </button>
+                      <td className="px-3 sm:px-4 py-3 sm:py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex justify-end space-x-2 sm:space-x-3">
+                          <button
+                            onClick={() => handleViewUser(user)}
+                            className="text-blue-500 hover:text-blue-700 transition-colors p-1"
+                            title="View Details"
+                          >
+                            <FaEye className="text-sm sm:text-base" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteUser(user._id, user.name)}
+                            className="text-red-500 hover:text-red-700 transition-colors p-1"
+                            title="Delete User"
+                          >
+                            <FaTrash className="text-sm sm:text-base" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -273,11 +278,11 @@ export default function UsersManagementPage() {
             </div>
             
             {/* Pagination */}
-            <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+            <div className="px-3 sm:px-4 py-3 border-t border-gray-200 dark:border-gray-700">
               <Pagination
+                pageCount={totalPages}
+                onPageChange={handlePageChange}
                 currentPage={currentPage}
-                totalPages={totalPages}
-                setCurrentPage={handlePageChange}
               />
             </div>
           </div>

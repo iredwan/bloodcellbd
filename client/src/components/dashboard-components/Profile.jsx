@@ -1,36 +1,42 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FaUser, FaEnvelope, FaPhone, FaIdCard, FaCalendarAlt, FaMapMarkerAlt, FaTint, FaTrash, FaEdit, FaCheck, FaTimes } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaPhone, FaIdCard, FaCalendarAlt, FaMapMarkerAlt, FaTint, FaTrash, FaEdit, FaCheck, FaTimes, FaCamera, FaSpinner } from 'react-icons/fa';
 import CustomSelect from '@/components/CustomSelect';
 import CustomDatePicker from '@/components/DatePicker';
-import { useUpdateUserProfileMutation, useDeleteUserMutation } from '@/features/users/userApiSlice';
+import { useUpdateUserProfileMutation, useDeleteUserMutation, useUploadProfileImageMutation } from '@/features/users/userApiSlice';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { format, isValid, parse } from 'date-fns';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const Profile = ({ user}) => {
+const Profile = ({ user }) => {
   const router = useRouter();
   const [sectionEditMode, setSectionEditMode] = useState({
     personal: false,
     contact: false,
     donation: false
   });
-
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
+  const [imagePreview, setImagePreview] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   // Initialize formData with user data, ensuring dates are properly formatted
   useEffect(() => {
     if (user) {
+      console.log('User data received:', user);
       const initialData = { ...user };
       setFormData(initialData);
+      console.log('Form data initialized:', initialData);
     }
   }, [user]);
 
   // Redux mutations
   const [updateUserProfile, { isLoading: isUpdating }] = useUpdateUserProfileMutation();
   const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
+  const [uploadProfileImage, { isLoading: isUploading }] = useUploadProfileImageMutation();
 
   // Toggle edit mode for an entire section
   const toggleSectionEditMode = (section) => {
@@ -63,6 +69,48 @@ const Profile = ({ user}) => {
     
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  // Handle profile image change
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Upload profile image
+  const handleImageUpload = async () => {
+    if (!imageFile) return;
+    
+    setUploadingImage(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append('profileImage', imageFile);
+      
+      const result = await uploadProfileImage({ 
+        id: user._id, 
+        formData 
+      }).unwrap();
+      
+      if (result.status) {
+        toast.success('Profile image updated successfully');
+        setImageFile(null);
+      } else {
+        toast.error(result.message || 'Failed to update profile image');
+      }
+    } catch (error) {
+      toast.error(error?.data?.message || 'Failed to update profile image');
+      console.error('Image upload error:', error);
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -191,68 +239,6 @@ const Profile = ({ user}) => {
     return false;
   };
 
-  // Display field based on section edit mode
-  const DisplayField = ({ label, field, value, type = 'text', options = [] }) => {
-    const isEditing = sectionEditMode[field.includes('dob') || field.includes('donate') || field.includes('Date') ? 
-      (field.includes('donate') || field.includes('Date') ? 'donation' : 'personal') : 
-      (field.includes('email') || field.includes('phone') || field.includes('district') || field.includes('upazila') ? 'contact' : 'personal')];
-
-    if (isEditing) {
-      if (type === 'select') {
-        return (
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">{label}</label>
-            <CustomSelect
-              options={options}
-              selected={formData[field] || ''}
-              setSelected={(val) => handleSelectChange(field, val)}
-              className="w-full"
-            />
-            {errors[field] && <span className="text-red-500 text-xs mt-1 block">{errors[field]}</span>}
-          </div>
-        );
-      } else if (type === 'date') {
-        // Instead of using the CustomDatePicker for editing dates, use a simple input field for now
-        return (
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">{label}</label>
-            <input
-              type="date"
-              name={field}
-              value={formData[field] ? formatDateForInput(formData[field]) : ''}
-              onChange={handleChange}
-              className={`w-full px-4 py-2.5 border ${errors[field] ? 'border-red-500' : 'border-neutral-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all dark:bg-gray-700 dark:text-white`}
-            />
-            {errors[field] && <span className="text-red-500 text-xs mt-1 block">{errors[field]}</span>}
-          </div>
-        );
-      } else {
-        return (
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">{label}</label>
-            <input
-              type={type}
-              name={field}
-              value={formData[field] || ''}
-              onChange={handleChange}
-              className={`w-full px-4 py-2.5 border ${errors[field] ? 'border-red-500' : 'border-neutral-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all dark:bg-gray-700 dark:text-white`}
-            />
-            {errors[field] && <span className="text-red-500 text-xs mt-1 block">{errors[field]}</span>}
-          </div>
-        );
-      }
-    } else {
-      return (
-        <div className="mb-4">
-          <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">{label}</h3>
-          <p className="text-gray-800 dark:text-white font-semibold">
-            {value || <span className="text-gray-400 italic">Not provided</span>}
-          </p>
-        </div>
-      );
-    }
-  };
-
   // Format date from various formats to YYYY-MM-DD for date input
   const formatDateForInput = (dateString) => {
     if (!dateString) return '';
@@ -284,12 +270,115 @@ const Profile = ({ user}) => {
     }
   };
 
+  // Calculate next donation eligibility
+  const calculateNextDonationDate = () => {
+    if (!formData.lastDonate) return;
+    
+    try {
+      // Parse the last donation date
+      let lastDonateDate;
+      const formats = ['dd/MM/yyyy', 'yyyy-MM-dd', 'MM/dd/yyyy'];
+      
+      for (const formatStr of formats) {
+        const parsedDate = parse(formData.lastDonate, formatStr, new Date());
+        if (isValid(parsedDate)) {
+          lastDonateDate = parsedDate;
+          break;
+        }
+      }
+      
+      if (!lastDonateDate) return;
+      
+      // Add 3 months to the last donation date
+      const nextDonationDate = new Date(lastDonateDate);
+      nextDonationDate.setMonth(nextDonationDate.getMonth() + 3);
+      
+      // Update the form data
+      setFormData(prev => ({
+        ...prev,
+        nextDonationDate: format(nextDonationDate, 'yyyy-MM-dd')
+      }));
+    } catch (error) {
+      console.error('Error calculating next donation date:', error);
+    }
+  };
+
+  // Display field based on section edit mode
+  const DisplayField = ({ label, field, value, type = 'text', options = [] }) => {
+    const isEditing = sectionEditMode[field.includes('dob') || field.includes('donate') || field.includes('Date') ? 
+      (field.includes('donate') || field.includes('Date') ? 'donation' : 'personal') : 
+      (field.includes('email') || field.includes('phone') || field.includes('district') || field.includes('upazila') ? 'contact' : 'personal')];
+
+    // Get actual value from formData
+    const actualValue = formData[field];
+
+    if (isEditing) {
+      if (type === 'select') {
+        return (
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">{label}</label>
+            <CustomSelect
+              options={options}
+              selected={formData[field] || ''}
+              setSelected={(val) => handleSelectChange(field, val)}
+              className="w-full"
+            />
+            {errors[field] && <span className="text-red-500 text-xs mt-1 block">{errors[field]}</span>}
+          </div>
+        );
+      } else if (type === 'date') {
+        return (
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">{label}</label>
+            <input
+              type="date"
+              name={field}
+              value={formData[field] ? formatDateForInput(formData[field]) : ''}
+              onChange={handleChange}
+              onBlur={field === 'lastDonate' ? calculateNextDonationDate : undefined}
+              className={`w-full px-4 py-2.5 border ${errors[field] ? 'border-red-500' : 'border-neutral-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all dark:bg-gray-700 dark:text-white`}
+            />
+            {errors[field] && <span className="text-red-500 text-xs mt-1 block">{errors[field]}</span>}
+          </div>
+        );
+      } else {
+        return (
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">{label}</label>
+            <input
+              type={type}
+              name={field}
+              value={formData[field] || ''}
+              onChange={handleChange}
+              className={`w-full px-4 py-2.5 border ${errors[field] ? 'border-red-500' : 'border-neutral-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all dark:bg-gray-700 dark:text-white`}
+            />
+            {errors[field] && <span className="text-red-500 text-xs mt-1 block">{errors[field]}</span>}
+          </div>
+        );
+      }
+    } else {
+      return (
+        <div className="mb-4 group">
+          <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 group-hover:text-primary transition-colors">{label}</h3>
+          <p className="text-gray-800 dark:text-white font-semibold">
+            {actualValue || <span className="text-gray-400 italic">Not provided</span>}
+          </p>
+        </div>
+      );
+    }
+  };
+
   // Section component for grouping related fields
   const Section = ({ title, icon, children, section }) => {
     const isEditing = sectionEditMode[section] || false;
     
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-6 overflow-hidden">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-6 overflow-hidden hover:shadow-md transition-shadow"
+      >
         <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600 flex justify-between items-center">
           <div className="flex items-center">
             {icon}
@@ -298,60 +387,102 @@ const Profile = ({ user}) => {
             </h3>
           </div>
           
-          {isEditing ? (
-            <div className="flex items-center space-x-2">
-              <button 
-                onClick={() => saveSectionChanges(section)}
-                className="text-sm bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition-colors flex items-center"
-                disabled={isUpdating}
+          <AnimatePresence mode="wait">
+            {isEditing ? (
+              <motion.div 
+                key="editing"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="flex items-center space-x-2"
               >
-                <FaCheck className="mr-1" />
-                Save
-              </button>
-              
-              <button 
-                onClick={() => cancelSectionEditing(section)}
-                className="text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors flex items-center"
+                <button 
+                  onClick={() => saveSectionChanges(section)}
+                  className="text-sm bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition-colors flex items-center disabled:opacity-70"
+                  disabled={isUpdating}
+                >
+                  {isUpdating ? <FaSpinner className="mr-1 animate-spin" /> : <FaCheck className="mr-1" />}
+                  Save
+                </button>
+                
+                <button 
+                  onClick={() => cancelSectionEditing(section)}
+                  className="text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors flex items-center"
+                >
+                  <FaTimes className="mr-1" />
+                  Cancel
+                </button>
+              </motion.div>
+            ) : (
+              <motion.button
+                key="view"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                onClick={() => toggleSectionEditMode(section)}
+                className="text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors flex items-center"
               >
-                <FaTimes className="mr-1" />
-                Cancel
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => toggleSectionEditMode(section)}
-              className="text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors flex items-center"
-            >
-              <FaEdit className="mr-1" />
-              Edit
-            </button>
-          )}
+                <FaEdit className="mr-1" />
+                Edit
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
         <div className="p-4">{children}</div>
-      </div>
+      </motion.div>
     );
   };
 
   if (!user) {
-    return <div>No user data available</div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <FaSpinner className="text-primary text-3xl animate-spin" />
+        <span className="ml-2 text-lg">Loading user data...</span>
+      </div>
+    );
   }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
       {/* Profile Header */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6"
+      >
         <div className="flex flex-col md:flex-row items-center gap-6">
           {/* Profile Image */}
-          <div className="relative w-32 h-32 rounded-full border-4 border-primary/20 overflow-hidden shrink-0 bg-gray-100 dark:bg-gray-700">
-            {user.profileImage ? (
+          <div className="relative w-32 h-32 rounded-full border-4 border-primary/20 overflow-hidden shrink-0 bg-gray-100 dark:bg-gray-700 group">
+            {imagePreview || user.profileImage ? (
               <img
-                src={user.profileImage}
+                src={imagePreview || user.profileImage}
                 alt={user.name}
                 className="w-full h-full object-cover"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
                 <FaUser className="text-5xl text-gray-400 dark:text-gray-500" />
+              </div>
+            )}
+            
+            {/* Image upload overlay */}
+            <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <label htmlFor="profile-image" className="cursor-pointer text-white hover:text-primary transition-colors">
+                <FaCamera className="text-2xl" />
+              </label>
+              <input 
+                type="file" 
+                id="profile-image" 
+                className="hidden" 
+                accept="image/*"
+                onChange={handleImageChange}
+              />
+            </div>
+            
+            {/* Upload button if image is selected */}
+            {imageFile && (
+              <div className="absolute bottom-0 inset-x-0 bg-primary text-white text-xs text-center py-1 cursor-pointer" onClick={handleImageUpload}>
+                {uploadingImage ? <FaSpinner className="animate-spin mx-auto" /> : 'Upload'}
               </div>
             )}
           </div>
@@ -370,14 +501,16 @@ const Profile = ({ user}) => {
                 )}
               </h1>
               
-              <button 
-                onClick={handleDeleteUser}
-                className="mt-2 md:mt-0 inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
-                disabled={isDeleting}
-              >
-                <FaTrash className="mr-2" />
-                Delete Account
-              </button>
+              {(user.role === 'Admin' || user.role === 'District Coordinator') && (
+                <button 
+                  onClick={handleDeleteUser}
+                  className="mt-2 md:mt-0 inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors disabled:opacity-70"
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? <FaSpinner className="mr-2 animate-spin" /> : <FaTrash className="mr-2" />}
+                  Delete Account
+                </button>
+              )}
             </div>
 
             <p className="text-gray-600 dark:text-gray-300">{user.role} {user.roleSuffix}</p>
@@ -387,10 +520,16 @@ const Profile = ({ user}) => {
                 {user.bloodGroup}
               </span>
               <span className="text-gray-600 dark:text-gray-300">{user.bloodGroup} Blood Group</span>
+              
+              {formData.lastDonate && (
+                <span className="ml-4 text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full">
+                  Last donated: {formData.lastDonate}
+                </span>
+              )}
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Personal Information Section */}
       <Section 
@@ -399,35 +538,32 @@ const Profile = ({ user}) => {
         section="personal"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
-          <DisplayField label="Full Name" field="name" value={formData.name} />
-          <DisplayField label="Date of Birth" field="dob" value={formData.dob} type="date" />
+          <DisplayField label="Full Name" field="name" />
+          <DisplayField label="Date of Birth" field="dob" type="date" />
           <DisplayField 
             label="Gender" 
             field="gender" 
-            value={formData.gender} 
             type="select" 
             options={['Male', 'Female', 'Other']} 
           />
           <DisplayField 
             label="Religion" 
             field="religion" 
-            value={formData.religion} 
             type="select" 
             options={['Islam', 'Hinduism', 'Christianity', 'Buddhism', 'Other']} 
           />
-          <DisplayField label="Occupation" field="occupation" value={formData.occupation} />
+          <DisplayField label="Occupation" field="occupation" />
           <DisplayField 
             label="ID Type" 
             field="identificationType" 
-            value={formData.identificationType} 
             type="select" 
             options={['NID', 'Birth Certificate']} 
           />
-          <DisplayField label="ID Number" field="identificationNumber" value={formData.identificationNumber} />
-          <DisplayField label="Father's Name" field="fatherName" value={formData.fatherName} />
-          <DisplayField label="Father's Phone" field="fatherPhoneNumber" value={formData.fatherPhoneNumber} />
-          <DisplayField label="Mother's Name" field="motherName" value={formData.motherName} />
-          <DisplayField label="Mother's Phone" field="motherPhoneNumber" value={formData.motherPhoneNumber} />
+          <DisplayField label="ID Number" field="identificationNumber" />
+          <DisplayField label="Father's Name" field="fatherName" />
+          <DisplayField label="Father's Phone" field="fatherPhoneNumber" />
+          <DisplayField label="Mother's Name" field="motherName" />
+          <DisplayField label="Mother's Phone" field="motherPhoneNumber" />
         </div>
       </Section>
 
@@ -438,12 +574,12 @@ const Profile = ({ user}) => {
         section="contact"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
-          <DisplayField label="Email" field="email" value={formData.email} type="email" />
-          <DisplayField label="Phone" field="phone" value={formData.phone} />
-          <DisplayField label="Alternate Phone" field="alternatePhone" value={formData.alternatePhone} />
-          <DisplayField label="WhatsApp Number" field="whatsappNumber" value={formData.whatsappNumber} />
-          <DisplayField label="District" field="district" value={formData.district} />
-          <DisplayField label="Upazila" field="upazila" value={formData.upazila} />
+          <DisplayField label="Email" field="email" type="email" />
+          <DisplayField label="Phone" field="phone" />
+          <DisplayField label="Alternate Phone" field="alternatePhone" />
+          <DisplayField label="WhatsApp Number" field="whatsappNumber" />
+          <DisplayField label="District" field="district" />
+          <DisplayField label="Upazila" field="upazila" />
         </div>
       </Section>
 
@@ -456,13 +592,39 @@ const Profile = ({ user}) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
           <DisplayField 
             label="Blood Group" 
-            field="bloodGroup" 
-            value={formData.bloodGroup} 
+            field="bloodGroup"
             type="select" 
             options={['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']} 
           />
-          <DisplayField label="Last Donation" field="lastDonate" value={formData.lastDonate} type="date" />
-          <DisplayField label="Next Eligible Date" field="nextDonationDate" value={formData.nextDonationDate} type="date" />
+          <DisplayField label="Last Donation" field="lastDonate" type="date" />
+          <DisplayField label="Next Eligible Date" field="nextDonationDate" type="date" />
+          
+          {/* Donation statistics */}
+          <div className="col-span-1 md:col-span-2 mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <h4 className="font-medium text-gray-700 dark:text-gray-200 mb-2">Donation Statistics</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm text-center">
+                <div className="text-2xl font-bold text-primary">{user.donationCount || 0}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Total Donations</div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm text-center">
+                <div className="text-2xl font-bold text-green-500">
+                  {formData.lastDonate ? 
+                    new Date(formatDateForInput(formData.lastDonate)).toLocaleDateString() : 
+                    'N/A'}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Last Donation</div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm text-center">
+                <div className="text-2xl font-bold text-blue-500">
+                  {formData.nextDonationDate ? 
+                    new Date(formatDateForInput(formData.nextDonationDate)).toLocaleDateString() : 
+                    'N/A'}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Next Eligible Date</div>
+              </div>
+            </div>
+          </div>
         </div>
       </Section>
     </div>

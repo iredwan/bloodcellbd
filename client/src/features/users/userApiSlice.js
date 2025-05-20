@@ -102,6 +102,15 @@ export const userApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['User'],
     }),
+    uploadProfileImage: builder.mutation({
+      query: ({ id, formData }) => ({
+        url: `users/upload-profile-image/${id}`,
+        method: 'POST',
+        body: formData,
+        formData: true,
+      }),
+      invalidatesTags: ['User'],
+    }),
   }),
 });
 
@@ -125,4 +134,5 @@ export const {
   useDeleteUserMutation,
   useUpdateUserProfileMutation,
   useUpdateUserProfileWithRefMutation,
+  useUploadProfileImageMutation,
 } = userApiSlice;

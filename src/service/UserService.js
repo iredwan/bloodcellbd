@@ -374,9 +374,7 @@ export const GetUserByIdService = async (req) => {
   try {
     const userId = new ObjectId(req.params.id);
 
-    const user = await UserModel.findById(userId).select(
-      "name gender religion smoking phone alternatePhone whatsappNumber bloodGroup lastDonate nextDonationDate district upazila isVerified"
-    );
+    const user = await UserModel.findById(userId).select();
 
     if (!user) {
       return { status: false, message: "User not found." };
