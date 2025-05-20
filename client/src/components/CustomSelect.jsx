@@ -40,9 +40,9 @@ export default function CustomSelect({ options = [], selected, setSelected, labe
         </Combobox.Label>
 
         <div className="relative">
-          <div className="relative w-full cursor-default overflow-hidden rounded-lg bg-white dark:bg-gray-700 text-left border border-neutral-300 focus-within:ring-2 focus-within:ring-primary">
+          <div className="relative w-full cursor-default overflow-visible">
             <Combobox.Input
-              className="w-full border-none px-4 py-2.5 pr-10 text-md text-gray-900 dark:text-gray-100 bg-transparent focus:outline-none"
+              className="w-full px-4 py-2.5 pr-10 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
               onChange={(event) => setQuery(event.target.value)}
               displayValue={(option) => option}
               onClick={handleInputClick}

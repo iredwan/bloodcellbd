@@ -113,11 +113,9 @@ const userSchema = new mongoose.Schema({
   },
   profileImage: {
     type: String,
-    required: [true, "Profile image is required"],
   },
   nidOrBirthRegistrationImage: {
     type: String,
-    required: [true, "NID or birth registration image is required"],
   },
   isVerified: {
     type: Boolean,

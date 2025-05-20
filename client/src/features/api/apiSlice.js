@@ -10,22 +10,6 @@ export const apiSlice = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl,
     credentials: 'include', 
-    prepareHeaders: (headers, { getState }) => {
-      // Get token from Redux state
-      let token = getState().auth?.token;
-
-      // If not found in Redux, check cookies (client-side only)
-      if (!token && typeof window !== 'undefined') {
-        token = getCookie('token');
-      }
-
-      // Attach token to headers if found
-      if (token) {
-        headers.set('token', token);
-      }
-
-      return headers;
-    },
   }),
   tagTypes: [
     'User',
@@ -46,6 +30,10 @@ export const apiSlice = createApi({
     'UpazilaTeam',
     'MonitorTeam',
     'UserInfo',
+    'WantToDonate',
+    'Review',
+    'Hospital',
+    'BoardTeam',
   ],
   endpoints: () => ({}),
 });

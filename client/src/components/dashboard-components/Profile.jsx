@@ -9,7 +9,7 @@ import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { format, isValid, parse } from 'date-fns';
 
-const Profile = ({ user, onDelete }) => {
+const Profile = ({ user}) => {
   const router = useRouter();
   const [sectionEditMode, setSectionEditMode] = useState({
     personal: false,

@@ -81,7 +81,7 @@ const LastDonationDatePicker = ({
           type="checkbox"
           checked={isFirstTimeDonor}
           onChange={handleFirstTimeDonorChange}
-          className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded cursor-pointer"
+          className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded cursor-pointer dark:border-gray-300"
         />
         <label htmlFor="isFirstTimeDonor" className="ml-2 block text-sm text-neutral-700 dark:text-gray-300 cursor-pointer">
           I've never donated blood before

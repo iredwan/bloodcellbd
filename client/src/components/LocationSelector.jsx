@@ -177,7 +177,7 @@ const LocationSelector = ({
           />
           
           {showDistrictDropdown && (
-            <div className="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg max-h-60 overflow-auto dark:bg-gray-800">
+            <div className="absolute z-10 w-full mt-1 border border-neutral-300 bg-white rounded-md shadow-lg max-h-60 overflow-auto dark:bg-gray-700">
               {districtsLoading ? (
                 <div className="px-4 py-2 text-neutral-600 dark:text-gray-400">Loading districts...</div>
               ) : districtsError ? (
@@ -188,7 +188,7 @@ const LocationSelector = ({
                 filteredDistricts.map((district, index) => (
                   <button
                     key={district._id || `district-${district.name || index}`}
-                    className="w-full text-left px-4 py-2 hover:bg-neutral-100 dark:hover:bg-gray-700"
+                    className="w-full text-left px-4 py-2 hover:bg-neutral-100 dark:hover:bg-gray-600 dark:text-white"
                     type="button"
                     onClick={() => handleDistrictSelect(district)}
                   >
@@ -224,7 +224,7 @@ const LocationSelector = ({
           />
           
           {showUpazilaDropdown && selectedDistrictId && (
-            <div className="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg max-h-60 overflow-auto dark:bg-gray-800">
+            <div className="absolute z-10 w-full mt-1 border border-neutral-300 bg-white rounded-md shadow-lg max-h-60 overflow-auto dark:bg-gray-700">
               {upazilasLoading ? (
                 <div className="px-4 py-2 text-neutral-600 dark:text-gray-400">Loading upazilas...</div>
               ) : upazilasError ? (
@@ -235,7 +235,7 @@ const LocationSelector = ({
                 filteredUpazilas.map((upazila, index) => (
                   <button
                     key={upazila._id || `upazila-${upazila.name || index}`}
-                    className="w-full text-left px-4 py-2 hover:bg-neutral-100 dark:hover:bg-gray-700"
+                    className="w-full text-left px-4 py-2 hover:bg-neutral-100 dark:hover:bg-gray-600 dark:text-white"
                     type="button"
                     onClick={() => handleUpazilaSelect(upazila)}
                   >

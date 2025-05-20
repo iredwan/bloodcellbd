@@ -59,6 +59,7 @@ export const UserRegisterWithRefService = async (req) => {
       reqBody.reference = referenceId;
     }
 
+
     // Check if user already exists
     const userExists = await UserModel.findOne({
       identificationNumber: reqBody.identificationNumber,
@@ -120,7 +121,7 @@ export const UserLoginService = async (req, res) => {
       // sameSite: "Strict",
       secure: false,
       sameSite: "Lax",
-      maxAge: 3600000, // 1 hour
+      maxAge: 2592000000, // 30 days
       path: "/",
     });
 
@@ -143,7 +144,7 @@ export const UserLogoutService = async (req, res) => {
       // sameSite: "Strict",
       secure: false,
       sameSite: "Lax",
-      maxAge: 3600000, // 1 hour
+      maxAge: 2592000000, // 30 days
       path: "/",
     });
 

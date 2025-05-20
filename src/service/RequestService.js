@@ -6,11 +6,14 @@ const ObjectId = mongoose.Types.ObjectId;
 export const CreateRequestService = async (req) => {
   try {
     const reqBody = req.body;
+
+    const userId = req.headers.user_id;
     
-    // Add userId from authenticated user (if using auth middleware)
-    if (req.headers.user_id || req.cookies.user_id) {
-      reqBody.userId = req.headers.user_id || req.cookies.user_id;
+    if (!userId) {
+      return { status: false, message: "User is not authenticated." };
     }
+
+    reqBody.userId = userId;
     
     const newRequest = new RequestModel(reqBody);
     await newRequest.save();

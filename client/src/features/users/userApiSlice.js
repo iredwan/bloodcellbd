@@ -10,6 +10,13 @@ export const userApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['User'],
     }),
+    registerUserWithRef: builder.mutation({
+      query: (userData) => ({
+        url: 'users/register-with-ref',
+        method: 'POST',
+        body: userData,
+      }),
+    }),
     loginUser: builder.mutation({
       query: (userData) => ({
         url: 'users/login',
@@ -100,6 +107,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
 
 export const {
   useRegisterUserMutation,
+  useRegisterUserWithRefMutation,
   useLoginUserMutation,
   useLogoutUserMutation,
   useGetAllUsersQuery,

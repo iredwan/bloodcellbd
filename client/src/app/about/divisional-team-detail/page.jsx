@@ -111,7 +111,7 @@ const DivisionalTeamDetail = () => {
               }
               roleSuffix={
                 divisionalTeam.divisionalCoordinatorID?.roleSuffix ||
-                "Not assigned"
+                ""
               }
               bloodGroup={
                 divisionalTeam.divisionalCoordinatorID?.bloodGroup || "N/A"
@@ -139,7 +139,7 @@ const DivisionalTeamDetail = () => {
               }
               roleSuffix={
                 divisionalTeam.divisionalSubCoordinatorID.roleSuffix ||
-                "Not assigned"
+                ""
               }
               bloodGroup={
                 divisionalTeam.divisionalSubCoordinatorID.bloodGroup || "N/A"
@@ -256,7 +256,7 @@ const DivisionalTeamDetail = () => {
                     role={district.districtCoordinatorID.role || "Not assigned"}
                     roleSuffix={
                       district.districtCoordinatorID.roleSuffix ||
-                      "Not assigned"
+                      ""
                     }
                     bloodGroup={
                       district.districtCoordinatorID.bloodGroup || "N/A"

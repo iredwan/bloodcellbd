@@ -16,6 +16,10 @@ import districtTeamReducer from '../features/districtTeam/districtTeamSlice';
 import upazilaTeamReducer from '../features/upazilaTeam/upazilaTeamSlice';
 import monitorTeamReducer from '../features/monitorTeam/monitorTeamSlice';
 import userInfoReducer from '../features/userInfo/userInfoSlice';
+import wantToDonateReducer from '../features/wantToDonate/wantToDonateSlice';
+import reviewReducer from '../features/reviews/reviewSlice';
+import hospitalReducer from '../features/hospital/hospitalSlice';
+import boardTeamReducer from '../features/boardTeam/boardTeamSlice';
 // import other reducers...
 
 export const store = configureStore({
@@ -34,6 +38,10 @@ export const store = configureStore({
     upazilaTeam: upazilaTeamReducer,
     monitorTeam: monitorTeamReducer,
     userInfo: userInfoReducer,
+    wantToDonate: wantToDonateReducer,
+    review: reviewReducer,
+    hospital: hospitalReducer,
+    boardTeam: boardTeamReducer,
     [apiSlice.reducerPath]: apiSlice.reducer,
     // ...
   },

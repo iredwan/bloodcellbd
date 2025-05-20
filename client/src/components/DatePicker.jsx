@@ -56,7 +56,7 @@ const CustomDatePicker = ({
   return (
     <div className={`form-group ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-neutral-700 mb-1 dark:text-white">
+        <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
           {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
@@ -74,7 +74,7 @@ const CustomDatePicker = ({
           maxDate={maxDate}
           minDate={minDate}
           wrapperClassName="w-full"
-          className={`w-full px-4 py-2.5 pr-20 border ${errors.dob ? 'border-red-500' : 'border-neutral-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white dark:bg-gray-700`}
+          className={`w-full px-4 py-2.5 pr-20 border ${errors.dob ? 'border-red-500' : 'border-neutral-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white dark:bg-gray-700 dark:text-white dark:border-gray-300`}
         />
         <div
           onClick={() => document.getElementById(fieldName).focus()}

@@ -62,7 +62,33 @@ export default function Login() {
         toast.success(loginResult.message || "Login successful");
         // Redirect after a delay
         setTimeout(() => {
-          window.location.href = "/";
+          if (userInfoResult.user.role === "Admin") {
+            window.location.href = "/dashboard/admin";
+          }
+          else if (userInfoResult.user.role === "Divisional Coordinator" || userInfoResult.user.role === "Divisional Co-coordinator" || userInfoResult.user.role === "Head of IT & Media" || userInfoResult.user.role === "Head of Logistics") {
+            window.location.href = "/dashboard/divisional-coordinator";
+          } 
+          else if (userInfoResult.user.role === "District Coordinator" || userInfoResult.user.role === "District Co-coordinator" || userInfoResult.user.role === "District IT & Media Coordinator" || userInfoResult.user.role === "District Logistics Coordinator") {
+            window.location.href = "/dashboard/district-coordinator";
+          }
+          else if (userInfoResult.user.role === "Upazila Coordinator" || userInfoResult.user.role === "Upazila Co-coordinator" || userInfoResult.user.role === "Upazila IT & Media Coordinator" || userInfoResult.user.role === "Upazila Logistics Coordinator") {
+            window.location.href = "/dashboard/upazila-coordinator";
+          } 
+          else if (userInfoResult.user.role === "Monitor" || userInfoResult.user.role === "Technician")  {
+            window.location.href = "/dashboard/monitor";
+          } 
+          else if (userInfoResult.user.role === "Moderator")  {
+            window.location.href = "/dashboard/moderator";
+          } 
+          else if (userInfoResult.user.role === "Member") {
+            window.location.href = "/dashboard/member";
+          } 
+          else if(userInfoResult.user.role === "User") {
+            window.location.href = "/dashboard/user";
+          }
+          else {
+            window.location.href = "/";
+          }
         }, 1500);
       } else {
         dispatch(clearUserInfo());

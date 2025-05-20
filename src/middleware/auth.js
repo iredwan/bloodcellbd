@@ -47,6 +47,11 @@ export const protect = async (req, res, next) => {
         role: registeredUser.role,
       };
 
+      // 6. Set user info in request headers
+      req.headers.user_id = registeredUser._id;
+      req.headers.user_email = registeredUser.email;
+      req.headers.user_role = registeredUser.role;
+
       return next();
     }
 
