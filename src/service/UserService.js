@@ -205,36 +205,35 @@ export const UpdateUserByIdSelfService = async (req) => {
   }
 };
 
+
 export const UpdateUserByIdRefService = async (req) => {
   try {
     const userId = new ObjectId(req.params.id);
     const reqBody = req.body;
+
     // Get reference ID from headers or cookies
-    let referenceId =
+    const referenceId =
       req.headers.user_id || (req.cookies && req.cookies.user_id);
 
     if (!referenceId) {
       return { status: false, message: "Reference ID is required." };
     }
 
-    // Validate reference ID
     if (!ObjectId.isValid(referenceId)) {
       return { status: false, message: "Invalid reference user ID." };
     }
 
-    // Check if reference user exists
     const referenceUser = await UserModel.findById(referenceId);
     if (!referenceUser) {
       return { status: false, message: "Reference user not found." };
     }
 
-    // Check if user exists
     const user = await UserModel.findById(userId);
     if (!user) {
       return { status: false, message: "User not found." };
     }
 
-    // Check if trying to update role to admin
+    // Admin role permission checks
     if (reqBody.role === "admin" && referenceUser.role !== "admin") {
       return {
         status: false,
@@ -242,7 +241,6 @@ export const UpdateUserByIdRefService = async (req) => {
       };
     }
 
-    // Check if updating an admin user
     if (user.role === "admin" && referenceUser.role !== "admin") {
       return {
         status: false,
@@ -250,26 +248,22 @@ export const UpdateUserByIdRefService = async (req) => {
       };
     }
 
-    if (reqBody.profileImage && userId) {
-  try {
-    const currentUser = await UserModel.findById(userId);
-
+    // Handle profile image update
     if (
-      currentUser &&
-      currentUser.profileImage &&
-      currentUser.profileImage !== reqBody.profileImage
+      reqBody.profileImage &&
+      user.profileImage &&
+      reqBody.profileImage !== user.profileImage
     ) {
-      const deleteResult = await deleteFile(currentUser.profileImage);
+      const deleteResult = await deleteFile(user.profileImage);
       if (!deleteResult.status) {
-        console.error("Failed to delete previous profile image:", deleteResult.error);
+        console.error(
+          "Failed to delete previous profile image:",
+          deleteResult.error
+        );
       }
     }
-  } catch (error) {
-    console.error("Error while checking or deleting old image:", error);
-  }
-}
 
-
+    // Update user
     const updatedUser = await UserModel.findByIdAndUpdate(
       userId,
       {
@@ -284,16 +278,17 @@ export const UpdateUserByIdRefService = async (req) => {
     return {
       status: true,
       data: updatedUser,
-      message: "User reference updated successfully.",
+      message: "User updated successfully.",
     };
   } catch (e) {
     return {
       status: false,
-      message: "Failed to update user reference.",
+      message: "Failed to update user.",
       details: e.message,
     };
   }
 };
+
 
 //only eligible, approved, not banned users
 export const GetAllUserService = async (req, res) => {

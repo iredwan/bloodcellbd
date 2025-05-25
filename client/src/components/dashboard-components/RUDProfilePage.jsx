@@ -280,9 +280,9 @@ const CRUDProfilePage = () => {
     }
 
     try {
-      // Handle profile image upload if it's a file
+      // Handle profile image upload if it's a new file
       let profileImageData = null;
-      if (formData.profileImage) {
+      if (formData.profileImage instanceof File) {
         profileImageData = await uploadFile([formData.profileImage], {
           maxFiles: 1,
           onError: (error) => {
@@ -292,9 +292,22 @@ const CRUDProfilePage = () => {
         });
       }
 
+      // Handle NID/Birth Registration image upload if it's a new file
+      let nidImageData = null;
+      if (formData.nidOrBirthRegistrationImage instanceof File) {
+        nidImageData = await uploadFile([formData.nidOrBirthRegistrationImage], {
+          maxFiles: 1,
+          onError: (error) => {
+            toast.error(`Failed to upload ID document: ${error}`);
+            throw new Error(error);
+          }
+        });
+      }
+
       const updatedData = {
         ...formData,
-        profileImage: profileImageData?.[0]?.filename || '',
+        profileImage: profileImageData?.[0]?.filename || formData.profileImage,
+        nidOrBirthRegistrationImage: nidImageData?.[0]?.filename || formData.nidOrBirthRegistrationImage
       };
 
 
@@ -302,8 +315,6 @@ const CRUDProfilePage = () => {
         id: userId,
         userData: updatedData,
       }).unwrap();
-
-      console.log("Server response:", response);
 
       if (response.status) {
         toast.success(response.message || "Profile updated successfully");
@@ -425,6 +436,13 @@ const CRUDProfilePage = () => {
           />
           <h1 className="text-xl text-center font-semibold text-gray-800 dark:text-white">
             {userData?.data?.name ? `${userData.data.name}` : "User Profile"}
+            {displayUserData.isVerified && (
+                  <span className="text-primary ml-1 inline-block">
+                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </span>
+                )}
           </h1>
         </div>
         {/* Form sections */}
@@ -1067,8 +1085,8 @@ const CRUDProfilePage = () => {
                     <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
                     Last Donation Date
                     </label>
-                    <p className={`w-full px-4 ${displayUserData.lastDonationDate? 'py-2.5': 'py-5.5'} rounded-lg transition-all bg-gray-100 dark:bg-gray-700 dark:text-white`}>
-                      {displayUserData.lastDonationDate}
+                    <p className={`w-full px-4 ${displayUserData.lastDonate? 'py-2.5': 'py-5.5'} rounded-lg transition-all bg-gray-100 dark:bg-gray-700 dark:text-white`}>
+                      {displayUserData.lastDonate}
                     </p>
                   </div>
 

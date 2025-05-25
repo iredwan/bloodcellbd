@@ -11,6 +11,7 @@ import Pagination from '@/components/Pagination';
 import CustomSelect from '@/components/CustomSelect';
 import { useRouter } from 'next/navigation';
 import deleteConfirm from "@/utils/deleteConfirm";
+import AdminUserPageSkeleton from '@/components/dashboard-components/dashboardSkeletons/AdminUserPageSkeleton';
 
 export default function UsersManagementPage() {
   // State for user search and filter
@@ -85,27 +86,6 @@ export default function UsersManagementPage() {
 
   // Handle delete user confirmation
   const handleDeleteUser = async (userId, userName) => {
-    // try {
-    //   const result = await Swal.fire({
-    //     title: 'Are you sure?',
-    //     text: `You are about to delete ${userName}. This action cannot be undone!`,
-    //     icon: 'warning',
-    //     showCancelButton: true,
-    //     confirmButtonColor: '#d33',
-    //     cancelButtonColor: '#3085d6',
-    //     confirmButtonText: 'Yes, delete!',
-    //     cancelButtonText: 'Cancel'
-    //   });
-
-    //   if (result.isConfirmed) {
-    //     await deleteUser(userId).unwrap();
-    //     toast.success(`User ${userName} deleted successfully`);
-    //     refetch();
-    //   }
-    // } catch (error) {
-    //   toast.error(error?.data?.message || 'Failed to delete user');
-    //   console.error('Delete error:', error);
-    // }
 
     const isConfirmed = await deleteConfirm({
       title: "Are you sure?",
@@ -221,9 +201,7 @@ export default function UsersManagementPage() {
       {/* Main Content Area */}
       <div className="w-full">
         {isLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-          </div>
+          <AdminUserPageSkeleton/>
         ) : isError ? (
           <div className="bg-red-50 dark:bg-gray-800 p-4 rounded-lg text-red-500 dark:text-red-400 text-center">
             Failed to load users. Please try again.
