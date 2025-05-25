@@ -6,6 +6,8 @@ import { useDistrictUtils, useUpazilaUtils, formatLocationInfo } from '../utils/
  * A reusable component for selecting district and upazila
  */
 const LocationSelector = ({ 
+  initialDistrictName = '',
+  initialUpazilaName ='',
   onLocationChange, 
   initialDistrictId = '',
   initialUpazilaId = '',
@@ -93,8 +95,6 @@ const LocationSelector = ({
       ...formatLocationInfo(selectedDistrict, selectedUpazila)
     };
     
-
-    // Store the last sent data in a ref to avoid this becoming a dependency
     // Only call onLocationChange if we have valid data that has changed
     const hasValidData = selectedDistrictId || selectedUpazilaId;
     
@@ -103,16 +103,21 @@ const LocationSelector = ({
     }
   }, [districts, upazilas, selectedDistrictId, selectedUpazilaId, onLocationChange]);
 
-  // Effect to notify parent of changes to selection
   useEffect(() => {
     // Skip the initial render to prevent an infinite loop on component mount
     if (!isInitialRender.current) {
       // Only call when IDs have actually changed, not on every render
       if (selectedDistrictId || selectedUpazilaId) {
-        notifyLocationChange();
+        // Add a small delay to prevent rapid consecutive updates
+        const timeoutId = setTimeout(() => {
+          notifyLocationChange();
+        }, 50);
+        
+        // Clean up the timeout if the component unmounts or dependencies change
+        return () => clearTimeout(timeoutId);
       }
     }
-  }, [notifyLocationChange, selectedDistrictId, selectedUpazilaId]);
+  }, [selectedDistrictId, selectedUpazilaId, notifyLocationChange]);
 
   // Reset upazila when district changes
   useEffect(() => {
@@ -166,7 +171,7 @@ const LocationSelector = ({
             id="district"
             className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all dark:bg-gray-700 dark:text-white"
             placeholder="Search for a district"
-            value={districtSearchTerm}
+            value={districtSearchTerm || initialDistrictName}
             onChange={(e) => {
               setDistrictSearchTerm(e.target.value);
               setShowDistrictDropdown(true);
@@ -204,7 +209,7 @@ const LocationSelector = ({
       {/* Upazila Selection */}
       <div className="form-group">
         <label htmlFor="upazila" className="block text-sm font-medium text-neutral-700 mb-1 dark:text-white">
-          Upazila
+          Upazila/Thana
         </label>
         <div className="relative">
           <input
@@ -212,7 +217,7 @@ const LocationSelector = ({
             id="upazila"
             className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all dark:bg-gray-700 dark:text-white"
             placeholder={selectedDistrictId ? "Search for an upazila" : "Select a district first"}
-            value={upazilaSearchTerm}
+            value={upazilaSearchTerm || initialUpazilaName}
             onChange={(e) => {
               setUpazilaSearchTerm(e.target.value);
               setShowUpazilaDropdown(true);

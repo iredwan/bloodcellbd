@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { useSearchParams } from 'next/navigation';
-import Profile from '@/components/dashboard-components/Profile';
+import Profile from '@/components/dashboard-components/RUDProfilePage';
 import { useGetUserByIdQuery } from '@/features/users/userApiSlice';
 
 const page = () => {

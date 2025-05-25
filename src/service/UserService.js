@@ -2,6 +2,7 @@ import UserModel from "../models/UserModel.js";
 import bcrypt from "bcryptjs";
 import { EncodeToken } from "../utility/TokenHelper.js";
 import mongoose from "mongoose";
+import { deleteFile } from "../utility/fileUtils.js";
 const ObjectId = mongoose.Types.ObjectId;
 
 export const UserRegisterService = async (req, res) => {
@@ -249,6 +250,26 @@ export const UpdateUserByIdRefService = async (req) => {
       };
     }
 
+    if (reqBody.profileImage && userId) {
+  try {
+    const currentUser = await UserModel.findById(userId);
+
+    if (
+      currentUser &&
+      currentUser.profileImage &&
+      currentUser.profileImage !== reqBody.profileImage
+    ) {
+      const deleteResult = await deleteFile(currentUser.profileImage);
+      if (!deleteResult.status) {
+        console.error("Failed to delete previous profile image:", deleteResult.error);
+      }
+    }
+  } catch (error) {
+    console.error("Error while checking or deleting old image:", error);
+  }
+}
+
+
     const updatedUser = await UserModel.findByIdAndUpdate(
       userId,
       {
@@ -374,7 +395,9 @@ export const GetUserByIdService = async (req) => {
   try {
     const userId = new ObjectId(req.params.id);
 
-    const user = await UserModel.findById(userId).select();
+    const user = await UserModel.findById(userId).select(
+      "-password"
+    );
 
     if (!user) {
       return { status: false, message: "User not found." };
@@ -385,14 +408,25 @@ export const GetUserByIdService = async (req) => {
     // Check if reference is an ObjectId
     if (userData.reference && userData.reference !== "Self") {
       const referenceUser = await UserModel.findById(userData.reference).select(
-        "name phone email district upazila role roleSuffix profileImage"
+        "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
       );
 
       if (referenceUser) {
-        userData.referenceInfo = referenceUser;
+        userData.reference = referenceUser;
       }
     } else {
-      userData.referenceInfo = "Self";
+      userData.reference = "Self";
+    }
+
+    //UpdateBy user data
+    if (userData.updatedBy) {
+      const updatedByUser = await UserModel.findById(userData.updatedBy).select(
+        "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
+      );
+
+      if (updatedByUser) {
+        userData.updatedBy = updatedByUser;
+      }
     }
 
     return {
@@ -536,28 +570,39 @@ export const DeleteUserService = async (req) => {
 
     // Get the user to be deleted
     const userToDelete = await UserModel.findById(userId);
-
     if (!userToDelete) {
       return { status: false, message: "User not found." };
     }
 
-    // Check if trying to delete an admin user
-    if (userToDelete.role === "admin") {
-      // Get the requesting user's ID from headers or cookies
+    // Only admin can delete another admin
+    if (userToDelete.role === "Admin") {
       const requestingUserId = req.headers.user_id || (req.cookies && req.cookies.user_id);
-      
-      // Get the requesting user
       const requestingUser = await UserModel.findById(requestingUserId);
-
-      // Only allow admin to delete admin
-      if (!requestingUser || requestingUser.role !== "admin") {
+      if (!requestingUser || requestingUser.role !== "Admin") {
         return {
           status: false,
-          message: "Only admin users can delete admin accounts."
+          message: "Only admin users can delete admin accounts.",
         };
       }
     }
 
+    // ✅ Delete images if they exist
+    const deleteImageIfExists = async (imagePath) => {
+      if (imagePath && typeof imagePath === "string" && imagePath.trim() !== "") {
+        const fileName = imagePath.split("/").pop();
+        if (fileName) {
+          const result = await deleteFile(fileName);
+          if (!result.status) {
+            console.warn("Failed to delete file:", fileName);
+          }
+        }
+      }
+    };
+
+    await deleteImageIfExists(userToDelete.profileImage);
+    await deleteImageIfExists(userToDelete.nidOrBirthRegistrationImage);
+
+    // ✅ Finally delete user
     const deletedUser = await UserModel.findByIdAndDelete(userId);
 
     return {

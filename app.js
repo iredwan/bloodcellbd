@@ -90,7 +90,11 @@ app.get('/', (req, res) => {
   res.send('Blood Cell BD API is running');
 });
 
-app.use("/uploads", express.static("uploads"));
+app.use('/uploads', express.static('uploads', {
+  setHeaders: (res, path, stat) => {
+    res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+  }
+}));
 
 // Start server
 const PORT = process.env.PORT || 5000;

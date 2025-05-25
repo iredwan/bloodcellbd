@@ -9,8 +9,7 @@ import {
 import { useGetAllRequestsQuery } from '@/features/requests/requestApiSlice';
 import { useGetAllUsersForAdminQuery } from '@/features/users/userApiSlice';
 import { IoMdPerson, IoMdWater } from 'react-icons/io';
-import { MdEventAvailable, MdBloodtype } from 'react-icons/md';
-import { FaHospital } from 'react-icons/fa';
+import AdminDashboardSkeleton from '@/components/dashboard-components/dashboardSkeletons/AdminDashboardSkeleton';
 import { format, sub, startOfMonth, endOfMonth, isWithinInterval, parseISO } from 'date-fns';
 import CustomSelect from '@/components/CustomSelect';
 
@@ -42,33 +41,62 @@ export default function AdminDashboard() {
   const [selectedTimeFilter, setSelectedTimeFilter] = useState('Today');
   // Get the actual filter value from the display name
   const timeFilter = TIME_FILTER_VALUES[selectedTimeFilter] || 'today';
+  
+  // Add loading state
+  const [isDataLoading, setIsDataLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const { data: requestsData = {}, isLoading: requestsLoading } = useGetAllRequestsQuery();
-  const { data: usersData = {}, isLoading: usersLoading } = useGetAllUsersForAdminQuery();
+  const { 
+    data: requestsData, 
+    isLoading: requestsLoading, 
+    error: requestsError 
+  } = useGetAllRequestsQuery();
+  
+  const { 
+    data: usersData, 
+    isLoading: usersLoading, 
+    error: usersError 
+  } = useGetAllUsersForAdminQuery();
 
   // Extract actual data arrays from the nested structure returned by both APIs
-  // Both APIs return { status, data: [...], message } or { status, data: { users, totalUsers }, message }
   const requests = useMemo(() => {
-    if (requestsData && requestsData.data && Array.isArray(requestsData.data)) {
+    if (requestsData?.status && requestsData?.data && Array.isArray(requestsData.data)) {
       return requestsData.data;
+    } else if (requestsData && Array.isArray(requestsData)) {
+      return requestsData;
     }
     return [];
   }, [requestsData]);
   
   const users = useMemo(() => {
-    if (usersData && usersData.data && Array.isArray(usersData.data.users)) {
+    if (usersData?.status && usersData?.data?.users && Array.isArray(usersData.data.users)) {
       return usersData.data.users;
+    } else if (usersData?.data && Array.isArray(usersData.data)) {
+      return usersData.data;
+    } else if (usersData && Array.isArray(usersData)) {
+      return usersData;
     }
     return [];
   }, [usersData]);
 
-  // Log the data structures for debugging
+  // Update loading state when data changes
   useEffect(() => {
-    console.log('Admin users data structure:', usersData);
-    console.log('Extracted users array:', users);
-    console.log('Requests data structure:', requestsData);
-    console.log('Extracted requests array:', requests);
-  }, [usersData, users, requestsData, requests]);
+    if (requestsError || usersError) {
+      console.error('API Error:', requestsError || usersError);
+      setError(requestsError?.message || usersError?.message || 'Failed to load dashboard data');
+    }
+    
+    setIsDataLoading(requestsLoading || usersLoading);
+    
+    // Debug logging
+    if (!requestsLoading && requestsData) {
+      console.log('Requests data received:', requestsData);
+    }
+    
+    if (!usersLoading && usersData) {
+      console.log('Users data received:', usersData);
+    }
+  }, [requestsLoading, usersLoading, requestsData, usersData, requestsError, usersError]);
 
   // Calculate date ranges based on selected filter
   const filterDate = useMemo(() => {
@@ -339,47 +367,37 @@ export default function AdminDashboard() {
       .sort((a, b) => b.value - a.value); // Sort by count descending
   }, [filteredUsers]);
 
-  if (requestsLoading || usersLoading) {
+  // Show loading state while data is loading
+  if (isDataLoading) {
     return (
-      <div className="flex justify-center items-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        <AdminDashboardSkeleton/>
+    );
+  }
+
+  // Show error state if there's an error
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] p-4">
+        <div className="text-red-500 text-5xl mb-4">⚠️</div>
+        <h2 className="text-xl font-bold text-red-500 mb-2">Error Loading Dashboard</h2>
+        <p className="text-gray-600 dark:text-gray-300 text-center">{error}</p>
+        <p className="text-gray-500 mt-4 text-sm max-w-md text-center">
+          Please check your network connection or try refreshing the page.
+        </p>
       </div>
     );
   }
 
-  // Check if we have any data to display
-  const hasRequestData = filteredRequests && filteredRequests.length > 0;
-  const hasUserData = filteredUsers && filteredUsers.length > 0;
-  const hasBloodGroupData = bloodGroupDistribution && bloodGroupDistribution.length > 0;
-
-  if (!hasUserData && !hasRequestData) {
+  // Show empty state if no data is available
+  if ((!users || users.length === 0) && (!requests || requests.length === 0)) {
     return (
-      <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Admin Analytics Dashboard</h1>
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold mb-4 text-red-500">No Data Available</h2>
-          <div className="space-y-4">
-            <p>No users or requests data could be retrieved. This might be due to:</p>
-            <ul className="list-disc pl-5 space-y-2">
-              <li>API server is not running or unreachable</li>
-              <li>You are not logged in or don't have proper permissions</li>
-              <li>There is no data in the database yet</li>
-            </ul>
-            <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-md">
-              <p className="font-mono text-sm mb-2">API Response Structure:</p>
-              <p className="font-mono text-sm">Users data: {JSON.stringify(usersData).substring(0, 100)}...</p>
-              <p className="font-mono text-sm">Requests data: {JSON.stringify(requestsData).substring(0, 100)}...</p>
-            </div>
-            <button 
-              className="px-4 py-2 bg-primary text-white rounded-md"
-              onClick={() => {
-                window.location.reload();
-              }}
-            >
-              Retry
-            </button>
-          </div>
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-[50vh] p-4">
+        <div className="text-gray-400 text-5xl mb-4">📊</div>
+        <h2 className="text-xl font-bold text-gray-600 dark:text-gray-300 mb-2">No Dashboard Data Available</h2>
+        <p className="text-gray-500 text-center max-w-md">
+          There is no user or request data available to display. 
+          As users register and requests are created, dashboard statistics will appear here.
+        </p>
       </div>
     );
   }
@@ -451,7 +469,7 @@ export default function AdminDashboard() {
       {/* Charts Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ChartCard title="Blood Request Trends">
-          {hasRequestData ? (
+          {filteredRequests && filteredRequests.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={requestTrends}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -473,7 +491,7 @@ export default function AdminDashboard() {
         </ChartCard>
 
         <ChartCard title="Request Status In Selected Time Period">
-          {hasRequestData ? (
+          {filteredRequests && filteredRequests.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -505,7 +523,7 @@ export default function AdminDashboard() {
       {/* Charts Row 2 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ChartCard title="Blood Groups of Users">
-          {hasBloodGroupData ? (
+          {bloodGroupDistribution && bloodGroupDistribution.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -534,7 +552,7 @@ export default function AdminDashboard() {
         </ChartCard>
 
         <ChartCard title="Requested Blood Groups In Selected Time Period">
-          {hasRequestData ? (
+          {filteredRequests && filteredRequests.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -566,7 +584,7 @@ export default function AdminDashboard() {
       {/* Charts Row 3 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ChartCard title="User Registration In Selected Time Period">
-          {hasUserData ? (
+          {filteredUsers && filteredUsers.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart
                 data={getUserRegistrationData(users, timeFilter, safeParseDate)}
@@ -587,7 +605,7 @@ export default function AdminDashboard() {
         </ChartCard>
 
         <ChartCard title="User Status In Selected Time Period">
-          {hasUserData ? (
+          {filteredUsers && filteredUsers.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie

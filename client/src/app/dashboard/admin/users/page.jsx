@@ -9,8 +9,8 @@ import { FaUser, FaUserPlus, FaSearch, FaTrash, FaEye } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import Pagination from '@/components/Pagination';
 import CustomSelect from '@/components/CustomSelect';
-import Swal from 'sweetalert2';
 import { useRouter } from 'next/navigation';
+import deleteConfirm from "@/utils/deleteConfirm";
 
 export default function UsersManagementPage() {
   // State for user search and filter
@@ -85,26 +85,46 @@ export default function UsersManagementPage() {
 
   // Handle delete user confirmation
   const handleDeleteUser = async (userId, userName) => {
-    try {
-      const result = await Swal.fire({
-        title: 'Are you sure?',
-        text: `You are about to delete ${userName}. This action cannot be undone!`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, delete!',
-        cancelButtonText: 'Cancel'
-      });
+    // try {
+    //   const result = await Swal.fire({
+    //     title: 'Are you sure?',
+    //     text: `You are about to delete ${userName}. This action cannot be undone!`,
+    //     icon: 'warning',
+    //     showCancelButton: true,
+    //     confirmButtonColor: '#d33',
+    //     cancelButtonColor: '#3085d6',
+    //     confirmButtonText: 'Yes, delete!',
+    //     cancelButtonText: 'Cancel'
+    //   });
 
-      if (result.isConfirmed) {
-        await deleteUser(userId).unwrap();
-        toast.success(`User ${userName} deleted successfully`);
-        refetch();
+    //   if (result.isConfirmed) {
+    //     await deleteUser(userId).unwrap();
+    //     toast.success(`User ${userName} deleted successfully`);
+    //     refetch();
+    //   }
+    // } catch (error) {
+    //   toast.error(error?.data?.message || 'Failed to delete user');
+    //   console.error('Delete error:', error);
+    // }
+
+    const isConfirmed = await deleteConfirm({
+      title: "Are you sure?",
+      text: `Are you sure you want to delete ${userName}? This action cannot be undone.`,
+      confirmButtonText: "Yes, delete!"
+    });
+    
+    if (isConfirmed) {
+      try {
+        const response = await deleteUser(userId).unwrap();
+        if (response.status) {
+          toast.success(`User ${userName} deleted successfully`);
+        } else {
+          toast.error(response.message || "Failed to delete user");
+        }
+      } catch (error) {
+        toast.error(error?.data?.message || "Error deleting user");
+        console.error("Delete error:", error);
       }
-    } catch (error) {
-      toast.error(error?.data?.message || 'Failed to delete user');
-      console.error('Delete error:', error);
     }
   };
 
@@ -140,7 +160,7 @@ export default function UsersManagementPage() {
         
         <button
           onClick={() => router.push('/dashboard/add-new-user')}
-          className="w-full md:w-auto px-4 py-2 bg-primary text-white rounded-lg flex items-center justify-center hover:bg-primary/90 transition-colors"
+          className="button"
         >
           <FaUserPlus className="mr-2" /> Add New User
         </button>

@@ -88,7 +88,7 @@ html {
 
 .button-secondary {
   background-color: var(--secondary);
-  color: var(--text-primary);
+  color: white;
   border: none;
   border-radius: 8px;
   padding: 8px 16px;

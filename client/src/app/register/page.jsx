@@ -1067,7 +1067,7 @@ export default function RegisterPage() {
               {/* Document Upload - Rectangular Modern */}
               <div className="group relative">
                 <label className="mb-2 block text-center text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                  {formData.identificationType === 'NID' ? 'National ID' : 'Birth Certificate'}
+                  {formData.identificationType === 'NID' ? 'Upload NID Front Site' : 'Birth Certificate'}
                   <span className="text-xs text-neutral-400 ml-1">(required)</span>
                 </label>
                 

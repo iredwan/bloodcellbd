@@ -149,7 +149,7 @@ userSchema.methods.isEligible = function () {
   const today = new Date();
   const diffInDays = Math.floor((today - lastDonateDate) / (1000 * 60 * 60 * 24));
 
-  return diffInDays >= 90; 
+  return diffInDays >= 120; 
 };
 
 const userModel = mongoose.model("User", userSchema);
