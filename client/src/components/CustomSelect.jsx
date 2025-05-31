@@ -4,7 +4,7 @@ import { Combobox } from '@headlessui/react';
 import { FaCheck, FaChevronDown } from 'react-icons/fa';
 import { useState, useRef, useEffect } from 'react';
 
-export default function CustomSelect({ options = [], selected, setSelected, label = 'Select option', placeholder = 'Type to search...' }) {
+export default function CustomSelect({ options = [], selected, setSelected, label, placeholder = 'Type to search...' }) {
   const [query, setQuery] = useState('');
   const comboboxRef = useRef(null);
 
@@ -35,9 +35,11 @@ export default function CustomSelect({ options = [], selected, setSelected, labe
   return (
     <div className="w-full" ref={comboboxRef}>
       <Combobox value={selected} onChange={setSelected}>
-        <Combobox.Label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
-          {label}
-        </Combobox.Label>
+        {label && (
+          <Combobox.Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            {label}
+          </Combobox.Label>
+        )}
 
         <div className="relative">
           <div className="relative w-full cursor-default overflow-visible">

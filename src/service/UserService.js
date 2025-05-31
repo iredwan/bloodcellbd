@@ -3,6 +3,9 @@ import bcrypt from "bcryptjs";
 import { EncodeToken } from "../utility/TokenHelper.js";
 import mongoose from "mongoose";
 import { deleteFile } from "../utility/fileUtils.js";
+import RequestModel from "../models/RequestModel.js";
+import { startOfDay, endOfDay, startOfMonth, endOfMonth } from "date-fns";
+
 const ObjectId = mongoose.Types.ObjectId;
 
 export const UserRegisterService = async (req, res) => {
@@ -167,20 +170,27 @@ export const UpdateUserByIdSelfService = async (req) => {
     const userId = new ObjectId(req.params.id);
     const reqBody = req.body;
 
-    // Check if avatar is being updated
-    // if (reqBody.avatar) {
-    //   // Get the current user data to find the previous avatar
-    //   const currentUser = await UserModel.findById(userId);
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return { status: false, message: "User not found." };
+    }
 
-    //   // If user exists and has a previous avatar that is different from the new one
-    //   if (currentUser && currentUser.avatar && currentUser.avatar !== reqBody.avatar) {
-    //     // Delete the previous avatar file
-    //     const deleteResult = await deleteFile(currentUser.avatar);
-    //     if (!deleteResult.status) {
-    //       console.error("Failed to delete previous user avatar:", deleteResult.error);
-    //     }
-    //   }
-    // }
+
+     // Handle profile image update
+     if (
+      reqBody.profileImage &&
+      user.profileImage &&
+      reqBody.profileImage !== user.profileImage
+    ) {
+      const deleteResult = await deleteFile(user.profileImage);
+      if (!deleteResult.status) {
+        console.error(
+          "Failed to delete previous profile image:",
+          deleteResult.error
+        );
+      }
+    }
+    
 
     //Set isApproved to false
     reqBody.isApproved = false;
@@ -293,8 +303,6 @@ export const UpdateUserByIdRefService = async (req) => {
 //only eligible, approved, not banned users
 export const GetAllUserService = async (req, res) => {
   try {
-    const reqBody = req.body;
-
     const {
       bloodGroup,
       district,
@@ -302,86 +310,95 @@ export const GetAllUserService = async (req, res) => {
       search,
       page = 1,
       limit = 10,
-    } = reqBody;
+      sortBy = "createdAt", 
+      sortOrder = -1,
+    } = req.query;
 
     const skip = (page - 1) * limit;
 
-    // Eligibility Threshold Date (90 days ago)
-    const eligibilityDate = new Date();
-    eligibilityDate.setDate(eligibilityDate.getDate() - 90);
-    const eligibilityThreshold = eligibilityDate.toLocaleDateString('en-GB'); // DD/MM/YYYY format
-
-
-    // Base query
-    const baseQuery = {
-      isApproved: true,
-      isBanned: false,
-      $or: [
-        { lastDonate: { $exists: false } },
-        { lastDonate: { $lt: eligibilityThreshold } },
-      ],
-    };
-
-    // Optional filters
-    if (bloodGroup) {
-      baseQuery.bloodGroup = bloodGroup;
-    }
+    // Build query from request params
+    const query = {};
 
     if (district) {
-      baseQuery.district = district;
+      query.district = new RegExp(district, "i");
     }
 
     if (upazila) {
-      baseQuery.upazila = upazila;
+      query.upazila = new RegExp(upazila, "i");
     }
 
-    // Search (name, email, phone)
+    if (bloodGroup) {
+      query.bloodGroup = bloodGroup;
+    }
+
+    // Search across multiple fields
     if (search) {
-      const regex = new RegExp(search, "i");
-      const searchConditions = [
-        { name: regex },
-        { email: regex },
-        { phone: regex },
+      const searchRegex = new RegExp(search, "i");
+      query.$or = [
+        { name: searchRegex },
+        { email: searchRegex },
+        { phone: searchRegex },
+        { district: searchRegex },
+        { upazila: searchRegex },
+        { bloodGroup: searchRegex },
+        { role: searchRegex },
+        { roleSuffix: searchRegex },
+        { identificationNumber: searchRegex },
       ];
-
-      // Merge search with existing $or using $and
-      baseQuery.$and = [{ $or: baseQuery.$or }, { $or: searchConditions }];
-      delete baseQuery.$or;
     }
 
-    // Query execution
-    const users = await UserModel.find(baseQuery)
-      .select("-nidOrBirthRegistrationImage -dob -identificationNumber -identificationType -religion -occupation -fatherName -fatherPhoneNumber -motherName -motherPhoneNumber -isApproved -isBanned -password -reference -updatedBy -createdAt -updatedAt")
+    // Dynamic sorting
+    const sortOptions = {};
+    sortOptions[sortBy] = sortOrder;
+
+    // Execute query with pagination
+    const users = await UserModel.find(query)
+      .select("-password -nidOrBirthRegistrationImage")
       .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 });
+      .limit(parseInt(limit))
+      .sort(sortOptions)
+      .lean();
+
+    const totalUsers = await UserModel.countDocuments(query);
+    const totalPages = Math.ceil(totalUsers / limit);
 
     if (users.length === 0) {
       return {
         status: false,
-        message: "No eligible users found in your desired location.",
+        message: "No users found matching the criteria.",
+        data: {
+          users: [],
+          pagination: {
+            totalUsers: 0,
+            currentPage: page,
+            totalPages: 0,
+            hasNextPage: false,
+            hasPrevPage: false
+          }
+        }
       };
     }
 
-    const totalUsers = await UserModel.countDocuments(baseQuery);
-
     return {
       status: true,
+      message: "Users retrieved successfully.",
       data: {
         users,
         pagination: {
           totalUsers,
-          currentPage: page,
-          totalPages: Math.ceil(totalUsers / limit),
-        },
-      },
-      message: "Eligible users retrieved successfully.",
+          currentPage: parseInt(page),
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1
+        }
+      }
     };
+
   } catch (e) {
     return {
       status: false,
       message: "Failed to retrieve users.",
-      details: e.message,
+      details: e.message
     };
   }
 };
@@ -450,64 +467,205 @@ export const GetUserByUserIdService = async (req) => {
   }
 }
 
+// ----------------- Data For Dashboard ------------------------
 
-export const GetAllUserForAdminService = async () => {
+export const GetAllUserForAdminService = async (req) => {
   try {
-    const users = await UserModel.find({});
-    const totalUsers = await UserModel.countDocuments({});
+    const { fromDate, toDate, groupBy = "none" } = req.query;
 
-    const usersWithRefs = await Promise.all(
-      users.map(async (user) => {
-        const userData = user.toObject();
+    const from = fromDate ? new Date(fromDate) : new Date();
+    const to = toDate ? new Date(toDate) : new Date();
 
-        // Check if reference is an ObjectId
-        if (userData.reference && userData.reference !== "Self") {
-          const referenceUser = await UserModel.findById(
-            userData.reference
-          ).select(
-            "name phone email district upazila role roleSuffix profileImage"
-          );
+    const dateFilter = {
+      $gte: groupBy === "month" ? startOfMonth(from) : startOfDay(from),
+      $lte: groupBy === "month" ? endOfMonth(to) : endOfDay(to),
+    };
 
-          if (referenceUser) {
-            userData.reference = referenceUser;
+    // Summary Stats
+    const [
+      totalUsers,
+      totalRequests,
+      totalFulfilled,
+      totalPending,
+      maleUsers,
+      femaleUsers,
+      otherUsers,
+      bloodGroupCounts,
+      religionCounts,
+    ] = await Promise.all([
+      UserModel.countDocuments({ createdAt: dateFilter }),
+      RequestModel.countDocuments({ createdAt: dateFilter }),
+      RequestModel.countDocuments({ status: "fulfilled", createdAt: dateFilter }),
+      RequestModel.countDocuments({ status: "pending", createdAt: dateFilter }),
+
+      UserModel.countDocuments({ gender: "Male", createdAt: dateFilter }),
+      UserModel.countDocuments({ gender: "Female", createdAt: dateFilter }),
+      UserModel.countDocuments({
+        gender: { $nin: ["Male", "Female"] },
+        createdAt: dateFilter,
+      }),
+
+      UserModel.aggregate([
+        { $match: { createdAt: dateFilter } },
+        {
+          $group: {
+            _id: "$bloodGroup",
+            count: { $sum: 1 },
+          },
+        },
+      ]),
+
+      {
+        Islam: await UserModel.countDocuments({ religion: "Islam", createdAt: dateFilter }),
+        Hinduism: await UserModel.countDocuments({ religion: "Hinduism", createdAt: dateFilter }),
+        Christianity: await UserModel.countDocuments({ religion: "Christianity", createdAt: dateFilter }),
+        Others: await UserModel.countDocuments({
+          religion: { $nin: ["Islam", "Hinduism", "Christianity"] },
+          createdAt: dateFilter,
+        }),
+      },
+    ]);
+
+    let timelineStats = [];
+
+    // Optional: groupBy=day or month
+    if (groupBy === "day" || groupBy === "month") {
+      const dateField = groupBy === "day"
+        ? {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" },
+            day: { $dayOfMonth: "$createdAt" },
           }
-        } else {
-          userData.reference = "Self";
+        : {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" },
+          };
+
+      const userStats = await UserModel.aggregate([
+        { $match: { createdAt: dateFilter } },
+        {
+          $group: {
+            _id: dateField,
+            count: { $sum: 1 },
+          },
+        },
+      ]);
+
+      const requestStats = await RequestModel.aggregate([
+        { $match: { createdAt: dateFilter } },
+        {
+          $group: {
+            _id: {
+              ...dateField,
+              status: "$status",
+            },
+            count: { $sum: 1 },
+          },
+        },
+      ]);
+
+      const statMap = {};
+
+      // Process user statistics
+      userStats.forEach((entry) => {
+        const key = JSON.stringify(entry._id);
+        statMap[key] = {
+          date: formatDate(entry._id, groupBy),
+          rawDate: entry._id,
+          newUsers: entry.count,
+          totalRequests: 0,
+          fulfilledRequests: 0,
+          pendingRequests: 0,
+        };
+      });
+
+      // Process request statistics
+      requestStats.forEach((entry) => {
+        const dateGroup = { ...entry._id };
+        delete dateGroup.status;
+        const key = JSON.stringify(dateGroup);
+        
+        if (!statMap[key]) {
+          statMap[key] = {
+            date: formatDate(dateGroup, groupBy),
+            rawDate: dateGroup,
+            newUsers: 0,
+            totalRequests: 0,
+            fulfilledRequests: 0,
+            pendingRequests: 0,
+          };
         }
-
-        // Get updatedBy user data if it exists
-        if (userData.updatedBy) {
-          const updatedByUser = await UserModel.findById(
-            userData.updatedBy
-          ).select(
-            "name phone email district upazila role roleSuffix profileImage"
-          );
-
-          if (updatedByUser) {
-            userData.updatedBy = updatedByUser;
-          }
+        
+        statMap[key].totalRequests += entry.count;
+        if (entry._id.status === "fulfilled") {
+          statMap[key].fulfilledRequests += entry.count;
+        } else if (entry._id.status === "pending") {
+          statMap[key].pendingRequests += entry.count;
         }
+      });
 
-        return userData;
-      })
-    );
+      // Convert to array and sort chronologically
+      timelineStats = Object.values(statMap).sort((a, b) => {
+        if (a.rawDate.year !== b.rawDate.year) {
+          return a.rawDate.year - b.rawDate.year;
+        }
+        if (a.rawDate.month !== b.rawDate.month) {
+          return a.rawDate.month - b.rawDate.month;
+        }
+        return (a.rawDate.day || 0) - (b.rawDate.day || 0);
+      });
+
+      // Remove temporary sorting property
+      timelineStats = timelineStats.map(({ rawDate, ...rest }) => rest);
+    }
 
     return {
       status: true,
       data: {
-        users: usersWithRefs,
-        totalUsers: totalUsers,
+        summary: {
+          totalUsers,
+          totalRequests,
+          fulfilledRequests: totalFulfilled,
+          pendingRequests: totalPending,
+        },
+        genderStats: {
+          male: maleUsers,
+          female: femaleUsers,
+          others: otherUsers,
+        },
+        religionStats: religionCounts,
+        bloodGroupStats: bloodGroupCounts.map((item) => ({
+          bloodGroup: item._id,
+          count: item.count,
+        })),
+        ...(groupBy !== "none" && { timelineStats }),
       },
-      message: "Users retrieved successfully.",
     };
-  } catch (e) {
+  } catch (error) {
+    console.error("Dashboard Error:", error.message);
     return {
       status: false,
-      message: "Failed to retrieve users.",
-      details: e.message,
+      message: "Failed to fetch admin dashboard statistics",
     };
   }
 };
+
+// Helper function to format dates as dd/mm/yyyy or mm/yyyy
+function formatDate(dateObj, groupBy) {
+  const { year, month, day } = dateObj;
+  const mm = String(month).padStart(2, '0');
+  
+  if (groupBy === "day") {
+    const dd = String(day).padStart(2, '0');
+    return `${dd}/${mm}/${year}`;
+  } else {
+    return `${mm}/${year}`;
+  }
+}
+
+
+
+//----------------------------------------------------------------
 
 export const EligibleUserService = async () => {
   try {

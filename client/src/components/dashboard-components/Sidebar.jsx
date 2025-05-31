@@ -13,6 +13,7 @@ import {
 import {
   FaHospital,
   FaUser,
+  FaUsers,
   FaStar,
 } from 'react-icons/fa';
 import {
@@ -29,50 +30,143 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { isOpen, isMobile, toggleSidebar } = useSidebar();
   const user = useSelector(selectUserInfo);
-  const userRole = user?.role?.toLowerCase();
+  const userRole = user?.role;
+
+
+  const allowedRoles = ["Technician", "Member", "Moderator", "Monitor"];
+
+  const upazilaCoordinators = ["Upazila Coordinator", "Upazila Co-coordinator", "Upazila IT & Media Coordinator", "Upazila Logistics Coordinator"]
+
+  const districtCoordinators = ["District Coordinator", "District Co-coordinator", "District IT & Media Coordinator", "District Logistics Coordinator"]
+
+  const divisionalCoordinators = ["Divisional Coordinator", "Divisional Co-coordinator"];
+
+  const admin = ["Head of IT & Media", "Head of Logistics", "Admin"];
+
+  const isAllowed = allowedRoles.includes(userRole);
+  const isUpazilaCoordinator = upazilaCoordinators.includes(userRole);
+  const isDistrictCoordinator = districtCoordinators.includes(userRole);
+  const isDivisionalCoordinator = divisionalCoordinators.includes(userRole);
+  const isAdmin = admin.includes(userRole);
 
   // Handle menu item click
   const handleMenuItemClick = () => {
     toggleSidebar();
   };
 
+  
+  
+
   const sidebarItems = [
     {
       section: 'Core',
       items: [
-        { label: 'Dashboard', href: `/dashboard/${userRole}`, icon: <MdDashboardCustomize />, roles: ['Admin'] },
-        { label: 'Users', href: '/dashboard/admin/users', icon: <FaUser />, roles: ['Admin'] },
-        { label: 'Requests', href: '/dashboard/admin/requests', icon: <BiDonateBlood />, roles: ['Admin'] },
-        { label: 'WTD', href: '/dashboard/admin/wtd', icon: <BiDonateBlood />, roles: ['Admin'] },
-        { label: 'Ambassadors', href: '/dashboard/admin/ambassadors', icon: <RiUserStarLine />, roles: ['Admin'] },
-        { label: 'Sponsors', href: '/dashboard/admin/sponsors', icon: <FaStar />, roles: ['Admin'] },
-        { label: 'Website Config', href: '/dashboard/admin/config', icon: <MdSettings />, roles: ['Admin'] },
-        { label: 'Profile', href: '/dashboard/admin/profile', icon: <FaUser />, roles: ['Admin', 'Moderator', 'Monitor', 'User'] },
+        { label: 'Dashboard', href: `/dashboard/${userRole}`, icon: <MdDashboardCustomize />, roles: [
+          ...admin, 
+          ...divisionalCoordinators, 
+          ...districtCoordinators, 
+          ...upazilaCoordinators, 
+          ...allowedRoles,
+          'user'
+        ] },
+        { label: 'Users', href: '/dashboard/users', icon: <FaUsers />, roles: [
+          ...admin, 
+          ...divisionalCoordinators, 
+          ...districtCoordinators, 
+          ...upazilaCoordinators, 
+          ...allowedRoles
+
+        ] },
+        { label: 'Requests', href: '/dashboard/requests', icon: <BiDonateBlood />, roles: [
+          ...admin, 
+          ...divisionalCoordinators, 
+          ...districtCoordinators, 
+          ...upazilaCoordinators,
+          ...allowedRoles,
+          'user'
+        ] },
+        { label: 'WTD', href: '/dashboard/wtd', icon: <BiDonateBlood />, roles: [
+          ...admin, 
+          ...divisionalCoordinators, 
+          ...districtCoordinators, 
+          ...upazilaCoordinators,
+          'user'
+        ] },
+        { label: 'Ambassadors', href: '/dashboard/ambassadors', icon: <RiUserStarLine />, roles: [
+          ...admin
+        ] },
+        { label: 'Sponsors', href: '/dashboard/sponsors', icon: <FaStar />, roles: [
+          ...admin
+        ] },
+        { label: 'Website Config', href: '/dashboard/config', icon: <MdSettings />, roles: [...admin] },
+        { label: 'Profile', href: '/dashboard/profile', icon: <FaUser />, roles: [
+          ...admin, 
+          ...divisionalCoordinators, 
+          ...districtCoordinators, 
+          ...upazilaCoordinators,
+          ...allowedRoles,
+          'user'
+        ] },
       ],
     },
     {
       section: 'Content',
       items: [
-        { label: 'Carousel', href: '/dashboard/admin/carousel', icon: <MdOutlineViewCarousel />, roles: ['Admin'] },
-        { label: 'Events', href: '/dashboard/admin/events', icon: <BsCalendar2Event />, roles: ['Admin'] },
+        { label: 'Carousel', href: '/dashboard/carousel', icon: <MdOutlineViewCarousel />, roles: [
+          ...admin
+        ] },
+        { label: 'Events', href: '/dashboard/events', icon: <BsCalendar2Event />, roles: 
+          [...admin
+          ] },
       ],
     },
     {
       section: 'Teams',
       items: [
-        { label: 'Board Team', href: '/dashboard/admin/board-team', icon: <RiTeamLine />, roles: ['Admin'] },
-        { label: 'Divisional Team', href: '/dashboard/admin/divisional-team', icon: <RiTeamFill />, roles: ['Admin'] },
-        { label: 'District Team', href: '/dashboard/admin/district-team', icon: <RiTeamFill />, roles: ['Admin'] },
-        { label: 'Upazila Team', href: '/dashboard/admin/upazila-team', icon: <RiTeamFill />, roles: ['Admin'] },
-        { label: 'Monitor Team', href: '/dashboard/admin/monitor-team', icon: <RiTeamFill />, roles: ['Admin'] },
-        { label: 'Moderator Team', href: '/dashboard/admin/moderator-team', icon: <RiTeamFill />, roles: ['Admin'] },
+        { label: 'Board Team', href: '/dashboard/board-team', icon: <RiTeamLine />, roles: [
+          ...admin
+        ] },
+        { label: 'Divisional Team', href: '/dashboard/divisional-team', icon: <RiTeamFill />, roles: [
+          ...admin, 
+          ...divisionalCoordinators
+        ] },
+        { label: 'District Team', href: '/dashboard/district-team', icon: <RiTeamFill />, roles: [
+          ...admin, 
+          ...divisionalCoordinators, 
+          ...districtCoordinators] },
+        { label: 'Upazila Team', href: '/dashboard/upazila-team', icon: <RiTeamFill />, roles: [
+          ...admin,
+          ...districtCoordinators, 
+          ...upazilaCoordinators] },
+        { label: 'Monitor Team', href: '/dashboard/monitor-team', icon: <RiTeamFill />, roles: [
+          ...admin, 
+          ...districtCoordinators, 
+          ...upazilaCoordinators,
+        'Monitor'] },
+        { label: 'Moderator Team', href: '/dashboard/moderator-team', icon: <RiTeamFill />, roles: [
+          ...admin, 
+          ...allowedRoles,
+        'user'] },
       ],
     },
     {
       section:'Other',
       items:[
-        { label: 'Hospitals', href: '/dashboard/admin/hospitals', icon: <FaHospital />, roles: ['Admin'] },
-        { label: 'Reviews', href: '/dashboard/admin/reviews', icon: <MdRateReview />, roles: ['Admin'] },
+        { label: 'Hospitals', href: '/dashboard/hospitals', icon: <FaHospital />, roles: [
+          ...admin, 
+          ...divisionalCoordinators, 
+          ...districtCoordinators, 
+          ...upazilaCoordinators,
+          ...allowedRoles
+        ] },
+        { label: 'Reviews', href: '/dashboard/reviews', icon: <MdRateReview />, roles: [
+          ...admin, 
+          ...divisionalCoordinators, 
+          ...districtCoordinators, 
+          ...upazilaCoordinators,
+          ...allowedRoles,
+          'user'
+        ] },
       ]
     }
   ];

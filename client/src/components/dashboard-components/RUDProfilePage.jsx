@@ -58,8 +58,138 @@ const CRUDProfilePage = () => {
   const editorRole = userInfoData?.user.role || "";
   const roleApi = (userInfoData?.user.role || "").toLowerCase();
 
+  const roleHierarchy = {
+    Admin: [
+      "user",
+      "Technician",
+      "Member",
+      "Moderator",
+      "Monitor",
+      "Upazila Coordinator",
+      "Upazila Co-coordinator",
+      "Upazila IT & Media Coordinator",
+      "Upazila Logistics Coordinator",
+      "District Coordinator",
+      "District Co-coordinator",
+      "District IT & Media Coordinator",
+      "District Logistics Coordinator",
+      "Divisional Coordinator",
+      "Divisional Co-coordinator",
+      "Head of IT & Media",
+      "Head of Logistics",
+      "Admin",
+    ],
+    "Divisional Coordinator": [
+      "user",
+      "Technician",
+      "Member",
+      "Moderator",
+      "Monitor",
+      "Upazila Coordinator",
+      "Upazila Co-coordinator",
+      "Upazila IT & Media Coordinator",
+      "Upazila Logistics Coordinator",
+      "District Coordinator",
+      "District Co-coordinator",
+      "District IT & Media Coordinator",
+      "District Logistics Coordinator",
+    ],
+    "Divisional Co-coordinator": [
+      "user",
+      "Technician",
+      "Member",
+      "Moderator",
+      "Monitor",
+      "Upazila Coordinator",
+      "Upazila Co-coordinator",
+      "Upazila IT & Media Coordinator",
+      "Upazila Logistics Coordinator",
+      "District Coordinator",
+      "District Co-coordinator",
+      "District IT & Media Coordinator",
+      "District Logistics Coordinator",
+    ],
+    "District Coordinator": [
+      "user",
+      "Technician",
+      "Member",
+      "Moderator",
+      "Monitor",
+      "Upazila Coordinator",
+      "Upazila Co-coordinator",
+      "Upazila IT & Media Coordinator",
+      "Upazila Logistics Coordinator",
+    ],
+    "District Co-coordinator": [
+      "user",
+      "Technician",
+      "Member",
+      "Moderator",
+      "Monitor",
+      "Upazila Coordinator",
+      "Upazila Co-coordinator",
+      "Upazila IT & Media Coordinator",
+      "Upazila Logistics Coordinator",
+    ],
+    "District IT & Media Coordinator": [
+      "user",
+      "Technician",
+      "Member",
+      "Moderator",
+      "Monitor",
+      "Upazila Coordinator",
+      "Upazila Co-coordinator",
+      "Upazila IT & Media Coordinator",
+      "Upazila Logistics Coordinator",
+    ],
+    "District Logistics Coordinator": [
+      "user",
+      "Technician",
+      "Member",
+      "Moderator",
+      "Monitor",
+      "Upazila Coordinator",
+      "Upazila Co-coordinator",
+      "Upazila IT & Media Coordinator",
+      "Upazila Logistics Coordinator",
+    ],
+    "Upazila Coordinator": ["user", "Technician", "Member", "Moderator", "Monitor"],
+    "Upazila Co-coordinator": ["user", "Technician", "Member", "Moderator", "Monitor"],
+    "Upazila IT & Media Coordinator": ["user", "Technician", "Member", "Moderator", "Monitor"],
+    "Upazila Logistics Coordinator": ["user", "Technician", "Member", "Moderator", "Monitor"],
+    Monitor: ["user", "Technician", "Member", "Moderator"],
+    Moderator: ["user", "Technician", "Member"],
+    Technician: ["user"],
+    user: ["user"],
+  };
+
+  const roleLevels = {
+    "user": 0,
+    "Technician": 1,
+    "Member": 2,
+    "Moderator": 3,
+    "Monitor": 4,
+    "Upazila Coordinator": 5,
+    "Upazila Co-coordinator": 6,
+    "Upazila IT & Media Coordinator": 7,
+    "Upazila Logistics Coordinator": 8,
+    "District Coordinator": 9,
+    "District Co-coordinator": 10,
+    "District IT & Media Coordinator": 11,
+    "District Logistics Coordinator": 12,
+    "Divisional Coordinator": 13,
+    "Divisional Co-coordinator": 14,
+    "Head of IT & Media": 15,
+    "Head of Logistics": 16,
+    "Admin": 17
+  };
+  
+
+  
+
+
+
   // Form state
-  const [activeSection, setActiveSection] = useState("personalInformation");
   const [formData, setFormData] = useState({
     // Personal Information
     name: "",
@@ -430,20 +560,22 @@ const CRUDProfilePage = () => {
         {/*Profile and Name Card*/}
         <div className="grid grid-col gap-6 justify-center p-4">
           <img
-            src={imageUrl + userData.data.profileImage}
+            src={imageUrl + userData?.data.profileImage}
             alt="Profile preview"
             className="h-40 w-40 rounded-full object-cover object-center shadow-inner"
           />
-          <h1 className="text-xl text-center font-semibold text-gray-800 dark:text-white">
-            {userData?.data?.name ? `${userData.data.name}` : "User Profile"}
-            {displayUserData.isVerified && (
-                  <span className="text-primary ml-1 inline-block">
+          <div className="flex items-center justify-center">
+                <h3 className="text-md font-semibold text-gray-900 dark:text-white flex items-center">
+                  {userData?.data?.name}
+                  {userData?.data?.isVerified && (
+                    <span className="text-primary ml-1 inline-block">
                     <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
                   </span>
-                )}
-          </h1>
+                  )}
+                </h3>
+              </div>
         </div>
         {/* Form sections */}
         <div>
@@ -786,7 +918,7 @@ const CRUDProfilePage = () => {
                     <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
                       Father's Phone
                     </label>
-                    <p className="w-full px-4 py-2.5 rounded-lg transition-all bg-gray-100 dark:bg-gray-700 dark:text-white">
+                    <p className={`w-full px-4 ${displayUserData.fatherPhoneNumber? 'py-2.5': 'py-5.5'} rounded-lg transition-all bg-gray-100 dark:bg-gray-700 dark:text-white`}>
                       {displayUserData.fatherPhoneNumber}
                     </p>
                   </div>
@@ -804,7 +936,7 @@ const CRUDProfilePage = () => {
                     <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
                       Mother's Phone
                     </label>
-                    <p className="w-full px-4 py-2.5 rounded-lg transition-all bg-gray-100 dark:bg-gray-700 dark:text-white">
+                    <p className={`w-full px-4 ${displayUserData.motherPhoneNumber? 'py-2.5': 'py-5.5'} rounded-lg transition-all bg-gray-100 dark:bg-gray-700 dark:text-white`}>
                       {displayUserData.motherPhoneNumber}
                     </p>
                   </div>
@@ -1106,6 +1238,7 @@ const CRUDProfilePage = () => {
             </div>
 
             {/* Role and Access Control Section */}
+            {roleLevels[editorRole] > roleLevels[formData.role] && (
             <div className="bg-white dark:bg-gray-800 rounded-lg mt-6">
             {isRoleAndAccessControlEditMode ? (
               <div>
@@ -1132,91 +1265,17 @@ const CRUDProfilePage = () => {
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 shadow-lg bg-white dark:bg-gray-800 rounded-b-lg">
-                  <div className="form-group">
-                    <CustomSelect
-                      options={
-                        editorRole === "Admin"
-                          ? [
-                              "user",
-                              "Technician",
-                              "Member",
-                              "Moderator",
-                              "Monitor",
-                              "Upazila Coordinator",
-                              "Upazila Co-coordinator",
-                              "Upazila IT & Media Coordinator",
-                              "Upazila Logistics Coordinator",
-                              "District Coordinator",
-                              "District Co-coordinator",
-                              "District IT & Media Coordinator",
-                              "District Logistics Coordinator",
-                              "Divisional Coordinator",
-                              "Divisional Co-coordinator",
-                              "Head of IT & Media",
-                              "Head of Logistics",
-                              "Admin",
-                            ]
-                          : ["user"] ||
-                            editorRole === "Divisional Coordinator" ||
-                            editorRole === "Divisional Co-coordinator"
-                          ? [
-                              "user",
-                              "Technician",
-                              "Member",
-                              "Moderator",
-                              "Monitor",
-                              "Upazila Coordinator",
-                              "Upazila Co-coordinator",
-                              "Upazila IT & Media Coordinator",
-                              "Upazila Logistics Coordinator, District Coordinator",
-                              "District Co-coordinator",
-                              "District IT & Media Coordinator",
-                              "District Logistics Coordinator",
-                            ]
-                          : ["user"] ||
-                            editorRole === "District Coordinator" ||
-                            editorRole === "District Co-coordinator" ||
-                            editorRole === '"District IT & Media Coordinator' ||
-                            editorRole === "District Logistics Coordinator"
-                          ? [
-                              "user",
-                              "Technician",
-                              "Member",
-                              "Moderator",
-                              "Monitor",
-                              "Upazila Coordinator",
-                              "Upazila Co-coordinator",
-                              "Upazila IT & Media Coordinator",
-                              "Upazila Logistics Coordinator",
-                            ]
-                          : ["user"] ||
-                            editorRole === "Upazila Coordinator" ||
-                            editorRole === "Upazila Co-coordinator" ||
-                            editorRole === "Upazila IT & Media Coordinator" ||
-                            editorRole === "Upazila Logistics Coordinator"
-                          ? [
-                              "user",
-                              "Technician",
-                              "Member",
-                              "Moderator",
-                              "Monitor",
-                            ]
-                          : ["user"] || editorRole === "Monitor"
-                          ? ["user", "Technician", "Member", "Moderator"]
-                          : ["user"] || editorRole === "Moderator"
-                          ? ["user", "Technician", "Member"]
-                          : ["user"] || editorRole === "Technician"
-                          ? ["user"]
-                          : ["user"]
-                      }
-                      selected={formData.role}
-                      setSelected={(value) =>
-                        setFormData((prev) => ({ ...prev, role: value }))
-                      }
-                      label="Role"
-                      placeholder="Select Role"
-                    />
-                  </div>
+                      <div className="form-group">
+                        <CustomSelect
+                          options={roleHierarchy[editorRole] || ["user"]}
+                          selected={formData.role}
+                          setSelected={(value) =>
+                            setFormData((prev) => ({ ...prev, role: value }))
+                          }
+                          label="Role"
+                          placeholder="Select Role"
+                        />
+                      </div>
 
                   <div className="form-group">
                     <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -1350,6 +1409,7 @@ const CRUDProfilePage = () => {
               </div>
             )}
             </div>
+            )}
 
             {/* Media Section */}
             <div className="bg-white dark:bg-gray-800 rounded-lg mt-6">
@@ -1606,9 +1666,9 @@ const CRUDProfilePage = () => {
                 </h1>
               </div>
               <div className="shadow-lg bg-white dark:bg-gray-800 rounded-b-lg">
-                <div className="form-group p-4 pb-8 md:grid md:justify-center">
+              {reference && typeof reference === 'object' && (
+                <div className="form-group p-4 pb-8 md:grid md:justify-center border-b border-gray-300 dark:border-gray-600 rounded-lg">
                   <h2 className="text-center text-md font-semibold text-gray-700 dark:text-gray-300 mb-4">Reference Details</h2>
-                  {reference && typeof reference === 'object' && (
                     <ProfileCard
                       id={reference._id}
                       imageUrl={reference.profileImage}
@@ -1621,13 +1681,13 @@ const CRUDProfilePage = () => {
                       lastDonate={reference.lastDonate}
                       nextDonationDate={reference.nextDonationDate}
                     />
-                  )}
                 </div>
+                  )}
                 
 
                 {updateBy &&
                 (
-                  <div className="form-group mt-6 p-4 pb-8 md:grid md:justify-center border-t border-gray-300 dark:border-gray-600">
+                  <div className="form-group mt-6 p-4 pb-8 md:grid md:justify-center">
                     <h2 className="text-center text-md font-semibold text-gray-700 dark:text-gray-300 mb-4">Updated By</h2>
                     {updateBy && typeof updateBy === 'object' && (
                       <ProfileCard

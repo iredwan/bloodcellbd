@@ -5,7 +5,8 @@ import {
   useGetAllUsersForAdminQuery, 
   useDeleteUserMutation
 } from '@/features/users/userApiSlice';
-import { FaUser, FaUserPlus, FaSearch, FaTrash, FaEye } from 'react-icons/fa';
+import { useGetUserInfoQuery } from "@/features/userInfo/userInfoApiSlice";
+import { FaUser, FaUserPlus, FaSearch, FaTrash, FaEye, FaBell } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import Pagination from '@/components/Pagination';
 import CustomSelect from '@/components/CustomSelect';
@@ -18,7 +19,12 @@ export default function UsersManagementPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [bloodGroupFilter, setBloodGroupFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [currentPage, setCurrentPage] = useState(0); // Changed to 0-indexed for ReactPaginate
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pendingUsersCount, setPendingUsersCount] = useState(0);
+  const [lastPendingCount, setLastPendingCount] = useState(0);
+
+  const { data: userInfoData, isLoading: isLoadingUserInfo } = useGetUserInfoQuery();
+  const editorRole = userInfoData?.user.role || "";
   
   const router = useRouter();
 
@@ -35,6 +41,21 @@ export default function UsersManagementPage() {
     }
     return [];
   }, [usersData]);
+
+  // Track pending users and show notification when new ones are detected
+  useEffect(() => {
+    if (users.length > 0) {
+      const pendingCount = users.filter(user => !user.isApproved && !user.isBanned).length;
+      setPendingUsersCount(pendingCount);
+
+      // Show notification if there are new pending users
+      if (lastPendingCount > 0 && pendingCount > lastPendingCount) {
+        const newPendingCount = pendingCount - lastPendingCount;
+        toast.info(`${newPendingCount} new user${newPendingCount > 1 ? 's' : ''} pending approval`);
+      }
+      setLastPendingCount(pendingCount);
+    }
+  }, [users]);
 
   // Reset pagination when filters change
   useEffect(() => {
@@ -110,7 +131,7 @@ export default function UsersManagementPage() {
 
   // Handle view user - navigate to Profile page
   const handleViewUser = (user) => {
-    router.push(`/dashboard/profile?id=${user._id}`);
+    router.push(`/dashboard/users/details?id=${user._id}`);
   };
 
   // User status badge component
@@ -136,7 +157,17 @@ export default function UsersManagementPage() {
   return (
     <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
       <div className="flex flex-col md:flex-row justify-between items-center mb-4 sm:mb-6 gap-3">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white text-center md:text-left">User Management</h1>
+        <div className="flex items-center gap-4">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white text-center md:text-left">User Management</h1>
+          {pendingUsersCount > 0 && (
+            <div className="flex items-center" title={`${pendingUsersCount} pending approval`}>
+              <FaBell className="text-yellow-500" />
+              <span className="ml-1.5 bg-yellow-500 text-white text-xs font-medium px-2.5 py-0.5 rounded-full">
+                {pendingUsersCount}
+              </span>
+            </div>
+          )}
+        </div>
         
         <button
           onClick={() => router.push('/dashboard/add-new-user')}
@@ -165,7 +196,7 @@ export default function UsersManagementPage() {
           
           <div className="flex flex-col">
             <CustomSelect
-              options={['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']}
+              options={['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']}
               selected={bloodGroupFilter}
               setSelected={setBloodGroupFilter}
               label="Blood Group"
@@ -175,7 +206,7 @@ export default function UsersManagementPage() {
           
           <div className="flex flex-col">
             <CustomSelect
-              options={['', 'approved', 'pending', 'banned']}
+              options={['approved', 'pending', 'banned']}
               selected={statusFilter}
               setSelected={setStatusFilter}
               label="Status"
@@ -260,13 +291,15 @@ export default function UsersManagementPage() {
                           >
                             <FaEye className="text-sm sm:text-base" />
                           </button>
-                          <button
-                            onClick={() => handleDeleteUser(user._id, user.name)}
-                            className="text-red-500 hover:text-red-700 transition-colors p-1"
-                            title="Delete User"
-                          >
-                            <FaTrash className="text-sm sm:text-base" />
-                          </button>
+                          {(editorRole === 'Admin' || editorRole === 'District Coordinator') && (
+                            <button
+                              onClick={() => handleDeleteUser(user._id, user.name)}
+                              className="text-red-500 hover:text-red-700 transition-colors p-1"
+                              title="Delete User"
+                            >
+                              <FaTrash className="text-sm sm:text-base" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

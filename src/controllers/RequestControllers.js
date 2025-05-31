@@ -4,11 +4,12 @@ import {
   GetRequestByIdService, 
   UpdateRequestService, 
   DeleteRequestService, 
-  GetPendingRequestsService, 
   GetFulfilledRequestsService, 
   GetUserRequestsService, 
   GetRequestsByBloodGroupService, 
-  FulfillRequestService
+  FulfillRequestService,
+  GetAllRequestsForAdminService,
+  UpdateRequestToProcessingService
 } from "../service/RequestService.js";
 
 // Create Blood Request
@@ -24,10 +25,20 @@ export const CreateRequest = async (req, res) => {
 // Get All Blood Requests
 export const GetAllRequests = async (req, res) => {
   try {
-    const result = await GetAllRequestsService();
+    const result = await GetAllRequestsService(req);
     return res.status(200).json(result);
   } catch (error) {
     return res.status(500).json({ status: false, message: "Error retrieving blood requests", error: error.message });
+  }
+};
+
+// Get All Blood Requests for Admin
+export const GetAllRequestsForAdmin = async (req, res) => {
+  try {
+    const result = await GetAllRequestsForAdminService(req);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({ status: false, message: "Error retrieving all blood requests for admin", error: error.message });
   }
 };
 
@@ -61,15 +72,6 @@ export const DeleteRequest = async (req, res) => {
   }
 };
 
-// Get Pending Blood Requests
-export const GetPendingRequests = async (req, res) => {
-  try {
-    const result = await GetPendingRequestsService();
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(500).json({ status: false, message: "Error retrieving pending blood requests", error: error.message });
-  }
-};
 
 // Get Fulfilled Blood Requests
 export const GetFulfilledRequests = async (req, res) => {
@@ -101,10 +103,20 @@ export const GetRequestsByBloodGroup = async (req, res) => {
   }
 };
 
+// Processing Blood Request
+export const ProcessRequest = async (req, res) => {
+  try {
+    const result = await UpdateRequestToProcessingService(req);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({ status: false, message: "Error processing blood request", error: error.message });
+  }
+};
+
 // Fulfill Blood Request
 export const FulfillRequest = async (req, res) => {
   try {
-    const result = await FulfillRequestService(req);
+    const result = await FulfillRequestService(req, res);
     return res.status(200).json(result);
   } catch (error) {
     return res.status(500).json({ status: false, message: "Error fulfilling blood request", error: error.message });

@@ -54,7 +54,7 @@ const Navbar = () => {
       const result = await logoutUser().unwrap();
       dispatch(clearUserInfo());
       toast.success(result?.message || "Logout successful");
-      setTimeout(() => window.location.href = "/", 1500);
+      window.location.href = "/";
     } catch (error) {
       toast.error("Logout failed. Please try again.");
     }

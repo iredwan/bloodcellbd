@@ -6,7 +6,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, 
   ResponsiveContainer, Cell 
 } from 'recharts';
-import { useGetAllRequestsQuery } from '@/features/requests/requestApiSlice';
+import { useGetAllRequestsForAdminQuery } from '@/features/requests/requestApiSlice';
 import { useGetAllUsersForAdminQuery } from '@/features/users/userApiSlice';
 import { IoMdPerson, IoMdWater } from 'react-icons/io';
 import AdminDashboardSkeleton from '@/components/dashboard-components/dashboardSkeletons/AdminDashboardSkeleton';
@@ -50,7 +50,11 @@ export default function AdminDashboard() {
     data: requestsData, 
     isLoading: requestsLoading, 
     error: requestsError 
-  } = useGetAllRequestsQuery();
+  } = useGetAllRequestsForAdminQuery();
+
+  const totalRequestsLength = requestsData?.data?.length;
+
+  console.log('Total Requests Length:', totalRequestsLength);
   
   const { 
     data: usersData, 
@@ -446,7 +450,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard 
           title="Total Requests" 
-          value={stats.totalRequests} 
+          value={totalRequestsLength} 
           icon={<IoMdWater className="text-blue-500" />} 
         />
         <StatCard 

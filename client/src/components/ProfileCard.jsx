@@ -70,7 +70,7 @@ export default function ProfileCard({
             )}
             {nextDonationDate && (
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Next Eligible After: {nextDonationDate}
+                Eligible After: {nextDonationDate}
               </p>
             )}
           </div>

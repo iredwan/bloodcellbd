@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const RequestSchema = new mongoose.Schema({
+  requestId: { type: String, required: true, unique: true },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   bloodGroup: { type: String, required: true },
   bloodUnit: { type: Number, required: true },
@@ -10,7 +11,8 @@ const RequestSchema = new mongoose.Schema({
   contactNumber: { type: String, required: true },
   contactRelation: { type: String, required: true },
   description: { type: String},
-  status: { type: String, enum: ['pending', 'fulfilled'], default: 'pending' },
+  status: { type: String, enum: ['pending', 'fulfilled', 'processing'], default: 'pending' },
+  processingBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   fulfilledBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 },

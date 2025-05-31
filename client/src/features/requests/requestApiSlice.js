@@ -5,19 +5,31 @@ import { apiSlice } from '../api/apiSlice';
 export const requestApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getAllRequests: builder.query({
-      query: () => 'requests/all',
+      query: (reqBody) => ({
+        url: 'requests/all',
+        method: 'GET',
+        params: reqBody,
+      }),
+      providesTags: ['Request'],
+    }),
+    getAllRequestsForAdmin: builder.query({
+      query: () => 'requests/all-requests-admin',
       providesTags: ['Request'],
     }),
     getRequestById: builder.query({
       query: (id) => `requests/${id}`,
       providesTags: ['Request'],
     }),
-    getRequestsByBloodGroup: builder.query({
-      query: (bloodGroup) => `requests/bloodgroup/${bloodGroup}`,
+    getFulfilledRequests: builder.query({
+      query: () => 'requests/fulfilled',
       providesTags: ['Request'],
     }),
     getUserRequests: builder.query({
       query: () => 'requests/user/requests',
+      providesTags: ['Request'],
+    }),
+    getRequestsByBloodGroup: builder.query({
+      query: (bloodGroup) => `requests/bloodgroup/${bloodGroup}`,
       providesTags: ['Request'],
     }),
     createRequest: builder.mutation({
@@ -36,11 +48,17 @@ export const requestApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Request'],
     }),
+    processRequest: builder.mutation({
+      query: (id) => ({
+        url: `requests/processing-by/${id}`,
+        method: 'PATCH',
+      }),
+      invalidatesTags: ['Request'],
+    }),
     fulfillRequest: builder.mutation({
       query: (id) => ({
         url: `requests/fulfill-by/${id}`,
         method: 'PATCH',
-        body: {},
       }),
       invalidatesTags: ['Request'],
     }),
@@ -56,11 +74,14 @@ export const requestApiSlice = apiSlice.injectEndpoints({
 
 export const {
   useGetAllRequestsQuery,
+  useGetAllRequestsForAdminQuery,
   useGetRequestByIdQuery,
-  useGetRequestsByBloodGroupQuery,
+  useGetFulfilledRequestsQuery,
   useGetUserRequestsQuery,
+  useGetRequestsByBloodGroupQuery,
   useCreateRequestMutation,
   useUpdateRequestMutation,
+  useProcessRequestMutation,
   useFulfillRequestMutation,
   useDeleteRequestMutation,
-} = requestApiSlice; 
+} = requestApiSlice;
