@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import { FiMenu, FiChevronLeft, FiChevronRight, FiSettings, FiX } from 'react-icons/fi';
 import {
   MdDashboardCustomize,
@@ -25,13 +26,23 @@ import { BiDonateBlood } from 'react-icons/bi';
 import { BsCalendar2Event } from 'react-icons/bs';
 import { selectUserInfo } from '@/features/userInfo/userInfoSlice';
 import { useSidebar } from '@/context/SidebarContext';
+import SidebarSkeleton from './dashboardSkeletons/SidebarSkeleton';
 
 export default function Sidebar() {
   const pathname = usePathname();
   const { isOpen, isMobile, toggleSidebar } = useSidebar();
   const user = useSelector(selectUserInfo);
   const userRole = user?.role.toLowerCase();
+  const [isLoading, setIsLoading] = useState(true);
 
+  useEffect(() => {
+    // Simulate loading delay
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const allowedRoles = ["Technician", "Member", "Moderator", "Monitor"];
 
@@ -237,62 +248,64 @@ export default function Sidebar() {
             )}
           </div>
 
-          {/* Navigation */}
-          <nav className="space-y-6 flex-1 overflow-y-auto">
-            {sidebarItems.map((section, idx) => {
-              // Filter items based on user role first
-              const filteredItems = section.items.filter(item => 
-                item.roles.includes(user?.role)
-              );
+          {/* Navigation with Loading State */}
+          {isLoading ? (
+            <SidebarSkeleton isMobile={isMobile} />
+          ) : (
+            <nav className="space-y-6 flex-1 overflow-y-auto">
+              {sidebarItems.map((section, idx) => {
+                const filteredItems = section.items.filter(item => 
+                  item.roles.includes(user?.role)
+                );
 
-              // Only render section if it has items for this user's role
-              if (filteredItems.length === 0) return null;
+                if (filteredItems.length === 0) return null;
 
-              return (
-                <div
-                  className='border-b border-gray-200 dark:border-gray-700 pb-2'
-                  key={idx}
-                >
-                  {isOpen && (
-                    <h3 className="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 mb-2 px-3 transition-opacity duration-200">
-                      {section.section}
-                    </h3>
-                  )}
-                  <ul className="space-y-1">
-                    {filteredItems.map((item, i) => (
-                      <li key={i}>
-                        <Link
-                          href={item.href}
-                          onClick={handleMenuItemClick}
-                          className={`
-                            flex items-center ${isOpen ? 'gap-3' : 'justify-center'} px-3 py-2 rounded-lg
-                            text-sm font-medium group
-                            transition-all duration-200 ease-in-out
-                            ${pathname === item.href
-                              ? 'bg-primary text-white'
-                              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                            }
-                          `}
-                        >
-                          <span className={`
-                            text-lg transition-transform duration-300 ease-in-out
-                            ${!isOpen ? 'transform group-hover:scale-110' : 'group-hover:translate-x-1'}
-                          `}>
-                            {item.icon}
-                          </span>
-                          {isOpen && (
-                            <span className="transition-opacity duration-200 group-hover:translate-x-1">
-                              {item.label}
+                return (
+                  <div
+                    className='border-b border-gray-200 dark:border-gray-700 pb-2'
+                    key={idx}
+                  >
+                    {isOpen && (
+                      <h3 className="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 mb-2 px-3 transition-opacity duration-200">
+                        {section.section}
+                      </h3>
+                    )}
+                    <ul className="space-y-1">
+                      {filteredItems.map((item, i) => (
+                        <li key={i}>
+                          <Link
+                            href={item.href}
+                            onClick={handleMenuItemClick}
+                            className={`
+                              flex items-center ${isOpen ? 'gap-3' : 'justify-center'} px-3 py-2 rounded-lg
+                              text-sm font-medium group
+                              transition-all duration-200 ease-in-out
+                              ${pathname === item.href
+                                ? 'bg-primary text-white'
+                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                              }
+                            `}
+                          >
+                            <span className={`
+                              text-lg transition-transform duration-300 ease-in-out
+                              ${!isOpen ? 'transform group-hover:scale-110' : 'group-hover:translate-x-1'}
+                            `}>
+                              {item.icon}
                             </span>
-                          )}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              );
-            })}
-          </nav>
+                            {isOpen && (
+                              <span className="transition-opacity duration-200 group-hover:translate-x-1">
+                                {item.label}
+                              </span>
+                            )}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })}
+            </nav>
+          )}
         </div>
       </aside>
 
