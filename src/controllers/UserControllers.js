@@ -1,4 +1,4 @@
-import { UserRegisterService, UserLoginService, UserLogoutService, GetUserByIdService, UpdateUserByIdSelfService, UpdateUserByIdRefService, GetAllUserService, EligibleUserService, DeleteUserService, GetUserByBloodGroupService, GetUserByUpazilaService, GetPendingUserService, GetApprovedUserService, GetBannedUserService, GetUserByDistrictService, GetUserByNameService, GetUserByNIDOrBirthRegistrationService, UserRegisterWithRefService, GetAllUserForAdminService, GetUserByUserIdService } from "../service/UserService.js";
+import { UserRegisterService, UserLoginService, UserLogoutService, GetUserByIdService, UpdateUserByIdSelfService, UpdateUserByIdRefService, GetAllUserService, EligibleUserService, DeleteUserService, GetUserByBloodGroupService, GetUserByUpazilaService, GetPendingUserService, GetApprovedUserService, GetBannedUserService, GetUserByDistrictService, GetUserByNameService, GetUserByNIDOrBirthRegistrationService, UserRegisterWithRefService, GetUserByUserIdService, GetAdminDashboardStatisticsService } from "../service/UserService.js";
 
 // Profile Register
 export const ProfileRegister = async (req, res) => {
@@ -96,7 +96,7 @@ export const GetUserByUserId = async (req, res) => {
 // Get All User For Admin
 export const GetAllUserForAdmin = async (req, res) => {
   try {
-    const result = await GetAllUserForAdminService(); 
+    const result = await GetAdminDashboardStatisticsService(req, res); 
     return res.status(200).json(result);
   } catch (error) {
     return res.status(500).json({ error: error.message });

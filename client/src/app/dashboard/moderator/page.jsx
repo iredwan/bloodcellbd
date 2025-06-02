@@ -1,7 +1,7 @@
 "use client";
 import DashboardContent from '@/components/dashboard-components/AdminStats/DashboardContent';
 
-const AdminDashboard = () => {
+const ModeratorDashboard = () => {
 
   return (
 
@@ -11,4 +11,4 @@ const AdminDashboard = () => {
 };
 
 
-export default AdminDashboard;
+export default ModeratorDashboard;

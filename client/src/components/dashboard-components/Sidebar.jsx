@@ -30,7 +30,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { isOpen, isMobile, toggleSidebar } = useSidebar();
   const user = useSelector(selectUserInfo);
-  const userRole = user?.role;
+  const userRole = user?.role.toLowerCase();
 
 
   const allowedRoles = ["Technician", "Member", "Moderator", "Monitor"];
@@ -42,13 +42,6 @@ export default function Sidebar() {
   const divisionalCoordinators = ["Divisional Coordinator", "Divisional Co-coordinator"];
 
   const admin = ["Head of IT & Media", "Head of Logistics", "Admin"];
-
-  const isAllowed = allowedRoles.includes(userRole);
-  const isUpazilaCoordinator = upazilaCoordinators.includes(userRole);
-  const isDistrictCoordinator = districtCoordinators.includes(userRole);
-  const isDivisionalCoordinator = divisionalCoordinators.includes(userRole);
-  const isAdmin = admin.includes(userRole);
-
   // Handle menu item click
   const handleMenuItemClick = () => {
     toggleSidebar();

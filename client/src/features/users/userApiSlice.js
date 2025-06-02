@@ -76,7 +76,11 @@ export const userApiSlice = apiSlice.injectEndpoints({
       providesTags: ['User'],
     }),
     getAllUsersForAdmin: builder.query({
-      query: () => 'users/all-for-admin',
+      query: (queryParams) => ({
+        url: 'users/all-for-admin',
+        method: 'GET',
+        params: queryParams,
+      }),
       providesTags: ['User'],
     }),
     deleteUser: builder.mutation({

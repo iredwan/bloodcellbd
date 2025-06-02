@@ -469,16 +469,33 @@ export const GetUserByUserIdService = async (req) => {
 
 // ----------------- Data For Dashboard ------------------------
 
-export const GetAllUserForAdminService = async (req) => {
+export const GetAdminDashboardStatisticsService = async (req) => {
   try {
-    const { fromDate, toDate, groupBy = "none" } = req.query;
+    const { 
+      fromDate= '', 
+      toDate= '', 
+      groupBy = "none", 
+      district= '', 
+      upazila= '' 
+    } = req.query;
 
     const from = fromDate ? new Date(fromDate) : new Date();
     const to = toDate ? new Date(toDate) : new Date();
 
+    // Build location filter based on query parameters
+    const locationFilter = {};
+    if (district) locationFilter.district = district;
+    if (upazila) locationFilter.upazila = upazila;
+
     const dateFilter = {
       $gte: groupBy === "month" ? startOfMonth(from) : startOfDay(from),
       $lte: groupBy === "month" ? endOfMonth(to) : endOfDay(to),
+    };
+
+    // Combine date and location filters
+    const baseFilter = { 
+      ...locationFilter, 
+      createdAt: dateFilter 
     };
 
     // Summary Stats
@@ -487,26 +504,31 @@ export const GetAllUserForAdminService = async (req) => {
       totalRequests,
       totalFulfilled,
       totalPending,
+      totalProcessing,
+      totalCancelled,
       maleUsers,
       femaleUsers,
       otherUsers,
       bloodGroupCounts,
-      religionCounts,
+      religionCounts, 
     ] = await Promise.all([
-      UserModel.countDocuments({ createdAt: dateFilter }),
-      RequestModel.countDocuments({ createdAt: dateFilter }),
-      RequestModel.countDocuments({ status: "fulfilled", createdAt: dateFilter }),
-      RequestModel.countDocuments({ status: "pending", createdAt: dateFilter }),
+      UserModel.countDocuments(baseFilter),
+      RequestModel.countDocuments(baseFilter),
+      RequestModel.countDocuments({ ...baseFilter, status: "fulfilled" }),
+      RequestModel.countDocuments({ ...baseFilter, status: "pending" }),
+      RequestModel.countDocuments({ ...baseFilter, status: "processing" }),
+      RequestModel.countDocuments({ ...baseFilter, status: "cancelled" }),
+      
 
-      UserModel.countDocuments({ gender: "Male", createdAt: dateFilter }),
-      UserModel.countDocuments({ gender: "Female", createdAt: dateFilter }),
+      UserModel.countDocuments({ ...baseFilter, gender: "Male" }),
+      UserModel.countDocuments({ ...baseFilter, gender: "Female" }),
       UserModel.countDocuments({
+        ...baseFilter,
         gender: { $nin: ["Male", "Female"] },
-        createdAt: dateFilter,
       }),
 
       UserModel.aggregate([
-        { $match: { createdAt: dateFilter } },
+        { $match: baseFilter },
         {
           $group: {
             _id: "$bloodGroup",
@@ -516,12 +538,12 @@ export const GetAllUserForAdminService = async (req) => {
       ]),
 
       {
-        Islam: await UserModel.countDocuments({ religion: "Islam", createdAt: dateFilter }),
-        Hinduism: await UserModel.countDocuments({ religion: "Hinduism", createdAt: dateFilter }),
-        Christianity: await UserModel.countDocuments({ religion: "Christianity", createdAt: dateFilter }),
+        Islam: await UserModel.countDocuments({ ...baseFilter, religion: "Islam" }),
+        Hinduism: await UserModel.countDocuments({ ...baseFilter, religion: "Hinduism" }),
+        Christianity: await UserModel.countDocuments({ ...baseFilter, religion: "Christianity" }),
         Others: await UserModel.countDocuments({
+          ...baseFilter,
           religion: { $nin: ["Islam", "Hinduism", "Christianity"] },
-          createdAt: dateFilter,
         }),
       },
     ]);
@@ -541,8 +563,9 @@ export const GetAllUserForAdminService = async (req) => {
             month: { $month: "$createdAt" },
           };
 
+      // User aggregation with location filter
       const userStats = await UserModel.aggregate([
-        { $match: { createdAt: dateFilter } },
+        { $match: baseFilter },
         {
           $group: {
             _id: dateField,
@@ -551,8 +574,9 @@ export const GetAllUserForAdminService = async (req) => {
         },
       ]);
 
+      // Request aggregation with location filter
       const requestStats = await RequestModel.aggregate([
-        { $match: { createdAt: dateFilter } },
+        { $match: baseFilter },
         {
           $group: {
             _id: {
@@ -576,6 +600,8 @@ export const GetAllUserForAdminService = async (req) => {
           totalRequests: 0,
           fulfilledRequests: 0,
           pendingRequests: 0,
+          processingRequests: 0,
+          cancelledRequests: 0,
         };
       });
 
@@ -593,6 +619,8 @@ export const GetAllUserForAdminService = async (req) => {
             totalRequests: 0,
             fulfilledRequests: 0,
             pendingRequests: 0,
+            processingRequests: 0,
+            cancelledRequests: 0,
           };
         }
         
@@ -601,6 +629,10 @@ export const GetAllUserForAdminService = async (req) => {
           statMap[key].fulfilledRequests += entry.count;
         } else if (entry._id.status === "pending") {
           statMap[key].pendingRequests += entry.count;
+        } else if (entry._id.status === "processing") {
+          statMap[key].processingRequests += entry.count;
+        } else if (entry._id.status === "cancelled") {
+          statMap[key].cancelledRequests += entry.count;
         }
       });
 
@@ -627,6 +659,8 @@ export const GetAllUserForAdminService = async (req) => {
           totalRequests,
           fulfilledRequests: totalFulfilled,
           pendingRequests: totalPending,
+          processingRequests: totalProcessing,
+          cancelledRequests: totalCancelled,
         },
         genderStats: {
           male: maleUsers,
