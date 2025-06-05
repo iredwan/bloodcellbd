@@ -55,12 +55,20 @@ export const requestApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Request'],
     }),
+    GetProcessingRequests: builder.query({
+      query: () => 'requests/get-processing-requests',
+      providesTags: ['Request'],
+    }),
     fulfillRequest: builder.mutation({
       query: (id) => ({
         url: `requests/fulfill-by/${id}`,
         method: 'PATCH',
       }),
       invalidatesTags: ['Request'],
+    }),
+    getUserDonateHistory: builder.query({
+      query: () => 'requests/get-user-donate-history',
+      providesTags: ['Request'],
     }),
     deleteRequest: builder.mutation({
       query: (id) => ({
@@ -77,8 +85,10 @@ export const {
   useGetAllRequestsForAdminQuery,
   useGetRequestByIdQuery,
   useGetFulfilledRequestsQuery,
+  useGetUserDonateHistoryQuery,
   useGetUserRequestsQuery,
   useGetRequestsByBloodGroupQuery,
+  useGetProcessingRequestsQuery,
   useCreateRequestMutation,
   useUpdateRequestMutation,
   useProcessRequestMutation,

@@ -122,9 +122,6 @@ export default function UsersManagementPage() {
       }
     : null;
 
-  // Debug: log queryParams
-  console.log("User Query Params:", queryParams);
-
   // Call API only if shouldFetch is true
   const {
     data: usersData = {},
@@ -333,9 +330,9 @@ export default function UsersManagementPage() {
                 placeholder="Search with name, email, phone, NID, or birth registration number"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                className="w-full px-4 py-2.5 pl-10 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
               />
-              <FaSearch className="absolute left-3 top-3 text-gray-400" />
+              <FaSearch className="absolute left-3 top-4 text-gray-400" />
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400 pt-2">
               Total Filter {totalFilteredUsers}{" "}

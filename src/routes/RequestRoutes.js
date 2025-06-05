@@ -11,6 +11,8 @@ import {
   ProcessRequest,
   FulfillRequest,
   GetAllRequestsForAdmin,
+  GetProcessingRequest,
+  GetRequestsFulfilledBy,
 } from '../controllers/RequestControllers.js';
 import { protect, restrictTo } from '../middleware/auth.js';
 
@@ -21,6 +23,9 @@ router.get('/all', GetAllRequests);
 router.get('/get-fulfilled', GetFulfilledRequests);
 router.get('/bloodgroup/:bloodGroup', GetRequestsByBloodGroup);
 router.get('/all-requests-admin',protect, restrictTo('Admin','Divisional Coordinator'),GetAllRequestsForAdmin);
+router.get('/get-processing-requests',protect, GetProcessingRequest);
+router.get('/get-user-donate-history',protect, GetRequestsFulfilledBy);
+
 
 
 // Protected routes (requires authentication)

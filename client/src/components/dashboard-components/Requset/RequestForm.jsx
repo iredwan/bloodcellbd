@@ -79,31 +79,39 @@ const RequestForm = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label
+          for="bloodUnit"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Blood Units
           </label>
           <input
             type="number"
             name="bloodUnit"
+            id="bloodUnit"
             value={formData.bloodUnit}
             onChange={handleChange}
             min="1"
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="w-full px-4 py-2.5 pr-10 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 
+            [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
         </div>
 
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label 
+          for="hospitalName"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Hospital Name
           </label>
           <input
             type="text"
             name="hospitalName"
+            id="hospitalName"
+            placeholder="Hospital Name"
             value={formData.hospitalName}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="w-full px-4 py-2.5 pr-10 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
           />
         </div>
 
@@ -117,16 +125,20 @@ const RequestForm = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label 
+          for="contactNumber"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Contact Number
           </label>
           <input
             type="tel"
             name="contactNumber"
+            id="contactNumber"
+            placeholder="Contact Number"
             value={formData.contactNumber}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="w-full px-4 py-2.5 pr-10 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
           />
         </div>
 
@@ -170,15 +182,19 @@ const RequestForm = ({
         </div>
 
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label 
+          for="description"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Description
           </label>
           <textarea
             name="description"
+            id="description"
+            placeholder="Description"
             value={formData.description}
             onChange={handleChange}
             rows="3"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="w-full px-4 py-2.5 pr-10 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
           ></textarea>
         </div>
       </div>
@@ -194,7 +210,7 @@ const RequestForm = ({
         <button
           type="submit"
           disabled={isLoading}
-          className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark disabled:opacity-70"
+          className="button"
         >
           {initialData ? 'Update Request' : 'Create Request'}
         </button>

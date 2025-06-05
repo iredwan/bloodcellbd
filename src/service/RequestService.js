@@ -33,7 +33,7 @@ export const CreateRequestService = async (req) => {
     return {
       status: true,
       message: "Blood request created successfully.",
-      data: newRequest,
+      data: { _id: newRequest._id },
     };
   } catch (e) {
     return {
@@ -435,11 +435,11 @@ export const GetRequestsByProcessingByService = async (req) => {
     if (!processingBy || !ObjectId.isValid(processingBy)) {
       return { status: false, message: "Invalid processingBy ID." };
     }
-    const requests = await RequestModel.find({ processingBy: processingBy })
-      .populate("userId", "name email phone")
-      .populate("processingBy", "name email phone");
+    const processingRequestsData = await RequestModel.find({ processingBy: processingBy })
+      .populate("userId", "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage")
+      .populate("processingBy", "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage");
 
-    if (!requests || requests.length === 0) {
+    if (!processingRequestsData || processingRequestsData.length === 0) {
       return {
         status: false,
         message: "No blood requests found being processed by this user.",
@@ -448,7 +448,7 @@ export const GetRequestsByProcessingByService = async (req) => {
 
     return {
       status: true,
-      data: requests,
+      data: processingRequestsData,
       message:
         "Blood requests being processed by this user retrieved successfully.",
     };
@@ -526,17 +526,17 @@ export const FulfillRequestService = async (req, res) => {
 };
 
 // Get Requests by fulfilledBy (Get requests fulfilled by a specific user)
-export const GetRequestsByFulfilledByService = async (req) => {
+export const GetRequestsFulfilledByService = async (req) => {
   try {
-    const fulfilledById = req.params.fulfilledBy;
+    const fulfilledById = req.headers.user_id || req.cookies.user_id;
 
     if (!fulfilledById || !ObjectId.isValid(fulfilledById)) {
       return { status: false, message: "Invalid fulfilledBy ID." };
     }
 
     const requests = await RequestModel.find({ fulfilledBy: fulfilledById })
-      .populate("userId", "name email phone")
-      .populate("fulfilledBy", "name email phone");
+      .populate("userId", "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage")
+      .populate("fulfilledBy", "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage");
 
     if (!requests || requests.length === 0) {
       return {

@@ -9,7 +9,9 @@ import {
   GetRequestsByBloodGroupService, 
   FulfillRequestService,
   GetAllRequestsForAdminService,
-  UpdateRequestToProcessingService
+  UpdateRequestToProcessingService,
+  GetRequestsByProcessingByService,
+  GetRequestsFulfilledByService,
 } from "../service/RequestService.js";
 
 // Create Blood Request
@@ -113,7 +115,17 @@ export const ProcessRequest = async (req, res) => {
   }
 };
 
-// Fulfill Blood Request
+// Get Processing Blood Request with Processing id
+export const GetProcessingRequest = async (req, res) => {
+  try {
+    const result = await GetRequestsByProcessingByService(req);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({ status: false, message: "Error retrieving processing blood request", error: error.message });
+  }
+}
+
+// Fulfill Blood Request 
 export const FulfillRequest = async (req, res) => {
   try {
     const result = await FulfillRequestService(req, res);
@@ -122,3 +134,13 @@ export const FulfillRequest = async (req, res) => {
     return res.status(500).json({ status: false, message: "Error fulfilling blood request", error: error.message });
   }
 }; 
+
+// Get FulfilledBy Blood Requests
+export const GetRequestsFulfilledBy = async (req, res) => {
+  try {
+    const result = await GetRequestsFulfilledByService(req);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({ status: false, message: "Error retrieving fulfilledBy blood requests", error: error.message });
+  }
+};

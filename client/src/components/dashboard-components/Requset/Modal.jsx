@@ -10,7 +10,7 @@ const Modal = ({ isOpen, onClose, title, initialData, children }) => {
   const imageUrl = process.env.NEXT_PUBLIC_IMAGE_URL + initialData?.userId.profileImage;
 
   return (
-    <div className="fixed inset-0 z-10 overflow-y-auto">
+    <div className="fixed inset-0 z-10 overflow-y-auto mt-17">
       <div className="flex items-center justify-center min-h-screen px-4">
         {/* Overlay */}
         <div 
@@ -34,7 +34,7 @@ const Modal = ({ isOpen, onClose, title, initialData, children }) => {
               <FaTimes className="w-5 h-5" />
             </button>
             </div>
-            {title === "Edit Request From" &&(
+            {title === "Edit Blood Request From" &&(
               <div className="flex flex-col justify-center items-center">
               <Image
                 src={imageUrl}
