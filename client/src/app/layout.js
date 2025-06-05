@@ -23,7 +23,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={poppins.className}>
+      <body className={`${poppins.className} bg-gray-50 dark:bg-gray-900`}>
         <Provider>
             <TopLoaderWrapper />
             <ToastContainer />

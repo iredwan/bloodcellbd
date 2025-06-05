@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect} from 'react';
 import {
   BarChart,
   Bar,
@@ -668,6 +668,24 @@ const StatsDisplay = ({ data, type = 'summary', initialChartType = 'bar' }) => {
     }
   };
 
+  const [lastUpdateTime] = useState(new Date()); // Set once on mount
+  const [now, setNow] = useState(new Date()); // Changes every X seconds
+
+  // Update "now" every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(new Date());
+    }, 10000); // 10 seconds
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, []);
+
+  const getLastUpdateTime = (pastTime) => {
+    const diffMins = Math.floor((now - pastTime) / 60000);
+    if (diffMins < 1) return "Just now";
+    return diffMins === 1 ? "1 minute ago" : `${diffMins} minutes ago`;
+  };
+
   return (
     <div className="w-full bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
   {/* Header */}
@@ -677,7 +695,7 @@ const StatsDisplay = ({ data, type = 'summary', initialChartType = 'bar' }) => {
         {getTitle()}
       </h3>
       <p className="text-sm text-gray-500 dark:text-gray-400">
-        Updated just now
+        Last updated: {getLastUpdateTime(lastUpdateTime)}
       </p>
     </div>
     

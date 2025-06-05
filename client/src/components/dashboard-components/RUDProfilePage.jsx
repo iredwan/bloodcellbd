@@ -1415,7 +1415,7 @@ const CRUDProfilePage = () => {
             <div className="bg-white dark:bg-gray-800 rounded-lg mt-6">
             {isProfileMediaEditMode ? (
               <div>
-                <div className="flex justify-between p-5 rounded-t-lg bg-gray-200 dark:bg-gray-700">
+                {/* <div className="flex justify-between p-5 rounded-t-lg bg-gray-200 dark:bg-gray-700">
                 <h1 className="flex items-center text-lg font-semibold text-gray-800 dark:text-white">
                    <FaImage className="mr-3 text-primary"/> Media
                   </h1>
@@ -1436,7 +1436,7 @@ const CRUDProfilePage = () => {
                       Cancel
                     </button>
                   </div>
-                </div>
+                </div> */}
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 p-5 shadow-lg bg-white dark:bg-gray-800 rounded-b-lg">
                   {/* Profile Picture - Circular Modern */}
                   <div className="group relative">
@@ -1598,13 +1598,13 @@ const CRUDProfilePage = () => {
                   <h1 className="flex items-center text-lg font-semibold text-gray-800 dark:text-white">
                    <FaImage className="mr-3 text-primary"/> Media
                   </h1>
-                  <button
+                  {/* <button
                     onClick={() => setProfileMediaEditMode(true)}
                     className="text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors flex items-center"
                   >
                     <FaEdit className="mr-1" />
                     Edit
-                  </button>
+                  </button> */}
                 </div>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 p-5 shadow-lg bg-white dark:bg-gray-800 rounded-b-lg">
                   {/* Profile Image Display */}
@@ -1612,9 +1612,10 @@ const CRUDProfilePage = () => {
                     <label className="mb-2 block text-center text-sm font-medium text-neutral-700 dark:text-neutral-300">
                       Profile Photo
                     </label>
-                    <div className="h-60 w-60 rounded-full overflow-hidden mt-2">
+                    <div className="h-60 w-60 rounded-full overflow-hidden mt-2 ">
                       <img
                         src={imageUrl + displayUserData.profileImage}
+                        onClick={() => window.open(imageUrl + displayUserData.profileImage, "_blank")}
                         alt="Profile"
                         className="h-full w-full object-cover object-center"
                       />
@@ -1632,19 +1633,12 @@ const CRUDProfilePage = () => {
                       {displayUserData.nidOrBirthRegistrationImage ? (
                         <>
                           <img
-                            src={imageUrl + displayUserData.nidOrBirthRegistrationImage}
+                            src={imageUrl + displayUserData.
+                              nidOrBirthRegistrationImage}
+                              onClick={() => window.open(imageUrl + displayUserData.nidOrBirthRegistrationImage, "_blank")}
                             alt="ID Document"
                             className="h-full w-full object-cover object-center"
                           />
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/10 opacity-0 hover:opacity-100 transition-opacity duration-300">
-                            <button
-                              type="button"
-                              onClick={() => window.open(imageUrl + displayUserData.nidOrBirthRegistrationImage, "_blank")}
-                              className="rounded-full bg-purple-500 px-4 py-1.5 text-xs font-medium text-white shadow-lg hover:bg-purple-600"
-                            >
-                              View Document
-                            </button>
-                          </div>
                         </>
                       ) : (
                         <div className="h-full w-full flex items-center justify-center bg-gray-100 dark:bg-gray-700">

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
 import {
   useGetUserByIdQuery,
-  useUpdateUserProfileWithRefMutation,
+  useUpdateUserProfileMutation,
   useDeleteUserMutation,
 } from "@/features/users/userApiSlice";
 import CustomDatePicker from "@/components/DatePicker";
@@ -28,7 +28,6 @@ import uploadFile from "@/utils/fileUpload";
 import LastDonationDatePicker from "@/components/LastDonationDatePicker";
 import { useGetUserInfoQuery } from "@/features/userInfo/userInfoApiSlice";
 import { FiUpload } from "react-icons/fi";
-import ProfileCard from "@/components/ProfileCard";
 import deleteConfirm from "@/utils/deleteConfirm";
 import RUDProfilePageSkeleton from "@/components/dashboard-components/dashboardSkeletons/RUDProfilepageSkeleton";
 
@@ -97,7 +96,7 @@ const Page = () => {
   });
 
   // Mutation hooks
-  const [updateUserProfileWithRef, { isLoading: isUpdating }] = useUpdateUserProfileWithRefMutation();
+  const [updateUserProfileWithRef, { isLoading: isUpdating }] = useUpdateUserProfileMutation();
   const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
 
   // Effects
@@ -253,15 +252,15 @@ const Page = () => {
       }).unwrap();
 
       if (response.status) {
-        toast.success(response.message || "Profile updated successfully");
+        toast.success(response.message);
         // Refetch user data after successful update
         await refetch();
       } else {
-        toast.error(response.message || "Failed to update profile");
+        toast.error(response.message);
       }
     } catch (error) {
       console.error("Update error details:", error);
-      toast.error(error?.data?.message || "Error updating profile");
+      toast.error(error?.data?.message);
     }
   };
 
@@ -1222,18 +1221,12 @@ const Page = () => {
                               />
                             )}
                             <div className="absolute inset-0 flex items-center justify-center bg-black/10 opacity-100 md:opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                              <button
+                            <button
                                 type="button"
-                                onClick={(href) =>
-                                  window.open(
-                                    imageUrl +
-                                      formData.nidOrBirthRegistrationImage,
-                                    "_blank"
-                                  )
-                                }
-                                className="rounded-full bg-purple-500 px-4 py-1.5 text-xs font-medium text-white shadow-lg hover:bg-purple-600"
+                                onClick={() => setFormData({ ...formData, nidOrBirthRegistrationImage: null })}
+                                className="absolute bottom-6 left-1/2 -translate-x-1/2 transform rounded-full bg-red-500 px-4 py-1.5 text-xs font-medium text-white opacity-100 md:opacity-0 shadow-lg transition-all duration-300 group-hover:opacity-100 hover:bg-red-600"
                               >
-                                View Document
+                                Change Document
                               </button>
                             </div>
                           </div>
@@ -1337,20 +1330,6 @@ const Page = () => {
               </div>
             )}
             </div>
-            
-
-            {(editorRole === "Admin" || editorRole === "District Coordinator") && (
-              <div className="mt-6 flex justify-end">
-                <button
-                  type="button"
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-                  className="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200"
-                >
-                  <BiTrash className="mr-2" /> Delete User
-                </button>
-              </div>
-            )}
           </form>
         </div>
       </div>

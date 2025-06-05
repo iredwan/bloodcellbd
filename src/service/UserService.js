@@ -190,6 +190,21 @@ export const UpdateUserByIdSelfService = async (req) => {
         );
       }
     }
+
+    // Handle NID or Birth Registration image update
+    if (
+      reqBody.nidOrBirthRegistrationImage &&
+      user.nidOrBirthRegistrationImage &&
+      reqBody.nidOrBirthRegistrationImage !== user.nidOrBirthRegistrationImage
+    ) {
+      const deleteResult = await deleteFile(user.nidOrBirthRegistrationImage);
+      if (!deleteResult.status) {
+        console.error(
+          "Failed to delete previous NID or Birth Registration image:",
+          deleteResult.error
+        );
+      }
+    }
     
 
     //Set isApproved to false
@@ -338,12 +353,9 @@ export const GetAllUserService = async (req, res) => {
         { name: searchRegex },
         { email: searchRegex },
         { phone: searchRegex },
+        { identificationNumber: searchRegex },
         { district: searchRegex },
         { upazila: searchRegex },
-        { bloodGroup: searchRegex },
-        { role: searchRegex },
-        { roleSuffix: searchRegex },
-        { identificationNumber: searchRegex },
       ];
     }
 
@@ -351,16 +363,52 @@ export const GetAllUserService = async (req, res) => {
     const sortOptions = {};
     sortOptions[sortBy] = sortOrder;
 
+    // Get total pending users
+    const totalPendingUsers = await UserModel.countDocuments({
+      isApproved: false,
+      isBanned: false,
+    });
+
+    // Get total district users
+    const totalDistrictUsers = await UserModel.countDocuments({
+      district: district,
+    });
+
+    // Get total upazila users
+    const totalUpazilaUsers = await UserModel.countDocuments({
+      upazila: upazila,
+    });
+
+    // Get district total pending users
+    const totalDistrictPendingUsers = await UserModel.countDocuments({
+      district: district,
+      isApproved: false,
+      isBanned: false,
+    });
+
+    // Get upazila total pending users
+    const totalUpazilaPendingUsers = await UserModel.countDocuments({
+      upazila: upazila,
+      isApproved: false,
+      isBanned: false,
+    });
+
+    // Get total filtered users
+    const totalFilteredUsers = await UserModel.countDocuments(query);
+
+    // Get total user
+    const totalUsers = await UserModel.countDocuments();
+
     // Execute query with pagination
     const users = await UserModel.find(query)
-      .select("-password -nidOrBirthRegistrationImage")
+      .select("-password")
       .skip(skip)
       .limit(parseInt(limit))
       .sort(sortOptions)
       .lean();
 
-    const totalUsers = await UserModel.countDocuments(query);
-    const totalPages = Math.ceil(totalUsers / limit);
+    // const totalUsers = await UserModel.countDocuments(query);
+    const totalPages = Math.ceil(totalFilteredUsers / limit);
 
     if (users.length === 0) {
       return {
@@ -384,8 +432,14 @@ export const GetAllUserService = async (req, res) => {
       message: "Users retrieved successfully.",
       data: {
         users,
+        totalPendingUsers,
+        totalUsers,
+        totalDistrictUsers,
+        totalUpazilaUsers,
+        totalFilteredUsers,
+        totalDistrictPendingUsers,
+        totalUpazilaPendingUsers,
         pagination: {
-          totalUsers,
           currentPage: parseInt(page),
           totalPages,
           hasNextPage: page < totalPages,

@@ -32,7 +32,11 @@ export const userApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ['User'],
     }),
     getAllUsers: builder.query({
-      query: () => 'users/all',
+      query: (params ) => ({
+        url: 'users/all',
+        method: 'GET',
+        params,
+      }),
       providesTags: ['User'],
     }),
     getUserById: builder.query({
