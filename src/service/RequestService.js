@@ -159,6 +159,10 @@ export const GetRequestByIdService = async (req) => {
         "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
       )
       .populate(
+        "processingBy",
+        "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
+      )
+      .populate(
         "fulfilledBy",
         "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
       )
