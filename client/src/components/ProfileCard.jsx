@@ -16,6 +16,9 @@ export default function ProfileCard({
   lastDonate,
   nextDonationDate,
 }) {
+  
+  const baseImageURL = process.env.NEXT_PUBLIC_IMAGE_URL;
+
   return (
       <div className="relative max-w-2xl w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-[18px] shadow-md p-6 hover:shadow-xl transition-all duration-300">
         {/* Content */}
@@ -23,8 +26,8 @@ export default function ProfileCard({
           {/* Image */}
           <div className="relative w-28 h-28 rounded-full aspect-square border border-gray-400 dark:border-gray-600 overflow-hidden shrink-0 bg-gray-100 dark:bg-gray-700">
             {imageUrl ? (
-              <img
-                src={imageUrl}
+              <Image
+                src={baseImageURL+imageUrl}
                 alt={name}
                 fill
                 className="object-cover"
