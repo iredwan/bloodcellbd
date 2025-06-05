@@ -2,7 +2,7 @@ import React from "react";
 
 const ProfileCardSkeleton = () => {
   return (
-    <div className="relative w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-[18px] shadow-md p-6 animate-pulse">
+    <div className="relative w-full max-w-2xl bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-[18px] shadow-md p-6 animate-pulse">
       {/* Content */}
       <div className="flex flex-col md:flex-row items-center gap-6">
         {/* Image */}
