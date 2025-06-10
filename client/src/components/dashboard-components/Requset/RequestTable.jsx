@@ -16,7 +16,8 @@ const RequestTable = ({
   currentPage,
   onPageChange,
   userRole,
-  deleteButtonForUser
+  deleteButtonForUser,
+  fulfilled
 }) => {
 
   const showActions =
@@ -63,7 +64,11 @@ const RequestTable = ({
                   Request ID
                 </th>
                 <th className="hidden md:table-cell px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Crete Time
+                  {fulfilled ?(
+                    'Donate Time'
+                  ):(
+                    'Crete Time'
+                  )  }
                 </th>
                 <th className="hidden sm:table-cell px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Location
@@ -105,7 +110,22 @@ const RequestTable = ({
                         {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
                       </span>
                       <div className='pt-2'>
-                    <div className="text-sm text-gray-900 dark:text-white">
+                    {fulfilled ?(
+                      <>
+                      <div className="text-sm text-gray-900 dark:text-white">
+                      {new Date(request.updatedAt).toLocaleDateString('en-GB')}
+                      </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400 ml-2">
+                      {new Date(request.updatedAt).toLocaleTimeString('en-GB', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                      })}
+                      </div>
+                      </>
+                    ):(
+                      <>
+                      <div className="text-sm text-gray-900 dark:text-white">
                       {new Date(request.createdAt).toLocaleDateString('en-GB')}
                       </div>
                     <div className="text-sm text-gray-500 dark:text-gray-400 ml-2">
@@ -115,12 +135,29 @@ const RequestTable = ({
                         hour12: true
                       })}
                       </div>
+                      </>
+                    )}
                     </div>
                     </div>
                   </td>
                   <td className="hidden md:table-cell px-3 sm:px-4 py-3 sm:py-4 whitespace-nowrap">
-                      <div className=''>
-                    <div className="text-sm text-gray-900 dark:text-white">
+                    <div className=''>
+                    {fulfilled ?(
+                      <>
+                      <div className="text-sm text-gray-900 dark:text-white">
+                      {new Date(request.updatedAt).toLocaleDateString('en-GB')}
+                      </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400 ml-2">
+                      {new Date(request.updatedAt).toLocaleTimeString('en-GB', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                      })}
+                      </div>
+                      </>
+                    ):(
+                      <>
+                      <div className="text-sm text-gray-900 dark:text-white">
                       {new Date(request.createdAt).toLocaleDateString('en-GB')}
                       </div>
                     <div className="text-sm text-gray-500 dark:text-gray-400 ml-2">
@@ -130,6 +167,9 @@ const RequestTable = ({
                         hour12: true
                       })}
                       </div>
+                      </>
+                    )
+                    }
                     </div>
                   </td>
                   <td className="hidden sm:table-cell px-3 sm:px-4 py-3 sm:py-4 whitespace-nowrap">
