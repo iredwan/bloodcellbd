@@ -194,9 +194,29 @@ export const UpdateRequestService = async (req) => {
   try {
     const requestId = new ObjectId(req.params.id);
     const reqBody = req.body;
+    const processingBy = req.body?.processingBy;
+    const fulfilledBy = req.body?.fulfilledBy;
+
+    const existingProcessingRequest = await RequestModel.findOne({
+      processingBy: processingBy,
+    });
+
+    if (processingBy && processingBy !== existingProcessingRequest.processingBy) {
+      reqBody.processingBy = processingBy;
+    }
+
+    const existingFulfilledRequest = await RequestModel.findOne({
+      fulfilledBy: fulfilledBy,
+    });
+
+    if (fulfilledBy && fulfilledBy !== existingFulfilledRequest.fulfilledBy) {
+      reqBody.fulfilledBy = fulfilledBy;
+    }
 
     // Get user_id from headers or cookie
-    const updatedBy = req.headers.user_id || req.cookies.user_id;
+    const updatedBy = req.headers?.user_id || req.cookies?.user_id;
+    console.log("updatedBy", updatedBy);
+    
     if (!updatedBy) {
       return { status: false, message: "User ID is required." };
     }
@@ -355,7 +375,7 @@ export const GetRequestsByBloodGroupService = async (req) => {
   }
 };
 
-// Update Request to Processing (Set processingBy)
+// Update Request to Processing (Set processingBy user)
 export const UpdateRequestToProcessingService = async (req) => {
   try {
     const requestId = new ObjectId(req.params.id);
@@ -465,6 +485,68 @@ export const GetRequestsByProcessingByService = async (req) => {
   }
 };
 
+// Remove ProcessingBy (Set processingBy to null)
+export const RemoveProcessingByService = async (req) => {
+  try {
+    const processingByID = new ObjectId(req.params.id);
+    
+
+    if (!ObjectId.isValid(processingByID)) {
+      return { status: false, message: "Invalid request ID format." };
+    }
+
+    // Get user_id from headers or cookie
+    const updatedBy = req.headers.user_id || req.cookies.user_id;
+    if (!updatedBy) {
+      return { status: false, message: "User ID is required." };
+    }
+
+    const request = await RequestModel.findOne({processingBy: processingByID});
+
+    if (!request) {
+      return { status: false, message: "Blood request not found." };
+    }
+
+    if (request.status !== "processing") {
+      return {
+        status: false,
+        message: "Blood request is not in processing.",
+      };
+    }
+
+    const updatedRequest = await RequestModel.findOneAndUpdate(
+      {processingBy: processingByID},
+      {
+        $set: {
+          processingBy: null,
+          status: "pending",
+          updatedBy: updatedBy
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedRequest) {
+      return {
+        status: false,
+        message: "Blood request not found or could not be updated.",
+      };
+    }
+
+    return {
+      status: true,
+      data: updatedRequest,
+      message: "ProcessingBy removed successfully.",
+    };
+  } catch (e) {
+    return {
+      status: false,
+      message: "Failed to remove processingBy1.",
+      details: e.message,
+    };
+  }
+  };
+
 // Fulfill Request (Update status and set fulfilledBy)
 export const FulfillRequestService = async (req, res) => {
   try {
@@ -558,6 +640,103 @@ export const GetRequestsFulfilledByService = async (req) => {
     return {
       status: false,
       message: "Failed to retrieve blood requests by fulfilledBy.",
+      details: e.message,
+    };
+  }
+};
+
+// Cancel Request (Update status and set updatedBy)
+export const CancelRequestService = async (req, res) => {
+  try {
+    const requestId = new ObjectId(req.params.id);
+    const updatedBy = req.headers.user_id || req.cookies.user_id;
+
+    if (!updatedBy || !ObjectId.isValid(updatedBy)) {
+      return { status: false, message: "Valid updatedBy ID is required." };
+    }
+
+    const request = await RequestModel.findById(requestId);
+
+    if (!request) {
+      return { status: false, message: "Blood request not found." };
+    }
+
+    const updatedRequest = await RequestModel.findByIdAndUpdate(
+      requestId,
+      {
+        $set: {
+          status: "cancelled",
+          updatedBy: updatedBy,
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedRequest) {
+      return {
+        status: false,
+        message: "Blood request not found or could not be cancelled.",
+      };
+    }
+
+    return {
+      status: true,
+      data: updatedRequest,
+      message: "Blood request cancelled successfully.",
+    };
+  } catch (e) {
+    return {
+      status: false,
+      message: "Failed to cancel blood request.",
+      details: e.message,
+    };
+  }
+};
+
+
+// Reject Request (Update status and set updatedBy)
+export const RejectRequestService = async (req, res) => {
+  try {
+    const requestId = new ObjectId(req.params.id);
+    const updatedBy = req.headers.user_id || req.cookies.user_id;
+
+    if (!updatedBy || !ObjectId.isValid(updatedBy)) {
+      return { status: false, message: "Valid updatedBy ID is required." };
+    }
+
+    const request = await RequestModel.findById(requestId);
+
+    if (!request) {
+      return { status: false, message: "Blood request not found." };
+    }
+
+    const updatedRequest = await RequestModel.findByIdAndUpdate(
+      requestId,
+      {
+        $set: {
+          status: "rejected",
+          updatedBy: updatedBy,
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedRequest) {
+      return {
+        status: false,
+        message: "Blood request not found or could not be rejected.",
+      };
+    }
+
+    return {
+      status: true,
+      data: updatedRequest,
+      message: "Blood request rejected successfully.",
+    };
+  } catch (e) {
+    return {
+      status: false,
+      message: "Failed to reject blood request.",
       details: e.message,
     };
   }

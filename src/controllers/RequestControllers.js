@@ -12,6 +12,9 @@ import {
   UpdateRequestToProcessingService,
   GetRequestsByProcessingByService,
   GetRequestsFulfilledByService,
+  RemoveProcessingByService,
+  CancelRequestService,
+  RejectRequestService,
 } from "../service/RequestService.js";
 
 // Create Blood Request
@@ -125,6 +128,16 @@ export const GetProcessingRequest = async (req, res) => {
   }
 }
 
+// Remove ProcessingBy (Set processingBy to null)
+export const RemoveProcessingBy = async (req, res) => {
+  try {
+    const result = await RemoveProcessingByService(req);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({ status: false, message: "Error removing processingBy", error: error.message });
+  }
+};
+
 // Fulfill Blood Request 
 export const FulfillRequest = async (req, res) => {
   try {
@@ -142,5 +155,25 @@ export const GetRequestsFulfilledBy = async (req, res) => {
     return res.status(200).json(result);
   } catch (error) {
     return res.status(500).json({ status: false, message: "Error retrieving fulfilledBy blood requests", error: error.message });
+  }
+};
+
+// Cancel Blood Request
+export const CancelRequest = async (req, res) => {
+  try {
+    const result = await CancelRequestService(req);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({ status: false, message: "Error cancelling blood request", error: error.message });
+  }
+};
+
+// Reject Blood Request
+export const RejectRequest = async (req, res) => {
+  try {
+    const result = await RejectRequestService(req);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({ status: false, message: "Error rejecting blood request", error: error.message });
   }
 };

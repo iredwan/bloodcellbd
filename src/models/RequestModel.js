@@ -11,7 +11,7 @@ const RequestSchema = new mongoose.Schema({
   contactNumber: { type: String, required: true },
   contactRelation: { type: String, required: true },
   description: { type: String},
-  status: { type: String, enum: ['pending', 'fulfilled', 'processing'], default: 'pending' },
+  status: { type: String, enum: ['pending', 'fulfilled', 'processing', 'cancelled', 'rejected'], default: 'pending' },
   processingBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   fulfilledBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
