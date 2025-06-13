@@ -9,6 +9,7 @@ import NotFound from '@/app/not-found';
 import { FaShareAlt, FaWhatsapp, FaFacebook, FaTwitter, FaLink, FaPhone, FaTint, FaUser, FaVenusMars, FaChurch, FaSmoking, FaCalendar, FaMosque, FaSmokingBan } from 'react-icons/fa';
 import { FiCopy } from 'react-icons/fi';
 import { BsGenderMale, BsGenderFemale } from "react-icons/bs";
+import Image from 'next/image';
 
 const ProfileDetail = () => {
   const router = useRouter();
@@ -16,6 +17,7 @@ const ProfileDetail = () => {
   const id = searchParams.get('id');
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [profileLink, setProfileLink] = useState('');
+  const imageUrl = process.env.NEXT_PUBLIC_IMAGE_URL;
 
   useEffect(() => {
     if (!id) {
@@ -154,8 +156,13 @@ const ProfileDetail = () => {
           {/* Profile Content */}
           <div className="flex flex-col md:flex-row items-center gap-6">
             <div className="relative w-40 h-40 aspect-square rounded-full overflow-hidden border-4 border-white dark:border-gray-800 shadow-lg">
-              {user.imageUrl ? (
-                <img src={user.imageUrl} alt={user.name} className="w-full h-full object-cover" />
+              {user.profileImage ? (
+                <Image
+                 src={imageUrl + user.profileImage} 
+                 alt={user.name}
+                 width={200}
+                 height={200} 
+                 className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-gray-100 dark:bg-gray-600 flex items-center justify-center">
                   <FaUser className="text-3xl text-gray-400 dark:text-gray-500" />
@@ -166,7 +173,7 @@ const ProfileDetail = () => {
             <div className="flex-1 space-y-4">
               {/* Name & Verification */}
           <div className="text-center md:text-left">
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-1 flex items-center justify-center md:justify-start gap-2">
+            <h1 className="text-xl font-bold text-gray-800 dark:text-white mb-1 flex items-center justify-center md:justify-start gap-2">
               {user.name}
               {user.isVerified && (
                 <span className="text-primary ml-1 inline-block">
