@@ -29,6 +29,7 @@ import wantToDonateBloodRoutes from './src/routes/WantToDonateBloodRoutes.js';
 import reviewRoutes from './src/routes/reviewRoutes.js';
 import uploadFileRoutes from './src/routes/UploadFileRoute.js';
 import userInfoRoutes from './src/routes/UserInfoRoute.js';
+import ogDynamicImageGenerator from './src/routes/OgDynamicImageGenerator.js';
 // Load environment variables
 dotenv.config();
 
@@ -85,6 +86,7 @@ app.use('/api/want-to-donate', wantToDonateBloodRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api', uploadFileRoutes);
 app.use('/api/get', userInfoRoutes);
+app.use('/api/og', ogDynamicImageGenerator);
 // Root route
 app.get('/', (req, res) => {
   res.send('Blood Cell BD API is running');
