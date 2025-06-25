@@ -79,6 +79,40 @@ const CRUDProfilePage = () => {
       "Head of Logistics",
       "Admin",
     ],
+    "Head of Logistics":[
+      "user",
+      "Technician",
+      "Member",
+      "Moderator",
+      "Monitor",
+      "Upazila Coordinator",
+      "Upazila Co-coordinator",
+      "Upazila IT & Media Coordinator",
+      "Upazila Logistics Coordinator",
+      "District Coordinator",
+      "District Co-coordinator",
+      "District IT & Media Coordinator",
+      "District Logistics Coordinator",
+      "Divisional Coordinator",
+      "Divisional Co-coordinator",
+    ],
+    "Head of IT & Media":[
+      "user",
+      "Technician",
+      "Member",
+      "Moderator",
+      "Monitor",
+      "Upazila Coordinator",
+      "Upazila Co-coordinator",
+      "Upazila IT & Media Coordinator",
+      "Upazila Logistics Coordinator",
+      "District Coordinator",
+      "District Co-coordinator",
+      "District IT & Media Coordinator",
+      "District Logistics Coordinator",
+      "Divisional Coordinator",
+      "Divisional Co-coordinator",
+    ],
     "Divisional Coordinator": [
       "user",
       "Technician",
@@ -153,21 +187,47 @@ const CRUDProfilePage = () => {
       "Upazila IT & Media Coordinator",
       "Upazila Logistics Coordinator",
     ],
-    "Upazila Coordinator": ["user", "Technician", "Member", "Moderator", "Monitor"],
-    "Upazila Co-coordinator": ["user", "Technician", "Member", "Moderator", "Monitor"],
-    "Upazila IT & Media Coordinator": ["user", "Technician", "Member", "Moderator", "Monitor"],
-    "Upazila Logistics Coordinator": ["user", "Technician", "Member", "Moderator", "Monitor"],
-    Monitor: ["user", "Technician", "Member", "Moderator"],
-    Moderator: ["user", "Technician", "Member"],
-    Technician: ["user"],
+    "Upazila Coordinator": [
+      "user",
+      "Technician",
+      "Member",
+      "Moderator",
+      "Monitor",
+    ],
+    "Upazila Co-coordinator": [
+      "user",
+      "Technician",
+      "Member", 
+      "Moderator", 
+      "Monitor"],
+    "Upazila IT & Media Coordinator": [
+      "user", 
+      "Technician", 
+      "Member", 
+      "Moderator", 
+      "Monitor"],
+    Monitor: [
+      "user", 
+      "Technician", 
+      "Member", 
+      "Moderator"],
+    Technician: ["user", 
+      "Technician", 
+      "Member", 
+      "Moderator"],
+    Moderator: [
+      "user", 
+      "Technician", 
+      "Member"],
+    Member: ["user"],
     user: ["user"],
   };
 
   const roleLevels = {
     "user": 0,
-    "Technician": 1,
-    "Member": 2,
-    "Moderator": 3,
+    "Member": 1,
+    "Moderator": 2,
+    "Technician": 3,
     "Monitor": 4,
     "Upazila Coordinator": 5,
     "Upazila Co-coordinator": 6,
@@ -1238,7 +1298,7 @@ const CRUDProfilePage = () => {
             </div>
 
             {/* Role and Access Control Section */}
-            {roleLevels[editorRole] > roleLevels[formData.role] && (
+            {roleLevels[editorRole] >= roleLevels[formData.role] && (
             <div className="bg-white dark:bg-gray-800 rounded-lg mt-6">
             {isRoleAndAccessControlEditMode ? (
               <div>
@@ -1267,7 +1327,7 @@ const CRUDProfilePage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 shadow-lg bg-white dark:bg-gray-800 rounded-b-lg">
                       <div className="form-group">
                         <CustomSelect
-                          options={roleHierarchy[editorRole] || ["user"]}
+                          options={roleHierarchy[editorRole] || []}
                           selected={formData.role}
                           setSelected={(value) =>
                             setFormData((prev) => ({ ...prev, role: value }))
@@ -1661,8 +1721,9 @@ const CRUDProfilePage = () => {
               </div>
               <div className="shadow-lg bg-white dark:bg-gray-800 rounded-b-lg">
               {reference && typeof reference === 'object' && (
-                <div className="form-group p-4 pb-8 md:grid md:justify-center border-b border-gray-300 dark:border-gray-600 rounded-lg">
-                  <h2 className="text-center text-md font-semibold text-gray-700 dark:text-gray-300 mb-4">Reference Details</h2>
+                <>
+              <h2 className="text-center text-md font-semibold text-gray-700 dark:text-gray-300 my-4">Reference Details</h2>
+                <div className="form-group pb-8 md:flex md:justify-center border-b border-gray-300 dark:border-gray-600 rounded-lg">
                     <ProfileCard
                       id={reference._id}
                       imageUrl={reference.profileImage}
@@ -1676,13 +1737,15 @@ const CRUDProfilePage = () => {
                       nextDonationDate={reference.nextDonationDate}
                     />
                 </div>
+                </>
                   )}
                 
 
                 {updateBy &&
                 (
-                  <div className="form-group mt-6 p-4 pb-8 md:grid md:justify-center">
-                    <h2 className="text-center text-md font-semibold text-gray-700 dark:text-gray-300 mb-4">Updated By</h2>
+                  <>
+                    <h2 className="text-center text-md font-semibold text-gray-700 dark:text-gray-300 my-4">Updated By</h2>
+                  <div className="form-group pb-8 md:flex md:justify-center">
                     {updateBy && typeof updateBy === 'object' && (
                       <ProfileCard
                         id={updateBy._id}
@@ -1697,7 +1760,8 @@ const CRUDProfilePage = () => {
                         nextDonationDate={updateBy.nextDonationDate}
                       />
                     )}
-                  </div>)
+                  </div>
+                  </>)
                 }
               </div>
             </div>
