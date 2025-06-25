@@ -21,7 +21,13 @@ const hospitalSchema = new Schema({
     type: String,
     required: [true, 'Address is required'],
     trim: true
-  }
+  },
+  contact: { type: String, },
+  email: { type: String, },
+  website: { type: String, },
+  beds: { type: Number, },
+  specialties: { type: String, },
+
   
   
 }, {

@@ -17,19 +17,20 @@ export const hospitalApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // Get all hospitals
     getAllHospitals: builder.query({
-      query: () => 'hospital/all',
+      query: ({ page = 1, limit = 10, search = '' }) => {
+        const params = new URLSearchParams({ page, limit, search });
+        return `hospital/all?${params.toString()}`;
+      },
       providesTags: ['Hospital'],
       transformResponse: (response) => {
-        // Handle API success response format
         if (response.status && response.data) {
           return response;
         }
-        
-        // Direct data format
+    
         if (Array.isArray(response)) {
           return { status: true, data: response };
         }
-        
+    
         console.warn('Unexpected hospital API response format:', response);
         return { status: false, data: [] };
       },
@@ -37,8 +38,7 @@ export const hospitalApiSlice = apiSlice.injectEndpoints({
         try {
           dispatch(setLoading(true));
           const { data } = await queryFulfilled;
-          
-          // Store hospitals in Redux state
+    
           if (data.status && data.data) {
             dispatch(setHospitals(data.data));
           } else if (Array.isArray(data)) {
@@ -53,8 +53,9 @@ export const hospitalApiSlice = apiSlice.injectEndpoints({
         } finally {
           dispatch(setLoading(false));
         }
-      }
+      },
     }),
+    
     
     // Get hospital by ID
     getHospitalById: builder.query({

@@ -41,9 +41,33 @@ export const GetAllHospitalsService = async (req) => {
     if (req.query.upazila) {
       filter.upazila = req.query.upazila;
     }
+
+    // Search functionality
+    if (req.query.search) {
+      const searchRegex = new RegExp(req.query.search, 'i');
+      filter.$or = [
+        { name: searchRegex },
+        { district: searchRegex },
+        { upazila: searchRegex },
+        { address: searchRegex },
+        { specialties: searchRegex }
+      ];
+    }
+
+    // Pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination
+    const totalCount = await Hospital.countDocuments(filter);
+    const totalPages = Math.ceil(totalCount / limit);
     
-    // Get all hospitals with filters
-    const hospitals = await Hospital.find(filter).sort({ name: 1 });
+    // Get paginated hospitals with filters
+    const hospitals = await Hospital.find(filter)
+      .sort({ name: 1 })
+      .skip(skip)
+      .limit(limit);
     
     if (!hospitals || hospitals.length === 0) {
       return { status: false, message: "No hospitals found." };
@@ -53,6 +77,12 @@ export const GetAllHospitalsService = async (req) => {
       status: true,
       data: hospitals,
       message: "Hospitals retrieved successfully.",
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems: totalCount,
+        itemsPerPage: limit
+      }
     };
   } catch (e) {
     return { 
