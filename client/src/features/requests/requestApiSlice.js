@@ -59,6 +59,13 @@ export const requestApiSlice = apiSlice.injectEndpoints({
       query: () => 'requests/get-processing-requests',
       providesTags: ['Request'],
     }),
+    removeProcessingBy: builder.mutation({
+      query: (id) => ({
+        url: `requests/remove-processing-by/${id}`,
+        method: 'PATCH',
+      }),
+      invalidatesTags: ['Request'],
+    }),
     fulfillRequest: builder.mutation({
       query: (id) => ({
         url: `requests/fulfill-by/${id}`,
@@ -70,10 +77,52 @@ export const requestApiSlice = apiSlice.injectEndpoints({
       query: () => 'requests/get-user-donate-history',
       providesTags: ['Request'],
     }),
+    CancelRequest: builder.mutation({
+      query: (id) => ({
+        url: `requests/cancel/${id}`,
+        method: 'PATCH',
+      }),
+      invalidatesTags: ['Request'],
+    }),
+    RejectRequest: builder.mutation({
+      query: (id) => ({
+        url: `requests/reject/${id}`,
+        method: 'PATCH',
+      }),
+      invalidatesTags: ['Request'],
+    }),
     deleteRequest: builder.mutation({
       query: (id) => ({
         url: `requests/delete/${id}`,
         method: 'DELETE',
+      }),
+      invalidatesTags: ['Request'],
+    }),
+    ResetRequest: builder.mutation({
+      query: (id) => ({
+        url: `requests/reset/${id}`,
+        method: 'PATCH',
+      }),
+      invalidatesTags: ['Request'],
+    }),
+    setVolunteerName: builder.mutation({
+      query: (id) => ({
+        url: `requests/set-volunteer-name/${id}`,
+        method: 'PATCH',
+      }),
+      invalidatesTags: ['Request'],
+    }),
+    getRequestsByVolunteerName: builder.query({
+      query: (reqBody) => ({
+        url: 'requests/get-volunteer-requests',
+        params: reqBody,
+      }),
+      providesTags: ['Request'],
+    }),
+    removeVolunteerName: builder.mutation({
+      query: (id) => ({
+        url: `requests/remove-volunteer-name/${id}`,
+        method: 'PATCH',
       }),
       invalidatesTags: ['Request'],
     }),
@@ -92,6 +141,13 @@ export const {
   useCreateRequestMutation,
   useUpdateRequestMutation,
   useProcessRequestMutation,
+  useRemoveProcessingByMutation,
+  useCancelRequestMutation,
+  useRejectRequestMutation,
   useFulfillRequestMutation,
   useDeleteRequestMutation,
+  useResetRequestMutation,
+  useSetVolunteerNameMutation,
+  useGetRequestsByVolunteerNameQuery,
+  useRemoveVolunteerNameMutation,
 } = requestApiSlice;

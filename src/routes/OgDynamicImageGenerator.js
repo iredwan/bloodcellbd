@@ -19,20 +19,31 @@ router.get("/request", async (req, res) => {
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext("2d");
 
-    // Get query params
-    const bloodGroup = req.query.bloodGroup;
-    const district = req.query.district;
-    const upazila = req.query.upazila;
-    const hospital = req.query.hospitalName;
-    const requester = req.query.name;
+    // Query Parameters
+    const bloodGroup = req.query.bloodGroup || "";
+    const district = req.query.district || "";
+    const upazila = req.query.upazila || "";
+    const hospital = req.query.hospitalName || "";
+    const requester = req.query.name || "Unknown";
     const profileImage = req.query.profileImage;
 
-    // Load profile image from uploads folder
-    const imgPath = path.join(__dirname, "../../uploads", profileImage);
-    const imgBuffer = fs.readFileSync(imgPath);
-    const profileImg = await loadImage(imgBuffer);
+    // Load profile image with fallback
+    let profileImg;
+    try {
+      if (profileImage) {
+        const customImgPath = path.join(__dirname, "../../uploads", profileImage);
+        const imgBuffer = fs.readFileSync(customImgPath);
+        profileImg = await loadImage(imgBuffer);
+      } else {
+        throw new Error("No profile image provided");
+      }
+    } catch (err) {
+      const fallbackImgPath = path.join(__dirname, "../../uploads/default-profile.png");
+      const fallbackBuffer = fs.readFileSync(fallbackImgPath);
+      profileImg = await loadImage(fallbackBuffer);
+    }
 
-    // Utility function to draw rounded rect
+    // Utility function to draw rounded rectangle
     function drawRoundedRect(ctx, x, y, width, height, radius) {
       ctx.beginPath();
       ctx.moveTo(x + radius, y);
@@ -47,8 +58,6 @@ router.get("/request", async (req, res) => {
       ctx.closePath();
       ctx.fill();
     }
-
-    // === Drawing Starts ===
 
     // Background
     ctx.fillStyle = "#8a0303";
@@ -79,18 +88,16 @@ router.get("/request", async (req, res) => {
     ctx.font = "bold 35px sans-serif";
     ctx.fillText(`${upazila}, ${district}`, 600, 380);
 
-     // Button
-    // Dimensions
+    // Button
     const x = 428;
     const y = 428;
     const widthOfButton = 350;
     const heightOfButton = 57;
-    const radius = heightOfButton / 2; // ফুল রাউন্ড = height এর অর্ধেক
+    const radius = heightOfButton / 2;
 
     ctx.fillStyle = "white";
     drawRoundedRect(ctx, x, y, widthOfButton, heightOfButton, radius);
 
-    // Draw button text
     ctx.fillStyle = "#8a0303";
     ctx.font = "bold 30px sans-serif";
     ctx.textAlign = "center";
@@ -100,56 +107,44 @@ router.get("/request", async (req, res) => {
     ctx.fillStyle = "white";
     ctx.fillRect(597, 492, 6, 82);
 
-    // Requester Profile (Circular Image)
+    // Requester Profile (Circular + object-fit: cover)
     ctx.save();
-ctx.beginPath();
-ctx.arc(140, 540, 59, 0, Math.PI * 2);
-ctx.clip();
+    ctx.beginPath();
+    ctx.arc(140, 540, 59, 0, Math.PI * 2);
+    ctx.clip();
 
-// Calculate cropping (object-fit: cover)
-const targetSize = 118;
-const imgAspect = profileImg.width / profileImg.height;
-const targetAspect = 1; // 118x118 square
+    const targetSize = 118;
+    const imgAspect = profileImg.width / profileImg.height;
+    const targetAspect = 1;
 
-let sx, sy, sWidth, sHeight;
+    let sx, sy, sWidth, sHeight;
+    if (imgAspect > targetAspect) {
+      sHeight = profileImg.height;
+      sWidth = sHeight * targetAspect;
+      sx = (profileImg.width - sWidth) / 2;
+      sy = 0;
+    } else {
+      sWidth = profileImg.width;
+      sHeight = sWidth / targetAspect;
+      sx = 0;
+      sy = (profileImg.height - sHeight) / 2;
+    }
 
-if (imgAspect > targetAspect) {
-  // Wider image - crop sides
-  sHeight = profileImg.height;
-  sWidth = sHeight * targetAspect;
-  sx = (profileImg.width - sWidth) / 2;
-  sy = 0;
-} else {
-  // Taller image - crop top/bottom
-  sWidth = profileImg.width;
-  sHeight = sWidth / targetAspect;
-  sx = 0;
-  sy = (profileImg.height - sHeight) / 2;
-}
-
-// Draw cropped image into 118x118 circle area
-ctx.drawImage(profileImg, sx, sy, sWidth, sHeight, 81, 481, 118, 118);
-ctx.restore();
+    ctx.drawImage(profileImg, sx, sy, sWidth, sHeight, 81, 481, 118, 118);
+    ctx.restore();
 
     ctx.fillStyle = "white";
     ctx.font = "35px sans-serif";
     ctx.textAlign = "left";
     ctx.fillText(requester, 215, 540);
 
-    // Website Logo (right side)
-    ctx.beginPath();
-    ctx.arc(875, 540, 35, 0, Math.PI * 2);
-    ctx.fillStyle = "white";
-    ctx.fill();
-
+    // Website Logo
     ctx.fillStyle = "white";
     ctx.font = "bold 35px sans-serif";
     ctx.textAlign = "right";
     ctx.fillText("BloodCellBD", 1135, 540);
 
-    // === Drawing Ends ===
-
-    // Final image buffer
+    // Convert to PNG and optimize
     const buffer = canvas.toBuffer("image/png");
     const optimized = await sharp(buffer).png({ quality: 90 }).toBuffer();
 
@@ -160,6 +155,5 @@ ctx.restore();
     res.status(500).send("Error generating OG image");
   }
 });
-
 
 export default router;

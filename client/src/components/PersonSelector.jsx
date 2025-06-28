@@ -19,7 +19,7 @@ function useDebounce(value, delay = 200) {
   return debouncedValue
 }
 
-const PersonSelector = ({ onSelect, label }) => {
+const PersonSelector = ({ onSelect, label, initialValue }) => {
   const [inputValue, setInputValue] = useState("")
   const [selectedUser, setSelectedUser] = useState(null)
   const [triggerSearch, setTriggerSearch] = useState(false)
@@ -65,7 +65,7 @@ const PersonSelector = ({ onSelect, label }) => {
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{label}</label>
       <input
         type="text"
-        value={responseData?.name || inputValue}
+        value={initialValue || responseData?.name || inputValue}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
         placeholder="Enter NID or Birth Registration"

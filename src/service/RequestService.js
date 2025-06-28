@@ -1,7 +1,13 @@
 import RequestModel from "../models/RequestModel.js";
 import mongoose from "mongoose";
 import userModel from "../models/UserModel.js";
+import { isEligibleDonor } from "../utility/isEligibleDonor.js";
 const ObjectId = mongoose.Types.ObjectId;
+
+// Validate ObjectId before querying or assigning
+function isValidObjectId(id) {
+  return mongoose.Types.ObjectId.isValid(id);
+}
 
 // Create Request
 export const CreateRequestService = async (req) => {
@@ -55,6 +61,7 @@ export const GetAllRequestsService = async (req, res) => {
       upazila = "",
       userId = "",
       status = "",
+      requestId = "",
     } = getQuery;
 
     const query = {};
@@ -62,8 +69,12 @@ export const GetAllRequestsService = async (req, res) => {
     if (bloodGroup.trim()) query.bloodGroup = bloodGroup.trim();
     if (district.trim()) query.district = district.trim();
     if (upazila.trim()) query.upazila = upazila.trim();
+    if (requestId.trim()) query.requestId = requestId.trim();
     if (status.trim()) {
-      const statuses = status.split(',').map(s => s.trim()).filter(Boolean);
+      const statuses = status
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
       if (statuses.length > 0) {
         query.status = { $in: statuses };
       }
@@ -80,6 +91,10 @@ export const GetAllRequestsService = async (req, res) => {
         "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
       )
       .populate(
+        "volunteerName",
+        "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
+      )
+      .populate(
         "fulfilledBy",
         "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
       )
@@ -93,13 +108,13 @@ export const GetAllRequestsService = async (req, res) => {
       )
       .sort({ createdAt: -1 });
 
-    if (!requests.length) 
-      return{
+    if (!requests.length)
+      return {
         status: false,
         message: "No blood requests found.",
         data: [],
         total: 0,
-    }
+      };
 
     return {
       status: true,
@@ -123,6 +138,14 @@ export const GetAllRequestsForAdminService = async () => {
       .populate(
         "userId",
         "name email name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
+      )
+      .populate(
+        "volunteerName",
+        "name email phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
+      )
+      .populate(
+        "processingBy",
+        "name email phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
       )
       .populate(
         "fulfilledBy",
@@ -159,12 +182,16 @@ export const GetRequestByIdService = async (req) => {
         "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
       )
       .populate(
+        "volunteerName",
+        "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
+      )
+      .populate(
         "processingBy",
         "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
       )
       .populate(
         "fulfilledBy",
-        "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
+        "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage religion upazila district"
       )
       .populate(
         "updatedBy",
@@ -190,42 +217,131 @@ export const GetRequestByIdService = async (req) => {
 };
 
 // Update Request
-export const UpdateRequestService = async (req) => {
+export const UpdateRequestService = async (req, res) => {
   try {
     const requestId = new ObjectId(req.params.id);
     const reqBody = req.body;
-    const processingBy = req.body?.processingBy;
-    const fulfilledBy = req.body?.fulfilledBy;
-
-    const existingProcessingRequest = await RequestModel.findOne({
-      processingBy: processingBy,
-    });
-
-    if (processingBy && processingBy !== existingProcessingRequest.processingBy) {
-      reqBody.processingBy = processingBy;
-    }
-
-    const existingFulfilledRequest = await RequestModel.findOne({
-      fulfilledBy: fulfilledBy,
-    });
-
-    if (fulfilledBy && fulfilledBy !== existingFulfilledRequest.fulfilledBy) {
-      reqBody.fulfilledBy = fulfilledBy;
-    }
+    const processingBy = reqBody?.processingBy;
+    const fulfilledBy = reqBody?.fulfilledBy;
+    const volunteerName = reqBody?.volunteerName;
 
     // Get user_id from headers or cookie
     const updatedBy = req.headers?.user_id || req.cookies?.user_id;
-    console.log("updatedBy", updatedBy);
-    
     if (!updatedBy) {
       return { status: false, message: "User ID is required." };
     }
 
-    reqBody.updatedBy = updatedBy;
+    // ===== ✅ Load existing request to compare with userId =====
+    const existingRequest = await RequestModel.findById(requestId);
+    if (!existingRequest) {
+      return {
+        status: false,
+        message: "Request not found.",
+      };
+    }
+
+    if (volunteerName) {
+      reqBody.volunteerName = new ObjectId(volunteerName);
+    }
+
+    // ===== ✅ Validate processingBy donor =====
+    if (!processingBy || !isValidObjectId(processingBy)) {
+      delete reqBody.processingBy;
+    } else {
+      if (processingBy.toString() === existingRequest.userId.toString()) {
+        return {
+          status: false,
+          message: "Request owner cannot process their own request.",
+        };
+      }
+
+      const existingProcessing = await RequestModel.findOne({
+        processingBy: new ObjectId(processingBy),
+        status: "processing",
+        _id: { $ne: requestId },
+      });
+
+      if (existingProcessing) {
+        return {
+          status: false,
+          message: `Donor is already processing another request (ID: ${existingProcessing.requestId}).`,
+        };
+      }
+
+      reqBody.processingBy = new ObjectId(processingBy);
+      reqBody.status = "processing";
+    }
+
+    // ===== ✅ Validate fulfilledBy donor with eligibility and update status =====
+    if (!fulfilledBy || !isValidObjectId(fulfilledBy)) {
+      delete reqBody.fulfilledBy;
+    } else {
+      if (fulfilledBy.toString() === existingRequest.userId.toString()) {
+        return {
+          status: false,
+          message: "Request owner cannot fulfill their own request.",
+        };
+      }
+
+      const existingProcessing = await RequestModel.findOne({
+        processingBy: new ObjectId(fulfilledBy),
+        status: "processing",
+        _id: { $ne: requestId },
+      });
+
+      if (existingProcessing) {
+        return {
+          status: false,
+          message: `Donor is already processing another request (ID: ${existingProcessing.requestId}).`,
+        };
+      }
+
+      const { eligible, reason } = await isEligibleDonor(fulfilledBy);
+      if (!eligible) {
+        return {
+          status: false,
+          message: `Donor is not eligible to fulfill this request. Reason: ${reason}`,
+        };
+      }
+
+      reqBody.processingBy = null;
+      reqBody.fulfilledBy = new ObjectId(fulfilledBy);
+      reqBody.status = "fulfilled";
+      
+      // Change the donor's last donation date
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, "0");
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const year = now.getFullYear();
+    const formattedDate = `${day}/${month}/${year}`;
+
+    // Calculate next donation date (120 days from today)
+    const nextDonationDate = new Date(now.getTime() + 120 * 24 * 60 * 60 * 1000);
+    const nextDay = String(nextDonationDate.getDate()).padStart(2, '0');
+    const nextMonth = String(nextDonationDate.getMonth() + 1).padStart(2, '0'); 
+    const nextYear = nextDonationDate.getFullYear();
+    const formattedNextDonationDate = `${nextDay}/${nextMonth}/${nextYear}`;
+
+    const updateResult = await userModel.findByIdAndUpdate(
+        { _id: fulfilledBy },
+        { $set: { 
+          lastDonate: formattedDate, 
+          nextDonationDate: formattedNextDonationDate 
+        } }
+      );
+
+    }
+
+    // ===== ✅ Update request =====
+    const updateData = {
+      ...reqBody,
+      updatedBy: new ObjectId(updatedBy),
+      updatedAt: new Date(),
+    };
 
     const updatedRequest = await RequestModel.findByIdAndUpdate(
       requestId,
-      { $set: reqBody },
+      { $set: updateData },
       { new: true }
     );
 
@@ -459,9 +575,17 @@ export const GetRequestsByProcessingByService = async (req) => {
     if (!processingBy || !ObjectId.isValid(processingBy)) {
       return { status: false, message: "Invalid processingBy ID." };
     }
-    const processingRequestsData = await RequestModel.find({ processingBy: processingBy })
-      .populate("userId", "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage")
-      .populate("processingBy", "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage");
+    const processingRequestsData = await RequestModel.find({
+      processingBy: processingBy,
+    })
+      .populate(
+        "userId",
+        "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
+      )
+      .populate(
+        "processingBy",
+        "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
+      );
 
     if (!processingRequestsData || processingRequestsData.length === 0) {
       return {
@@ -489,7 +613,6 @@ export const GetRequestsByProcessingByService = async (req) => {
 export const RemoveProcessingByService = async (req) => {
   try {
     const processingByID = new ObjectId(req.params.id);
-    
 
     if (!ObjectId.isValid(processingByID)) {
       return { status: false, message: "Invalid request ID format." };
@@ -501,26 +624,21 @@ export const RemoveProcessingByService = async (req) => {
       return { status: false, message: "User ID is required." };
     }
 
-    const request = await RequestModel.findOne({processingBy: processingByID});
+    const request = await RequestModel.findOne({
+      processingBy: processingByID,
+    });
 
     if (!request) {
       return { status: false, message: "Blood request not found." };
     }
 
-    if (request.status !== "processing") {
-      return {
-        status: false,
-        message: "Blood request is not in processing.",
-      };
-    }
-
     const updatedRequest = await RequestModel.findOneAndUpdate(
-      {processingBy: processingByID},
+      { processingBy: processingByID },
       {
         $set: {
           processingBy: null,
           status: "pending",
-          updatedBy: updatedBy
+          updatedBy: updatedBy,
         },
       },
       { new: true }
@@ -541,30 +659,28 @@ export const RemoveProcessingByService = async (req) => {
   } catch (e) {
     return {
       status: false,
-      message: "Failed to remove processingBy1.",
+      message: "Failed to remove processingBy.",
       details: e.message,
     };
   }
-  };
+};
 
 // Fulfill Request (Update status and set fulfilledBy)
 export const FulfillRequestService = async (req, res) => {
   try {
     const requestId = new ObjectId(req.params.id);
-    const donorId =
-      req.headers.user_id || req.cookies.user_id || req.body.fulfilledBy;
-
-    if (!donorId || !ObjectId.isValid(donorId)) {
-      return { status: false, message: "Valid donor ID is required." };
-    }
-
-    console.log("Request ID:", requestId);
-    console.log("Donor ID:", donorId);
+    const updatedBy = req.headers.user_id || req.cookies.user_id;
 
     //check if request is already fulfilled
     const request = await RequestModel.findById(requestId);
     if (request.status === "fulfilled") {
       return { status: false, message: "Blood request already fulfilled." };
+    }
+
+    const donorId = request.processingBy;
+    
+    if (!donorId || !ObjectId.isValid(donorId)) {
+      return { status: false, message: "Valid donor ID is required." };
     }
 
     const fulfilledRequest = await RequestModel.findByIdAndUpdate(
@@ -574,6 +690,7 @@ export const FulfillRequestService = async (req, res) => {
           status: "fulfilled",
           processingBy: null,
           fulfilledBy: donorId,
+          updatedBy: updatedBy,
         },
       },
       { new: true }
@@ -592,10 +709,21 @@ export const FulfillRequestService = async (req, res) => {
     const month = String(now.getMonth() + 1).padStart(2, "0");
     const year = now.getFullYear();
     const formattedDate = `${day}/${month}/${year}`;
-    const updateResult = await userModel.updateOne(
-      { _id: donorId },
-      { $set: { lastDonate: formattedDate } }
-    );
+
+    // Calculate next donation date (120 days from today)
+    const nextDonationDate = new Date(now.getTime() + 120 * 24 * 60 * 60 * 1000);
+    const nextDay = String(nextDonationDate.getDate()).padStart(2, '0');
+    const nextMonth = String(nextDonationDate.getMonth() + 1).padStart(2, '0'); 
+    const nextYear = nextDonationDate.getFullYear();
+    const formattedNextDonationDate = `${nextDay}/${nextMonth}/${nextYear}`;
+
+    const updateResult = await userModel.findByIdAndUpdate(
+        { _id: donorId },
+        { $set: { 
+          lastDonate: formattedDate, 
+          nextDonationDate: formattedNextDonationDate 
+        } }
+      );
 
     return {
       status: true,
@@ -621,8 +749,14 @@ export const GetRequestsFulfilledByService = async (req) => {
     }
 
     const requests = await RequestModel.find({ fulfilledBy: fulfilledById })
-      .populate("userId", "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage")
-      .populate("fulfilledBy", "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage");
+      .populate(
+        "userId",
+        "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
+      )
+      .populate(
+        "fulfilledBy",
+        "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
+      );
 
     if (!requests || requests.length === 0) {
       return {
@@ -693,7 +827,6 @@ export const CancelRequestService = async (req, res) => {
   }
 };
 
-
 // Reject Request (Update status and set updatedBy)
 export const RejectRequestService = async (req, res) => {
   try {
@@ -737,6 +870,222 @@ export const RejectRequestService = async (req, res) => {
     return {
       status: false,
       message: "Failed to reject blood request.",
+      details: e.message,
+    };
+  }
+};
+
+// Reset Request (Update status and set updatedBy)
+export const ResetRequestService = async (req, res) => {
+  try {
+    const requestId = new ObjectId(req.params.id);
+    const updatedBy = req.headers.user_id || req.cookies.user_id;
+
+    if (!updatedBy || !ObjectId.isValid(updatedBy)) {
+      return { status: false, message: "Valid updatedBy ID is required." };
+    }
+
+    const request = await RequestModel.findById(requestId);
+
+    if (!request) {
+      return { status: false, message: "Blood request not found." };
+    }
+
+
+   // Set lastDonate date to 121 days ago from today
+    const newLastDonateDate = new Date();
+    newLastDonateDate.setDate(newLastDonateDate.getDate() - 121);
+
+    // Format lastDonate
+    const day = String(newLastDonateDate.getDate()).padStart(2, '0');
+    const month = String(newLastDonateDate.getMonth() + 1).padStart(2, '0');
+    const year = newLastDonateDate.getFullYear();
+    const formattedLastDonateDate = `${day}/${month}/${year}`;
+
+    // Set Next Donate date to 1 day ago from today
+    const nextDonateDate = new Date();
+    nextDonateDate.setDate(nextDonateDate.getDate() - 1);
+
+    // Format NextDonate
+    const yesterDay = String(nextDonateDate.getDate()).padStart(2, '0');
+    const yesterDayMonth = String(nextDonateDate.getMonth() + 1).padStart(2, '0');
+    const yesterDayYear = nextDonateDate.getFullYear();
+    const formattedNextDonateDate = `${yesterDay}/${yesterDayMonth}/${yesterDayYear}`;
+
+
+    // Update the fulfilledBy user's lastDonate date
+    await userModel.findByIdAndUpdate(
+      { _id: request.fulfilledBy },
+      { $set: { 
+        lastDonate: formattedLastDonateDate, 
+        nextDonationDate: formattedNextDonateDate } }
+    );
+
+    const updatedRequest = await RequestModel.findByIdAndUpdate(
+      requestId,
+      {
+        $set: {
+          status: "pending",
+          processingBy: null,
+          fulfilledBy: null,
+          volunteerName: null,
+          updatedBy: updatedBy,
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedRequest) {
+      return {
+        status: false,
+        message: "Blood request not found or could not be reset.",
+      };
+    }
+
+    return {
+      status: true,
+      data: updatedRequest,
+      message: "Blood request reset successfully.",
+    };
+  } catch (e) {
+    return {
+      status: false,
+      message: "Failed to reset blood request.",
+      details: e.message,
+    };
+  }
+};
+
+// Set Volunteer Name
+export const SetVolunteerNameService = async (req) => {
+  try {
+    const requestId = new ObjectId(req.params.id);
+    const volunteerName = req.headers.user_id || req.cookies.user_id;
+
+    if (!volunteerName || !ObjectId.isValid(volunteerName)) {
+      return { status: false, message: "Valid volunteer ID is required." };
+    }
+
+    const request = await RequestModel.findById(requestId);
+
+    if (!request) {
+      return { status: false, message: "Blood request not found." };
+    }
+
+    const updatedRequest = await RequestModel.findByIdAndUpdate(
+      requestId,
+      { $set: { volunteerName: volunteerName } },
+      { new: true }
+    );
+
+    if (!updatedRequest) {
+      return {
+        status: false,
+        message: "Blood request not found or could not be updated.",
+      };
+    }
+
+    return {
+      status: true,
+      data: updatedRequest,
+      message: "Volunteer name set successfully.",
+    };
+  } catch (e) {
+    return {
+      status: false,
+      message: "Failed to set volunteer name.",
+      details: e.message,
+    };
+  }
+};
+
+// Get Requests by Volunteer Name
+export const GetRequestsByVolunteerNameService = async (req) => {
+  try {
+    const volunteerName = req.headers.user_id || req.cookies.user_id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit);
+    const skip = (page - 1) * limit;
+
+    if (!volunteerName || !ObjectId.isValid(volunteerName)) {
+      return { status: false, message: "Invalid volunteer ID." };
+    }
+
+    const totalCount = await RequestModel.countDocuments({
+      volunteerName: volunteerName,
+    });
+
+    const volunteerRequestsData = await RequestModel.find({
+      volunteerName: volunteerName,
+    })
+    .skip(skip)
+    .limit(limit)
+    .sort({ createdAt: -1 });
+
+    if (!volunteerRequestsData || volunteerRequestsData.length === 0) {
+      return {
+        status: false,
+        message: "No blood requests found by this user.",
+      };
+    }
+
+    return {
+      status: true,
+      data: volunteerRequestsData,
+      totalPages: Math.ceil(totalCount / limit),
+      currentPage: page,
+      totalCount,
+      message: "Blood requests by volunteer name retrieved successfully.",
+    };
+  } catch (e) {
+    return {
+      status: false,
+      message: "Failed to retrieve blood requests by volunteer name.",
+      details: e.message,
+    };
+  }
+};
+
+// Remove Volunteer Name
+export const RemoveVolunteerNameService = async (req) => {
+  try {
+    const volunteerName = new ObjectId(req.params.id);
+    const updatedBy = req.headers.user_id || req.cookies.user_id;
+
+    if (!updatedBy || !ObjectId.isValid(updatedBy)) {
+      return { status: false, message: "Valid updatedBy ID is required." };
+    }
+
+    const request = await RequestModel.findOne({
+      volunteerName: volunteerName,
+    });
+
+    if (!request) {
+      return { status: false, message: "Volunteer name not found." };
+    }
+
+    const updatedRequest = await RequestModel.findOneAndUpdate(
+      { volunteerName: volunteerName },
+      { $set: { volunteerName: null } },
+      { new: true }
+    );
+
+    if (!updatedRequest) {
+      return {
+        status: false,
+        message: "Volunteer name not found or could not be updated.",
+      };
+    }
+
+    return {
+      status: true,
+      data: updatedRequest,
+      message: "Volunteer name removed successfully.",
+    };
+  } catch (e) {
+    return {
+      status: false,
+      message: "Failed to remove volunteer name.",
       details: e.message,
     };
   }

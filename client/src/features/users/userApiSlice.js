@@ -48,11 +48,19 @@ export const userApiSlice = apiSlice.injectEndpoints({
       providesTags: ['User'],
     }),
     getUsersByUpazila: builder.query({
-      query: (upazila) => `users/upazila/${upazila}`,
+      query: (reqBody) => ({
+        url: 'users/upazila',
+        method: 'GET',
+        params: reqBody,
+      }),
       providesTags: ['User'],
     }),
     getUsersByDistrict: builder.query({
-      query: (district) => `users/district/${district}`,
+      query: (reqBody) => ({
+        url: 'users/district',
+        method: 'GET',
+        params: reqBody,
+      }),
       providesTags: ['User'],
     }),
     getUsersByName: builder.query({

@@ -100,3 +100,42 @@ export const getIDError = (id) => {
   if (!isValidID(id)) return 'ID number must be 10, 13, or 17 digits';
   return null;
 };
+
+// Phone number validation for Bangladesh
+export const validateBangladeshiPhoneNumber = (phoneNumber) => {
+  if (!phoneNumber) return false;
+  
+  // Remove any +880 prefix if present
+  const normalizedPhone = phoneNumber.replace(/^\+880/, '0');
+  
+  // Must be exactly 11 digits and start with '01' followed by 3-9 for operator code
+  return /^01[3-9]\d{8}$/.test(normalizedPhone) && normalizedPhone.length === 11;
+};
+
+// Validate contact number
+export const validateContactNumber = (number) => {
+  if (!number) {
+    return "Contact number is required";
+  }
+  if (number.length !== 11 && !number.startsWith('+880') && !number.startsWith('880')) {
+    return "Phone number must be exactly 11 digits (e.g., 01712345678)";
+  }
+  if (!validateBangladeshiPhoneNumber(number)) {
+    return "Please enter a valid Bangladesh phone number starting with 01";
+  }
+  return "";
+};
+
+// Validate WhatsApp number
+export const validateWhatsAppNumber = (number) => {
+  if (!number) {
+    return ""; // WhatsApp number is optional
+  }
+  if (number.length !== 11 && !number.startsWith('+880') && !number.startsWith('880')) {
+    return "Phone number must be exactly 11 digits (e.g., 01712345678)";
+  }
+  if (!validateBangladeshiPhoneNumber(number)) {
+    return "Please enter a valid Bangladesh phone number starting with 01";
+  }
+  return "";
+};

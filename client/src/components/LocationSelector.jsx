@@ -7,14 +7,14 @@ import { useDistrictUtils, useUpazilaUtils, formatLocationInfo } from '../utils/
  */
 const LocationSelector = ({ 
   initialDistrictName = '',
-  initialUpazilaName ='',
+  initialUpazilaName = '',
   onLocationChange, 
   initialDistrictId = '',
   initialUpazilaId = '',
   required = false,
   className = ''
 }) => {
-  const isInitialRender = useRef(true);
+  const isInitialMount = useRef(true);
   
   // Get districts using the custom hook
   const { 
@@ -30,7 +30,7 @@ const LocationSelector = ({
 
   // District state
   const [selectedDistrictId, setSelectedDistrictId] = useState(initialDistrictId);
-  const [districtSearchTerm, setDistrictSearchTerm] = useState('');
+  const [districtSearchTerm, setDistrictSearchTerm] = useState(initialDistrictName || '');
   const [showDistrictDropdown, setShowDistrictDropdown] = useState(false);
   
   // Get upazilas based on selected district
@@ -49,30 +49,60 @@ const LocationSelector = ({
 
   // Upazila state
   const [selectedUpazilaId, setSelectedUpazilaId] = useState(initialUpazilaId);
-  const [upazilaSearchTerm, setUpazilaSearchTerm] = useState('');
+  const [upazilaSearchTerm, setUpazilaSearchTerm] = useState(initialUpazilaName || '');
   const [showUpazilaDropdown, setShowUpazilaDropdown] = useState(false);
 
-  // Fill in search terms from initial values when data is available
+  // Initialize both district and upazila on mount
   useEffect(() => {
-    if (isInitialRender.current && districts.length > 0) {
-      if (initialDistrictId) {
+    if (isInitialMount.current) {
+      // Set initial district
+      if (districts.length > 0 && initialDistrictId) {
         const district = districts.find(d => d._id === initialDistrictId);
         if (district) {
-          setDistrictSearchTerm(district.name || '');
+          setDistrictSearchTerm(district.name || initialDistrictName || '');
+          setSelectedDistrictId(initialDistrictId);
+        } else if (initialDistrictName) {
+          setDistrictSearchTerm(initialDistrictName);
         }
       }
-      isInitialRender.current = false;
-    }
-  }, [districts, initialDistrictId]);
 
+      // Set initial upazila name immediately, even before upazilas are loaded
+      if (initialUpazilaName) {
+        setUpazilaSearchTerm(initialUpazilaName);
+      }
+      
+      isInitialMount.current = false;
+    }
+  }, [districts, initialDistrictId, initialDistrictName, initialUpazilaName]);
+
+  // Update upazila ID when upazilas are loaded
   useEffect(() => {
-    if (selectedDistrictId && upazilas.length > 0 && initialUpazilaId) {
+    if (upazilas.length > 0 && initialUpazilaId) {
       const upazila = upazilas.find(u => u._id === initialUpazilaId);
       if (upazila) {
-        setUpazilaSearchTerm(upazila.name || '');
+        setUpazilaSearchTerm(upazila.name || initialUpazilaName || '');
+        setSelectedUpazilaId(initialUpazilaId);
       }
     }
-  }, [upazilas, initialUpazilaId, selectedDistrictId]);
+  }, [upazilas, initialUpazilaId, initialUpazilaName]);
+
+  // Notify parent of initial values
+  useEffect(() => {
+    if (isInitialMount.current && (initialDistrictId || initialUpazilaId)) {
+      const selectedDistrict = districts.find(d => d._id === initialDistrictId);
+      const selectedUpazila = upazilas.find(u => u._id === initialUpazilaId);
+      
+      if (onLocationChange) {
+        onLocationChange({
+          districtId: initialDistrictId || '',
+          upazilaId: initialUpazilaId || '',
+          district: selectedDistrict || null,
+          upazila: selectedUpazila || null,
+          ...formatLocationInfo(selectedDistrict, selectedUpazila)
+        });
+      }
+    }
+  }, [districts, upazilas, initialDistrictId, initialUpazilaId, onLocationChange]);
 
   // Filtered lists
   const filteredDistricts = districtSearchTerm ? filterDistricts(districtSearchTerm) : districts;
@@ -105,7 +135,7 @@ const LocationSelector = ({
 
   useEffect(() => {
     // Skip the initial render to prevent an infinite loop on component mount
-    if (!isInitialRender.current) {
+    if (!isInitialMount.current) {
       // Only call when IDs have actually changed, not on every render
       if (selectedDistrictId || selectedUpazilaId) {
         // Add a small delay to prevent rapid consecutive updates
@@ -121,7 +151,7 @@ const LocationSelector = ({
 
   // Reset upazila when district changes
   useEffect(() => {
-    if (selectedDistrictId !== initialDistrictId && !isInitialRender.current) {
+    if (selectedDistrictId !== initialDistrictId && !isInitialMount.current) {
       setSelectedUpazilaId('');
       setUpazilaSearchTerm('');
     }
@@ -158,6 +188,39 @@ const LocationSelector = ({
     setTimeout(() => setShowUpazilaDropdown(false), 200);
   }, []);
 
+  // Handle clearing district
+  const handleClearDistrict = useCallback(() => {
+    setDistrictSearchTerm('');
+    setSelectedDistrictId('');
+    setUpazilaSearchTerm('');
+    setSelectedUpazilaId('');
+    if (onLocationChange) {
+      onLocationChange({
+        districtId: '',
+        upazilaId: '',
+        district: null,
+        upazila: null,
+        formattedLocation: ''
+      });
+    }
+  }, [onLocationChange]);
+
+  // Handle clearing upazila
+  const handleClearUpazila = useCallback(() => {
+    setUpazilaSearchTerm('');
+    setSelectedUpazilaId('');
+    if (onLocationChange) {
+      const selectedDistrict = districts.find(d => d._id === selectedDistrictId);
+      onLocationChange({
+        districtId: selectedDistrictId,
+        upazilaId: '',
+        district: selectedDistrict,
+        upazila: null,
+        ...formatLocationInfo(selectedDistrict, null)
+      });
+    }
+  }, [onLocationChange, selectedDistrictId, districts]);
+
   return (
     <div className={`location-selector ${className}`}>
       {/* District Selection */}
@@ -171,7 +234,7 @@ const LocationSelector = ({
             id="district"
             className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all dark:bg-gray-700 dark:text-white"
             placeholder="Search for a district"
-            value={districtSearchTerm || initialDistrictName}
+            value={districtSearchTerm}
             onChange={(e) => {
               setDistrictSearchTerm(e.target.value);
               setShowDistrictDropdown(true);
@@ -180,7 +243,17 @@ const LocationSelector = ({
             onBlur={handleDistrictBlur}
             required={required}
           />
-          
+          {districtSearchTerm && (
+            <button
+              type="button"
+              onClick={handleClearDistrict}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
+              title="Clear district"
+            >
+              &#10005;
+            </button>
+          )}
+
           {showDistrictDropdown && (
             <div className="absolute z-10 w-full mt-1 border border-neutral-300 bg-white rounded-md shadow-lg max-h-60 overflow-auto dark:bg-gray-700">
               {districtsLoading ? (
@@ -217,7 +290,7 @@ const LocationSelector = ({
             id="upazila"
             className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all dark:bg-gray-700 dark:text-white"
             placeholder={selectedDistrictId ? "Search for an upazila" : "Select a district first"}
-            value={upazilaSearchTerm || initialUpazilaName}
+            value={upazilaSearchTerm}
             onChange={(e) => {
               setUpazilaSearchTerm(e.target.value);
               setShowUpazilaDropdown(true);
@@ -227,7 +300,17 @@ const LocationSelector = ({
             disabled={!selectedDistrictId}
             required={required}
           />
-          
+          {upazilaSearchTerm && (
+            <button
+              type="button"
+              onClick={handleClearUpazila}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
+              title="Clear upazila"
+            >
+              &#10005;
+            </button>
+          )}
+
           {showUpazilaDropdown && selectedDistrictId && (
             <div className="absolute z-10 w-full mt-1 border border-neutral-300 bg-white rounded-md shadow-lg max-h-60 overflow-auto dark:bg-gray-700">
               {upazilasLoading ? (

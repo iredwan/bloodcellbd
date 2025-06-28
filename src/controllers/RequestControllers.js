@@ -15,6 +15,10 @@ import {
   RemoveProcessingByService,
   CancelRequestService,
   RejectRequestService,
+  ResetRequestService,
+  SetVolunteerNameService,
+  GetRequestsByVolunteerNameService,
+  RemoveVolunteerNameService
 } from "../service/RequestService.js";
 
 // Create Blood Request
@@ -60,7 +64,7 @@ export const GetRequestById = async (req, res) => {
 // Update Blood Request
 export const UpdateRequest = async (req, res) => {
   try {
-    const result = await UpdateRequestService(req);
+    const result = await UpdateRequestService(req, res);
     return res.status(200).json(result);
   } catch (error) {
     return res.status(500).json({ status: false, message: "Error updating blood request", error: error.message });
@@ -76,7 +80,6 @@ export const DeleteRequest = async (req, res) => {
     return res.status(500).json({ status: false, message: "Error deleting blood request", error: error.message });
   }
 };
-
 
 // Get Fulfilled Blood Requests
 export const GetFulfilledRequests = async (req, res) => {
@@ -177,3 +180,44 @@ export const RejectRequest = async (req, res) => {
     return res.status(500).json({ status: false, message: "Error rejecting blood request", error: error.message });
   }
 };
+
+// Reset Blood Request
+export const ResetRequest = async (req, res) => {
+  try {
+    const result = await ResetRequestService(req);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({ status: false, message: "Error resetting blood request", error: error.message });
+  }
+};
+
+// Set Volunteer Name
+export const SetVolunteerName = async (req, res) => {
+  try {
+    const result = await SetVolunteerNameService(req);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({ status: false, message: "Error setting volunteer name", error: error.message });
+  }
+};    
+
+// Get Requests by Volunteer Name
+export const GetRequestsByVolunteerName = async (req, res) => {
+  try {
+    const result = await GetRequestsByVolunteerNameService(req);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({ status: false, message: "Error retrieving requests by volunteer name", error: error.message });
+  }
+};
+
+// Remove Volunteer Name
+export const RemoveVolunteerName = async (req, res) => {
+  try {
+    const result = await RemoveVolunteerNameService(req);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({ status: false, message: "Error removing volunteer name", error: error.message });
+  }
+};
+

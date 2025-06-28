@@ -11,8 +11,8 @@ router.get('/profile/:id', GetUserById);
 router.patch('/profile-update/:id', protect, UpdateUserByIdSelf);
 router.get('/eligible', protect, EligibleUser);
 router.get('/bloodgroup/:bloodGroup', protect, GetUserByBloodGroup);
-router.get('/upazila/:upazila', protect, GetUserByUpazila);
-router.get('/district/:district', protect, GetUserByDistrict);
+router.get('/upazila', protect, GetUserByUpazila);
+router.get('/district', protect, GetUserByDistrict);
 router.get('/all', protect, GetAllUser);
 router.get('/profile-by-user-id', protect, GetUserByUserId);
 
@@ -25,9 +25,9 @@ router.patch('/profile-update-ref/:id', protect, restrictTo('Moderator', 'Monito
 
 router.get('/all-for-admin', protect, restrictTo('Moderator', 'Monitor', 'Upazila Coordinator', 'Upazila Co-coordinator', 'Upazila IT & Media Coordinator', 'Upazila Logistics Coordinator', 'District Coordinator', 'District Co-coordinator', 'District IT & Media Coordinator', 'District Logistics Coordinator', 'Division Coordinator', 'Division Co-coordinator', "Head of IT & Media", "Head of Logistics", 'Admin'), GetAllUserForAdmin);
 
-router.get('/nid-or-birth-registration/:nidOrBirthRegistration', protect, restrictTo('Moderator', 'Monitor', 'Upazila Coordinator', 'Upazila Co-coordinator', 'Upazila IT & Media Coordinator', 'Upazila Logistics Coordinator', 'District Coordinator', 'District Co-coordinator', 'District IT & Media Coordinator', 'District Logistics Coordinator', 'Division Coordinator', 'Division Co-coordinator', "Head of IT & Media", "Head of Logistics", 'Admin'), GetUserByNIDOrBirthRegistration);
+router.get('/nid-or-birth-registration/:nidOrBirthRegistration', protect, restrictTo('Moderator', 'Technician', 'Monitor', 'Upazila Coordinator', 'Upazila Co-coordinator', 'Upazila IT & Media Coordinator', 'Upazila Logistics Coordinator', 'District Coordinator', 'District Co-coordinator', 'District IT & Media Coordinator', 'District Logistics Coordinator', 'Division Coordinator', 'Division Co-coordinator', "Head of IT & Media", "Head of Logistics", 'Admin'), GetUserByNIDOrBirthRegistration);
 
-router.get('/name/:name', protect, restrictTo('Moderator', 'Monitor', 'Upazila Coordinator', 'Upazila Co-coordinator', 'Upazila IT & Media Coordinator', 'Upazila Logistics Coordinator', 'District Coordinator', 'District Co-coordinator', 'District IT & Media Coordinator', 'District Logistics Coordinator', 'Division Coordinator', 'Division Co-coordinator', "Head of IT & Media", "Head of Logistics", 'Admin'), GetUserByName);
+router.get('/name/:name', protect, restrictTo('Moderator', 'Technician', 'Monitor', 'Upazila Coordinator', 'Upazila Co-coordinator', 'Upazila IT & Media Coordinator', 'Upazila Logistics Coordinator', 'District Coordinator', 'District Co-coordinator', 'District IT & Media Coordinator', 'District Logistics Coordinator', 'Division Coordinator', 'Division Co-coordinator', "Head of IT & Media", "Head of Logistics", 'Admin'), GetUserByName);
 
 router.get('/pending', protect, restrictTo('Moderator', 'Monitor', 'Upazila Coordinator', 'Upazila Co-coordinator', 'Upazila IT & Media Coordinator', 'Upazila Logistics Coordinator', 'District Coordinator', 'District Co-coordinator', 'District IT & Media Coordinator', 'District Logistics Coordinator', 'Division Coordinator', 'Division Co-coordinator', "Head of IT & Media", "Head of Logistics", 'Admin'), GetPendingUser);
 

@@ -21,6 +21,8 @@ router.get("/user-info", async (req, res) => {
 
     const user = await userModel.findById(decoded.id);
     if(user.role !== decoded.role){
+      // Remove token from cookie
+      res.clearCookie('token');
       return res.status(401).json({ status: false, message: "Unauthorized" });
     }
 

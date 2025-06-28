@@ -907,38 +907,41 @@ export const GetUserByBloodGroupService = async (req) => {
 
 export const GetUserByUpazilaService = async (req) => {
   try {
-    const upazila = req.params.upazila;
+    const upazila = req.query.upazila;
+    const bloodGroup = req.query.bloodGroup;
+    const limit = 10;
 
     if (!upazila) {
       return { status: false, message: "Upazila parameter is required." };
     }
 
-    const users = await UserModel.find(
-      {
-        upazila: upazila,
-      },
-      {
-        nidOrBirthRegistrationImage: 0,
-        password: 0,
-        reference: 0,
-        updatedBy: 0,
-        updatedAt: 0,
-        createdAt: 0,
-      }
-    );
+    // Step 1: Fetch all matched users
+    const users = await UserModel.find({
+      upazila,
+      isBanned: false,
+      isApproved: true,
+      bloodGroup,
+    })
+      .select("name phone whatsappNumber bloodGroup lastDonate profileImage gender");
 
-    if (!users || users.length === 0) {
+    // Step 2: Filter using model method
+    const eligibleUsers = users
+      .filter(user => user.isEligible());
+
+    if (eligibleUsers.length === 0) {
       return {
         status: false,
-        message: "No users found in the specified upazila.",
+        message: "No eligible users found in the specified upazila.",
       };
     }
 
+    // Step 3: Limit results
     return {
       status: true,
-      data: users,
-      message: `Users in upazila ${upazila} retrieved successfully.`,
+      data: eligibleUsers.slice(0, limit),
+      message: `Eligible users in upazila ${upazila} retrieved successfully.`,
     };
+
   } catch (e) {
     return {
       status: false,
@@ -948,10 +951,12 @@ export const GetUserByUpazilaService = async (req) => {
   }
 };
 
+
 export const GetUserByDistrictService = async (req) => {
   try {
-    const district = req.params.district;
-    
+    const district = req.query.district;
+    const bloodGroup = req.query.bloodGroup;
+    const limit = 10;
 
     if (!district) {
       return { status: false, message: "District parameter is required." };
@@ -960,18 +965,15 @@ export const GetUserByDistrictService = async (req) => {
     const users = await UserModel.find(
       {
         district: district,
+        isBanned: false,
+        isApproved: true,
+        bloodGroup: bloodGroup,
       },
-      {
-        nidOrBirthRegistrationImage: 0,
-        password: 0,
-        reference: 0,
-        updatedBy: 0,
-        updatedAt: 0,
-        createdAt: 0,
-      }
-    );
+    ).select("name phone whatsappNumber bloodGroup lastDonate profileImage gender")
 
-    if (!users || users.length === 0) {
+    const eligibleUsers = users.filter(user => user.isEligible());
+
+    if (eligibleUsers.length === 0) {
       return {
         status: false,
         message: "No users found in the specified district.",
@@ -980,8 +982,8 @@ export const GetUserByDistrictService = async (req) => {
 
     return {
       status: true,
-      data: users,
-      message: `Users in district ${district} retrieved successfully.`,
+      data: eligibleUsers,
+      message: `Eligible users in district ${district} retrieved successfully.`,
     };
   } catch (e) {
     return {

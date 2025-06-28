@@ -1,4 +1,4 @@
-import BloodDonationPost from "@/components/BloodDonationPost";
+import RequestDetailsPagePublic from "@/components/RequestDetailsPagePublic";
 
 export async function generateMetadata(props) {
   const params = await props?.params; 
@@ -16,6 +16,10 @@ export async function generateMetadata(props) {
       cache: "no-store",
     });
     const data = await res.json();
+    const request = data?.data;
+    const requestUser = data?.data.userId;
+
+    const ogUrl = `${process.env.NEXT_PUBLIC_API_URL}/og/request?name=${encodeURIComponent(requestUser.name)}&bloodGroup=${encodeURIComponent(request.bloodGroup)}&district=${encodeURIComponent(request.district)}&upazila=${encodeURIComponent(request.upazila)}&hospitalName=${encodeURIComponent(request.hospitalName)}&profileImage=${encodeURIComponent(requestUser.profileImage)}`;
 
     return {
       title: `Need ${data?.data?.bloodGroup} Blood`,
@@ -23,7 +27,7 @@ export async function generateMetadata(props) {
       openGraph: {
         images: [
           {
-            url: `https://yourdomain.com/api/og-request?group=${data?.data?.bloodGroup}&location=${data?.data?.district}`,
+            url: ogUrl,
             width: 1200,
             height: 630,
           },
@@ -42,5 +46,5 @@ export async function generateMetadata(props) {
 export default async function Page(props) {
   const { id } = await props.params;
 
-  return <BloodDonationPost requestMongoDBId={id} />;
+  return <RequestDetailsPagePublic requestMongoDBId={id} />;
 }

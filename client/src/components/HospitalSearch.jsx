@@ -9,7 +9,7 @@ const HospitalSearch = ({
   placeholder = 'Search hospital...',
 }) => {
   const [query, setQuery] = useState('');
-  const [selectedHospital, setSelectedHospital] = useState(initialHospital);
+  const [selectedHospital, setSelectedHospital] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const wrapperRef = useRef(null);
 
@@ -19,9 +19,7 @@ const HospitalSearch = ({
       limit: 10,
       search: query,
     },
-    {
-      skip: query.length < 3,
-    }
+    { skip: query.length < 3 }
   );
 
   const hospitals = data?.data || [];
@@ -33,13 +31,15 @@ const HospitalSearch = ({
     []
   );
 
+  // Initial hospital load
   useEffect(() => {
-    if (initialHospital) {
+    if (initialHospital && !selectedHospital) {
       setSelectedHospital(initialHospital);
       setQuery(initialHospital.name);
     }
-  }, [initialHospital]);
+  }, [initialHospital, selectedHospital]);
 
+  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
@@ -54,6 +54,7 @@ const HospitalSearch = ({
     setSelectedHospital(hospital);
     setQuery(hospital.name);
     setIsDropdownOpen(false);
+
     if (onHospitalSelect) {
       onHospitalSelect({
         name: hospital.name,
@@ -66,17 +67,17 @@ const HospitalSearch = ({
 
   return (
     <div ref={wrapperRef} className="w-full relative">
-      <label htmlFor="bloodUnit"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
         {label}
       </label>
       <input
         type="text"
         value={query}
         onChange={(e) => {
-          setQuery(e.target.value);
+          const val = e.target.value;
+          setQuery(val);
           setIsDropdownOpen(true);
-          debouncedSearch(e.target.value);
+          debouncedSearch(val);
         }}
         onFocus={() => setIsDropdownOpen(true)}
         placeholder={placeholder}
@@ -90,10 +91,7 @@ const HospitalSearch = ({
           {isError && (
             <div className="p-2 text-center text-red-500">
               {error?.data?.message || 'Error loading hospitals'}
-              <button
-                onClick={refetch}
-                className="block text-blue-500 mt-2 text-sm mx-auto"
-              >
+              <button onClick={refetch} className="block text-blue-500 mt-2 text-sm mx-auto">
                 Retry
               </button>
             </div>
@@ -103,7 +101,7 @@ const HospitalSearch = ({
             hospitals.map((hospital) => (
               <div
                 key={hospital._id}
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer dark:hover:bg-gray-600 border-b-2 border-neutral-300 dark:border-gray-600"
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer dark:hover:bg-gray-600 border-b border-neutral-200 dark:border-gray-600"
                 onClick={() => handleSelect(hospital)}
               >
                 <div className="font-medium text-gray-900 dark:text-gray-100">{hospital.name}</div>

@@ -145,11 +145,14 @@ const userSchema = new mongoose.Schema({
 userSchema.methods.isEligible = function () {
   if (!this.lastDonate) return true;
 
-  const lastDonateDate = new Date(this.lastDonate);
+  // Parse DD/MM/YYYY format
+  const [day, month, year] = this.lastDonate.split('/');
+  const lastDonateDate = new Date(year, month - 1, day); // month is 0-indexed
+  
   const today = new Date();
   const diffInDays = Math.floor((today - lastDonateDate) / (1000 * 60 * 60 * 24));
 
-  return diffInDays >= 120; 
+  return diffInDays >= 120;
 };
 
 const userModel = mongoose.model("User", userSchema);

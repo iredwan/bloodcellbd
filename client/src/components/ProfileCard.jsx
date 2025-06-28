@@ -3,6 +3,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaUser, FaBriefcase, FaPhone, FaTint } from 'react-icons/fa';
+import { selectUserInfo, selectIsAuthenticated } from '@/features/userInfo/userInfoSlice';
+import { useSelector } from 'react-redux';
 
 export default function ProfileCard({
   id,
@@ -18,6 +20,10 @@ export default function ProfileCard({
 }) {
   
   const baseImageURL = process.env.NEXT_PUBLIC_IMAGE_URL;
+
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const userInfo = useSelector(selectUserInfo);
+  const userRole = userInfo?.role;
 
   return (
       <div className="relative max-w-2xl w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-[18px] shadow-md p-6 hover:shadow-xl transition-all duration-300">
@@ -43,9 +49,16 @@ export default function ProfileCard({
           <div className="text-center md:text-left space-y-2 w-full">
             <h3 className="text-xl font-semibold text-gray-800 dark:text-white line-clamp-2 flex items-center justify-center md:justify-start">
               <span className="flex items-center">
-                <Link href={`/profile-detail?id=${id}`}>
-                  {name}
-                </Link>
+              <Link
+                href={
+                  isAuthenticated && userRole !== 'user'
+                    ? `/dashboard/users/details?id=${id}`
+                    : `/profile-detail?id=${id}`
+                }
+              >
+                {name}
+              </Link>
+
                 {isVerified && (
                   <span className="text-primary ml-1 inline-block">
                     <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">

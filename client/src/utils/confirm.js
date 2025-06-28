@@ -6,15 +6,15 @@ import Swal from 'sweetalert2';
  * @param {Object} options - Configuration options for the confirmation dialog
  * @param {string} options.title - The title of the confirmation dialog (default: 'Are you sure?')
  * @param {string} options.text - The description text (default: 'This action cannot be undone!')
- * @param {string} options.confirmButtonText - Text for the confirm button (default: 'Yes, delete it!')
+ * @param {string} options.confirmButtonText - Text for the confirm button (default: 'Yes')
  * @param {string} options.cancelButtonText - Text for the cancel button (default: 'Cancel')
  * @param {string} options.icon - Icon to display (default: 'warning')
  * @returns {Promise<boolean>} - Resolves to true if confirmed, false if cancelled
  */
-const deleteConfirm = async ({
+const confirm = async ({
   title = 'Are you sure?',
   text = 'This action cannot be undone!',
-  confirmButtonText = 'Yes, delete it!',
+  confirmButtonText = 'Yes',
   cancelButtonText = 'Cancel',
   icon = 'warning'
 } = {}) => {
@@ -39,5 +39,5 @@ const deleteConfirm = async ({
   }
 };
 
-export default deleteConfirm; 
+export default confirm; 
 

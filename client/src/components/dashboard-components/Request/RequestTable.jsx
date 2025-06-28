@@ -9,7 +9,6 @@ const RequestTable = ({
   isLoading,
   onEdit,
   onDelete,
-  isProcessingRequest,
   onProcess,
   onRowClick,
   totalPages,
@@ -25,10 +24,6 @@ const RequestTable = ({
   typeof onEdit === "function" ||
   typeof onDelete === "function" 
 
-  
-  const showProcessIcon = 
-  typeof onProcess === "function" &&
-  Boolean(isProcessingRequest) === false;
 
   const handleDelete = async (e, id) => {
     e.stopPropagation();
@@ -71,7 +66,7 @@ const RequestTable = ({
                   )  }
                 </th>
                 <th className="hidden sm:table-cell px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Location
+                  Hospital Name
                 </th>
                 <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Blood
@@ -97,7 +92,7 @@ const RequestTable = ({
                       {request.requestId}
                     </div>
                     <div className="sm:hidden text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      {request.district}, {request.upazila}
+                      {request.hospitalName}
                     </div>
                     <div className="md:hidden text-xs mt-1">
                       <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
@@ -172,9 +167,9 @@ const RequestTable = ({
                     }
                     </div>
                   </td>
-                  <td className="hidden sm:table-cell px-3 sm:px-4 py-3 sm:py-4 whitespace-nowrap">
+                  <td className="hidden sm:table-cell px-3 sm:px-4 py-3 sm:py-4 ">
                     <div className="text-sm text-gray-900 dark:text-white">
-                      {request.district}, {request.upazila}
+                      {request.hospitalName}
                     </div>
                   </td>
                   <td className="px-3 sm:px-4 py-3 sm:py-4 whitespace-nowrap">
@@ -188,6 +183,10 @@ const RequestTable = ({
                         ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
                         : request.status === 'pending'
                         ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                        : request.status === 'cancelled'
+                        ? 'bg-primary text-red-100'
+                        : request.status === 'rejected'
+                        ? 'bg-primary text-red-100'
                         : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
                     }`}>
                       {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
@@ -196,18 +195,6 @@ const RequestTable = ({
                   {(showActions) && (
                     <td className="px-3 sm:px-4 py-3 sm:py-4 whitespace-nowrap text-right">
                     <div className="flex justify-end space-x-2">
-                      {showProcessIcon && (
-                        <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onProcess(request._id);
-                        }}
-                        className="text-blue-500 hover:text-blue-700 transition-colors p-2 sm:p-1"
-                        title="Do you want to donate blood for this request?"
-                      >
-                        <BiSolidDonateBlood className="text-base sm:text-base" />
-                      </button>
-                      )}
                       {typeof onEdit === "function" && (
                         <button
                           onClick={(e) => {

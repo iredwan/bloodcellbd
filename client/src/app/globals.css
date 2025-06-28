@@ -320,3 +320,15 @@ footer .border-primary-dark {
 }
 
 
+
+/* global.css বা app/globals.css */
+.input-number-hide-spinner::-webkit-inner-spin-button,
+.input-number-hide-spinner::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.input-number-hide-spinner {
+  -moz-appearance: textfield; /* Firefox */
+}
+

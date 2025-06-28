@@ -140,7 +140,7 @@ const HospitalsPage = () => {
     }
 
     return (
-        <div className="p-4 md:p-6">
+        <div className="p-2 md:p-6">
                 <h1 className="text-2xl md:text-3xl text-center mb-4 font-bold text-primary">Hospitals</h1>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                 <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">

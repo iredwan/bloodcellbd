@@ -90,8 +90,6 @@ export const protect = async (req, res, next) => {
   }
 };
 
-
-
 export const restrictTo = (...roles) => {
   return (req, res, next) => {
     const userRole = req.user?.role;

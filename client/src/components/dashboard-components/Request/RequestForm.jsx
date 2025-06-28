@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import CustomSelect from '@/components/CustomSelect';
-import LocationSelector from '@/components/LocationSelector';
+import HospitalSearch from '@/components/HospitalSearch';
+import { validateContactNumber, validateWhatsAppNumber } from '@/utils/validations';
 
 const RequestForm = ({ 
   onSubmit, 
@@ -16,11 +17,18 @@ const RequestForm = ({
     bloodGroup: '',
     bloodUnit: 1,
     hospitalName: '',
+    hospitalId: '',
     upazila: '',
     district: '',
     contactNumber: '',
+    whatsappNumber: '',
     contactRelation: '',
     description: '',
+  });
+
+  const [validationErrors, setValidationErrors] = useState({
+    contactNumber: '',
+    whatsappNumber: ''
   });
 
   useEffect(() => {
@@ -29,9 +37,11 @@ const RequestForm = ({
         bloodGroup: initialData.bloodGroup || '',
         bloodUnit: initialData.bloodUnit || 1,
         hospitalName: initialData.hospitalName || '',
+        hospitalId: initialData.hospitalId || '',
         upazila: initialData.upazila || '',
         district: initialData.district || '',
         contactNumber: initialData.contactNumber || '',
+        whatsappNumber: initialData.whatsappNumber || '',
         contactRelation: initialData.contactRelation || '',
         description: initialData.description || '',
       });
@@ -44,18 +54,45 @@ const RequestForm = ({
       ...prev,
       [name]: value
     }));
+    
+    // Clear validation errors when user types
+    if (name === 'contactNumber' || name === 'whatsappNumber') {
+      setValidationErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
   };
 
-  const handleLocationChange = (locationData) => {
+  const handleHospitalSelect = (hospitalData) => {
     setFormData(prev => ({
       ...prev,
-      district: locationData.districtName || '',
-      upazila: locationData.upazilaName || ''
+      hospitalName: hospitalData.name,
+      hospitalId: hospitalData.id,
+      district: hospitalData.district,
+      upazila: hospitalData.upazila
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate phone numbers
+    const contactNumberError = validateContactNumber(formData.contactNumber);
+    const whatsappNumberError = validateWhatsAppNumber(formData.whatsappNumber);
+
+    const newValidationErrors = {
+      contactNumber: contactNumberError,
+      whatsappNumber: whatsappNumberError
+    };
+
+    setValidationErrors(newValidationErrors);
+
+    // If there are validation errors, prevent submission
+    if (contactNumberError || whatsappNumberError) {
+      return;
+    }
+
     try {
       await onSubmit(formData);
     } catch (error) {
@@ -80,7 +117,7 @@ const RequestForm = ({
 
         <div>
           <label
-          for="bloodUnit"
+          htmlFor="bloodUnit"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Blood Units
           </label>
@@ -97,36 +134,21 @@ const RequestForm = ({
           />
         </div>
 
-        <div className="md:col-span-2">
-          <label 
-          for="hospitalName"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Hospital Name
-          </label>
-          <input
-            type="text"
-            name="hospitalName"
-            id="hospitalName"
-            placeholder="Hospital Name"
-            value={formData.hospitalName}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2.5 pr-10 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-          />
-        </div>
-
-        <div className="md:col-span-2">
-          <LocationSelector
-            initialDistrictName={formData.district}
-            initialUpazilaName={formData.upazila}
-            onLocationChange={handleLocationChange}
-            required={true}
+        <div>
+          <HospitalSearch
+            onHospitalSelect={handleHospitalSelect}
+            initialHospital={initialData ? {
+              name: initialData.hospitalName,
+              district: initialData.district,
+              upazila: initialData.upazila,
+              id: initialData.hospitalId
+            } : null}
           />
         </div>
 
         <div>
           <label 
-          for="contactNumber"
+          htmlFor="contactNumber"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Contact Number
           </label>
@@ -134,12 +156,39 @@ const RequestForm = ({
             type="tel"
             name="contactNumber"
             id="contactNumber"
-            placeholder="Contact Number"
+            placeholder="Contact Number (e.g., 01712345678)"
             value={formData.contactNumber}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2.5 pr-10 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className={`w-full px-4 py-2.5 pr-10 border ${
+              validationErrors.contactNumber ? 'border-red-500' : 'border-neutral-300'
+            } rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100`}
           />
+          {validationErrors.contactNumber && (
+            <p className="mt-1 text-sm text-red-500">{validationErrors.contactNumber}</p>
+          )}
+        </div>
+
+        <div>
+          <label 
+          htmlFor="whatsappNumber"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            WhatsApp Number (Optional)
+          </label>
+          <input
+            type="tel"
+            name="whatsappNumber"
+            id="whatsappNumber"
+            placeholder="WhatsApp Number (e.g., 01712345678)"
+            value={formData.whatsappNumber}
+            onChange={handleChange}
+            className={`w-full px-4 py-2.5 pr-10 border ${
+              validationErrors.whatsappNumber ? 'border-red-500' : 'border-neutral-300'
+            } rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100`}
+          />
+          {validationErrors.whatsappNumber && (
+            <p className="mt-1 text-sm text-red-500">{validationErrors.whatsappNumber}</p>
+          )}
         </div>
 
         <div>
@@ -184,7 +233,7 @@ const RequestForm = ({
 
         <div className="md:col-span-2">
           <label 
-          for="description"
+          htmlFor="description"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Description
           </label>
