@@ -891,35 +891,36 @@ export const ResetRequestService = async (req, res) => {
       return { status: false, message: "Blood request not found." };
     }
 
+    // Only update donor dates if request has a fulfilledBy
+    if (request.fulfilledBy) {
+      // Set lastDonate date to 121 days ago from today
+      const newLastDonateDate = new Date();
+      newLastDonateDate.setDate(newLastDonateDate.getDate() - 121);
 
-   // Set lastDonate date to 121 days ago from today
-    const newLastDonateDate = new Date();
-    newLastDonateDate.setDate(newLastDonateDate.getDate() - 121);
+      // Format lastDonate
+      const day = String(newLastDonateDate.getDate()).padStart(2, '0');
+      const month = String(newLastDonateDate.getMonth() + 1).padStart(2, '0'); 
+      const year = newLastDonateDate.getFullYear();
+      const formattedLastDonateDate = `${day}/${month}/${year}`;
 
-    // Format lastDonate
-    const day = String(newLastDonateDate.getDate()).padStart(2, '0');
-    const month = String(newLastDonateDate.getMonth() + 1).padStart(2, '0');
-    const year = newLastDonateDate.getFullYear();
-    const formattedLastDonateDate = `${day}/${month}/${year}`;
+      // Set Next Donate date to 1 day ago from today
+      const nextDonateDate = new Date();
+      nextDonateDate.setDate(nextDonateDate.getDate() - 1);
 
-    // Set Next Donate date to 1 day ago from today
-    const nextDonateDate = new Date();
-    nextDonateDate.setDate(nextDonateDate.getDate() - 1);
+      // Format NextDonate
+      const yesterDay = String(nextDonateDate.getDate()).padStart(2, '0');
+      const yesterDayMonth = String(nextDonateDate.getMonth() + 1).padStart(2, '0');
+      const yesterDayYear = nextDonateDate.getFullYear();
+      const formattedNextDonateDate = `${yesterDay}/${yesterDayMonth}/${yesterDayYear}`;
 
-    // Format NextDonate
-    const yesterDay = String(nextDonateDate.getDate()).padStart(2, '0');
-    const yesterDayMonth = String(nextDonateDate.getMonth() + 1).padStart(2, '0');
-    const yesterDayYear = nextDonateDate.getFullYear();
-    const formattedNextDonateDate = `${yesterDay}/${yesterDayMonth}/${yesterDayYear}`;
-
-
-    // Update the fulfilledBy user's lastDonate date
-    await userModel.findByIdAndUpdate(
-      { _id: request.fulfilledBy },
-      { $set: { 
-        lastDonate: formattedLastDonateDate, 
-        nextDonationDate: formattedNextDonateDate } }
-    );
+      // Update the fulfilledBy user's lastDonate date
+      await userModel.findByIdAndUpdate(
+        { _id: request.fulfilledBy },
+        { $set: { 
+          lastDonate: formattedLastDonateDate,
+          nextDonationDate: formattedNextDonateDate } }
+      );
+    }
 
     const updatedRequest = await RequestModel.findByIdAndUpdate(
       requestId,
