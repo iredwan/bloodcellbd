@@ -10,6 +10,10 @@ export const CreateSponsorService = async (req) => {
   try {
     const reqBody = req.body;
 
+    const sponsorsId = Math.random().toString(36).substr(2, 5).toLowerCase()
+    reqBody.sponsorId = sponsorsId;
+    
+
     // Validate required fields
     if (!reqBody.name || !reqBody.logo || !reqBody.coverImage) {
       return {
@@ -49,7 +53,7 @@ export const CreateSponsorService = async (req) => {
 export const GetAllSponsorsService = async (req) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 6;
+    const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
     // Optional query filters
@@ -78,7 +82,6 @@ export const GetAllSponsorsService = async (req) => {
     // Get sponsors with filters and pagination
     const sponsors = await Sponsor.find(filter)
     .sort({ order: 1 })
-    .select('-events -contactPerson')
     .skip(skip)
     .limit(limit);
 
@@ -95,7 +98,11 @@ export const GetAllSponsorsService = async (req) => {
       data: {
         sponsors,
         totalSponsors: total,
-        
+        pagination: {
+          totalPages: Math.ceil(total / limit),
+          currentPage: page,
+          totalCount: total
+        }
       },
       message: "Sponsors retrieved successfully."
     };

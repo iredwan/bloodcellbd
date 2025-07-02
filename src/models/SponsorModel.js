@@ -2,6 +2,12 @@ import mongoose from "mongoose";
 
 const sponsorSchema = new mongoose.Schema(
   {
+    sponsorId: {
+      type: String,
+      required: [true, "Sponsor ID is required"],
+      unique: true,
+      trim: true
+    },
     name: {
       type: String,
       required: [true, "Sponsor name is required"],

@@ -13,6 +13,7 @@ import {
 } from 'react-icons/fa';
 
 export default function SponsorCard({ sponsor }) {
+  const imageUrl = process.env.NEXT_PUBLIC_IMAGE_URL;
   const getBadgeIcon = (type) => {
     switch (type?.toLowerCase()) {
       case 'platinum':
@@ -51,7 +52,7 @@ export default function SponsorCard({ sponsor }) {
           {sponsor.logo && (
             <div className="relative w-40 h-40 rounded-full border-4 border-white dark:border-gray-800 shadow-lg overflow-hidden">
               <Image
-                src={sponsor.logo}
+                src={`${imageUrl}${sponsor.logo}`}
                 alt={sponsor.name}
                 fill
                 className="object-cover bg-white dark:bg-gray-100 p-2"
@@ -126,7 +127,7 @@ export default function SponsorCard({ sponsor }) {
         {sponsor.coverImage && (
             <div className="relative h-48 w-full mt-4">
             <Image
-                src={sponsor.coverImage}
+                src={`${imageUrl}${sponsor.coverImage}`}
                 alt={`${sponsor.name} cover`}
                 fill
                 className="object-cover"

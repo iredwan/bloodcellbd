@@ -24,9 +24,10 @@ export default function SponsorDetailsPage() {
   const searchParams = useSearchParams();
   const sponsorId = searchParams.get('id');
   const [sponsor, setSponsor] = useState(null);
+  const imageUrl = process.env.NEXT_PUBLIC_IMAGE_URL;
 
   const {
-    data: sponsorData,
+    data: sponsorResponse,
     isLoading,
     isError,
     error
@@ -35,10 +36,10 @@ export default function SponsorDetailsPage() {
   });
 
   useEffect(() => {
-    if (sponsorData) {
-      setSponsor(sponsorData);
+    if (sponsorResponse?.status && sponsorResponse?.data) {
+      setSponsor(sponsorResponse.data);
     }
-  }, [sponsorData]);
+  }, [sponsorResponse]);
 
   const getBadgeIcon = (type) => {
     switch (type?.toLowerCase()) {
@@ -76,13 +77,15 @@ export default function SponsorDetailsPage() {
     );
   }
 
-  if (isError) {
+  if (isError || (sponsorResponse && !sponsorResponse.status)) {
     return (
       <div className="dark:bg-gray-900 min-h-screen">
         <div className="max-w-6xl mx-auto px-4 py-12 text-center">
           <div className="bg-red-100 dark:bg-red-900 p-6 rounded-xl">
             <h2 className="text-xl font-semibold text-red-700 dark:text-red-300 mb-4">Error Loading Sponsor</h2>
-            <p className="text-red-600 dark:text-red-400">{error?.message || 'Could not load sponsor details. Please try again later.'}</p>
+            <p className="text-red-600 dark:text-red-400">
+              {error?.data?.message || sponsorResponse?.message || 'Could not load sponsor details. Please try again later.'}
+            </p>
             <Link href="/sponsors" className="mt-6 inline-block px-6 py-3 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors">
               Back to Sponsors
             </Link>
@@ -109,11 +112,21 @@ export default function SponsorDetailsPage() {
   return (
     <div className="dark:bg-gray-900 min-h-screen">
       <div className="max-w-6xl mx-auto px-4 py-12">
+        {/* Back to sponsors button - Moved to top */}
+        <div className="mb-8">
+          <Link 
+            href="/sponsors" 
+            className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors"
+          >
+            <FaArrowLeft className="mr-2" /> Back to Sponsors
+          </Link>
+        </div>
+
         {/* Cover Image */}
-        {sponsor.coverImage && (
+        {sponsor?.coverImage && (
           <div className="relative h-72 w-full rounded-xl overflow-hidden shadow-xl mb-8">
             <Image
-              src={sponsor.coverImage}
+              src={`${imageUrl}${sponsor.coverImage}`}
               alt={`${sponsor.name} cover`}
               fill
               priority
@@ -127,10 +140,10 @@ export default function SponsorDetailsPage() {
           <div className="w-full md:w-1/3 mb-8 md:mb-0">
             <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md text-center">
               {/* Logo */}
-              {sponsor.logo && (
+              {sponsor?.logo && (
                 <div className="relative w-48 h-48 mx-auto rounded-full border-4 border-white dark:border-gray-700 shadow-lg overflow-hidden mb-6">
                   <Image
-                    src={sponsor.logo}
+                    src={`${imageUrl}${sponsor.logo}`}
                     alt={sponsor.name}
                     fill
                     className="object-cover bg-white dark:bg-gray-100 p-2"
@@ -139,7 +152,7 @@ export default function SponsorDetailsPage() {
               )}
 
               {/* Sponsor Type Badge */}
-              {sponsor.sponsorType && (
+              {sponsor?.sponsorType && (
                 <div className="flex justify-center mb-4">
                   <div className={`p-3 rounded-full shadow-md ${getBadgeColor(sponsor.sponsorType)}`}>
                     {getBadgeIcon(sponsor.sponsorType)}
@@ -151,7 +164,7 @@ export default function SponsorDetailsPage() {
               )}
 
               {/* Website */}
-              {sponsor.website && (
+              {sponsor?.website && (
                 <a
                   href={sponsor.website}
                   target="_blank"
@@ -165,7 +178,7 @@ export default function SponsorDetailsPage() {
             </div>
 
             {/* Contact Person Card */}
-            {sponsor.contactPerson && (
+            {sponsor?.contactPerson && (
               <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
                 <h3 className="text-xl font-semibold mb-4 text-center dark:text-white">Contact Person</h3>
                 <div className="space-y-4 text-gray-700 dark:text-gray-300">
@@ -209,9 +222,9 @@ export default function SponsorDetailsPage() {
           <div className="w-full md:w-2/3">
             {/* Name and Description */}
             <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-md mb-8">
-              <h1 className="text-3xl font-bold mb-6 dark:text-white">{sponsor.name}</h1>
+              <h1 className="text-3xl font-bold mb-6 dark:text-white">{sponsor?.name}</h1>
               
-              {sponsor.description ? (
+              {sponsor?.description ? (
                 <div className="prose dark:prose-invert max-w-none">
                   <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{sponsor.description}</p>
                 </div>
@@ -221,7 +234,7 @@ export default function SponsorDetailsPage() {
             </div>
 
             {/* Sponsored Events */}
-            {sponsor.events && sponsor.events.length > 0 && (
+            {sponsor?.events && sponsor.events.length > 0 && (
               <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-md">
                 <h2 className="text-2xl font-semibold mb-6 dark:text-white">Sponsored Events</h2>
                 <div className="grid grid-cols-1 gap-6">
@@ -270,16 +283,6 @@ export default function SponsorDetailsPage() {
               </div>
             )}
           </div>
-        </div>
-
-        {/* Back to sponsors button */}
-        <div className="mt-8 text-center">
-          <Link 
-            href="/sponsors" 
-            className="inline-flex items-center button"
-          >
-            <FaArrowLeft /> Back
-          </Link>
         </div>
       </div>
     </div>
