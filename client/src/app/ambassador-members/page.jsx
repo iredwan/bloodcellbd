@@ -10,6 +10,7 @@ import AmbassadorCardSkeleton from '@/components/ui/Skeletons/AmbassadorCardSkel
 
 const AmbassadorCard = ({ ambassador }) => {
     const { name, designation, profileImage, position, organization, socialMedia, achievements = [], _id } = ambassador;
+    const profileImageUrl = process.env.NEXT_PUBLIC_IMAGE_URL;
   
     const icons = {
       facebook: <FaFacebook className="w-5 h-5 text-[#1877F2]" />,
@@ -28,7 +29,7 @@ const AmbassadorCard = ({ ambassador }) => {
           <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 w-40 h-40">
             <div className="relative w-full h-full rounded-full ring-4 ring-white dark:ring-gray-800 shadow-lg overflow-hidden">
               <Image
-                src={profileImage || '/placeholder-profile.jpg'}
+                src={`${profileImageUrl}${profileImage}`}
                 alt={name}
                 fill
                 className="object-cover"
@@ -164,7 +165,7 @@ export default function AmbassadorMembersPage() {
 
         {/* Filter Controls */}
         <div className="flex flex-wrap justify-center items-center gap-3 mb-10">
-          {['Goodwill Ambassador', 'Honorable Member'].map((designation) => (
+          {['Goodwill Ambassador', 'Honorable Member', 'Lifetime Member'].map((designation) => (
             <button
               key={designation}
               onClick={() => {
@@ -188,7 +189,7 @@ export default function AmbassadorMembersPage() {
               placeholder="Search by name"
               value={searchTerm}
               onChange={handleSearchChange}
-              className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
+              className="w-full px-4 py-2.5 pr-10 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
             {searchTerm.length === 1 && (
               <div className="absolute -bottom-6 left-0 text-xs text-amber-600 dark:text-amber-400">

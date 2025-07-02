@@ -59,7 +59,7 @@ export const GetAllGoodwillAmbassadorsService = async (req) => {
     }
     
     // Filter by designation if provided
-    if (req.query.designation && ['Goodwill Ambassador', 'Honorable Member'].includes(req.query.designation)) {
+    if (req.query.designation && ['Goodwill Ambassador', 'Honorable Member', 'Lifetime Member'].includes(req.query.designation)) {
       filter.designation = req.query.designation;
     }
     
@@ -245,10 +245,10 @@ export const GetGoodwillAmbassadorByDesignationService = async (req) => {
   try {
     const designation = req.params.designation;
     
-    if (!designation || !['Goodwill Ambassador', 'Honorable Member'].includes(designation)) {
+    if (!designation || !['Goodwill Ambassador', 'Honorable Member', 'Lifetime Member'].includes(designation)) {
       return { 
         status: false, 
-        message: "Invalid designation. Must be 'Goodwill Ambassador' or 'Honorable Member'." 
+        message: "Invalid designation. Must be 'Goodwill Ambassador' or 'Honorable Member' or 'Lifetime Member'." 
       };
     }
     

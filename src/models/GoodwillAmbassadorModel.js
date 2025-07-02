@@ -11,7 +11,7 @@ const goodwillAmbassadorSchema = new Schema({
     type: String,
     required: [true, 'Designation is required'],
     trim: true,
-    enum: ['Goodwill Ambassador', 'Honorable Member']
+    enum: ['Goodwill Ambassador', 'Honorable Member', 'Lifetime Member']
   },
   profileImage: {
     type: String,
