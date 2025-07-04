@@ -32,12 +32,6 @@ const websiteConfigSchema = new Schema({
     instagram: { type: String, default: '' },
     linkedin: { type: String, default: '' },
     youtube: { type: String, default: '' }
-  },
-  metaTags: {
-    title: { type: String, trim: true },
-    image: { type: String, default: '' },
-    description: { type: String, trim: true },
-    keywords: { type: String, trim: true }
   }
 }, {
   timestamps: true,

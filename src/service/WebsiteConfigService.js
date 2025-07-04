@@ -22,23 +22,23 @@ export const UpsertWebsiteConfigService = async (req) => {
     
     if (config) {
       // Handle logo update
-      // if (reqBody.logo && config.logo && reqBody.logo !== config.logo) {
-      //   const fileName = path.basename(config.logo);
-      //   await deleteFile(fileName);
-      // }
+      if (reqBody.logo && config.logo && reqBody.logo !== config.logo) {
+        const fileName = path.basename(config.logo);
+        await deleteFile(fileName);
+      }
       
-      // // Handle favicon update
-      // if (reqBody.favicon && config.favicon && reqBody.favicon !== config.favicon) {
-      //   const fileName = path.basename(config.favicon);
-      //   await deleteFile(fileName);
-      // }
+      // Handle favicon update
+      if (reqBody.favicon && config.favicon && reqBody.favicon !== config.favicon) {
+        const fileName = path.basename(config.favicon);
+        await deleteFile(fileName);
+      }
       
-      // // Handle meta tag image update
-      // if (reqBody.metaTags?.image && config.metaTags?.image && 
-      //     reqBody.metaTags.image !== config.metaTags.image) {
-      //   const fileName = path.basename(config.metaTags.image);
-      //   await deleteFile(fileName);
-      // }
+      // Handle meta tag image update
+      if (reqBody.metaTags?.image && config.metaTags?.image && 
+          reqBody.metaTags.image !== config.metaTags.image) {
+        const fileName = path.basename(config.metaTags.image);
+        await deleteFile(fileName);
+      }
       
       // Update existing config
       config = await WebsiteConfig.findByIdAndUpdate(
