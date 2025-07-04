@@ -11,11 +11,13 @@ import {
   FaPhone,
   FaMapMarkerAlt,
 } from "react-icons/fa";
+import FaviconSetter from "./faviconSetter";
 
 const Footer = () => {
   const { config, loading } = useWebsiteConfig();
-  const { contactInfo, socialMedia, metaTags } = config;
+  const { favicon, contactInfo, socialMedia, metaTags } = config;
   const currentYear = new Date().getFullYear();
+  const faviconUrl = `${process.env.NEXT_PUBLIC_IMAGE_URL}${favicon}`;
 
   // Quick links for navigation
   const quickLinks = [
@@ -29,6 +31,7 @@ const Footer = () => {
 
   return (
     <footer className="bg-primary text-white text-center sm:text-start">
+      <FaviconSetter faviconUrl={faviconUrl} />
       <div className="container mx-auto px-4 py-10">
         {/* Main footer content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
