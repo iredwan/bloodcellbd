@@ -4,18 +4,13 @@ import { useState, useEffect } from 'react';
 import Slider from 'react-slick';
 import Link from 'next/link';
 // Custom dot component to ensure dots are visible
-const CustomDot = (props) => {
-  const { onClick, active } = props;
+const CustomDot = ({ onClick, active }) => {
   return (
     <div
-      className={`inline-block mx-1 cursor-pointer`}
       onClick={onClick}
-    >
-      <div 
-        className={`w-3 h-3 rounded-full transition-all duration-300 ${active ? 'bg-[#8a0303]' : 'bg-[#8a0303] bg-opacity-50'}`}
-        style={{ boxShadow: active ? '0 0 5px rgba(255, 255, 255, 0.8)' : 'none' }}
-      ></div>
-    </div>
+      className={`w-3 h-3 rounded-full transition-all duration-300 mx-1 cursor-pointer
+        ${active ? 'bg-white ring-2 ring-[#8a0303] shadow-[0_0_4px_#8a0303]' : 'bg-[#8a0303] bg-opacity-50'}`}
+    />
   );
 };
 
@@ -39,13 +34,14 @@ const Carousel = ({
         arrows: false
       }
     }
-  ]
+  ],
+  imageUrl = ''
 }) => {
+  const [activeSlide, setActiveSlide] = useState(0);
   // Default slider settings
   const settings = {
     dots,
     infinite,
-    
     speed,
     slidesToShow,
     slidesToScroll,
@@ -55,11 +51,14 @@ const Carousel = ({
     responsive,
     cssEase: 'linear',
     fade: true,
+    beforeChange: (current, next) => setActiveSlide(next),
+    customPaging: (i) => (
+      <CustomDot active={i === activeSlide} />
+    ),
     dotsClass: 'slick-dots custom-dots',
-    customPaging: (i) => <CustomDot />,
     appendDots: dots => (
-      <div style={{ position: 'absolute', bottom: '20px', width: '100%', textAlign: 'center', zIndex: 10 }}>
-        <ul style={{ margin: '0', padding: '0', listStyle: 'none', display: 'inline-block' }}>{dots}</ul>
+      <div className="absolute bottom-5 w-full text-center z-10">
+        <ul className="inline-block m-0 p-0 list-none">{dots}</ul>
       </div>
     )
   };
@@ -111,7 +110,7 @@ const Carousel = ({
                 {item.linkUrl ? (
                   <Link href={item.linkUrl} className="block w-full h-full">
                     <img
-                      src={'/image/WhatsApp Image 2023-10-26 at 21.29.26_443ae622.jpg'}
+                      src={`${imageUrl}${item.imageUrl}`}
                       alt={item.title || `Carousel item ${index + 1}`}
                       className="w-full h-full object-contain md:object-cover"
                       style={{ maxHeight: '100%', width: '100%' }}
@@ -126,7 +125,7 @@ const Carousel = ({
                 ) : (
                   <div className="relative">
                     <img
-                      src={item.imageUrl}
+                      src={`${imageUrl}${item.imageUrl}`}
                       alt={item.title || `Carousel item ${index + 1}`}
                       className="w-full h-full object-contain md:object-cover"
                       style={{ maxHeight: '100%', width: '100%' }}

@@ -63,6 +63,7 @@ const HomePage = () => {
   // Extract completed events and ensure proper serialization
   const completedEvents = eventsData?.data || [];
   const eventsErrorMessage = eventsData?.message || "There are no completed events at the moment";
+  const imageUrl = process.env.NEXT_PUBLIC_IMAGE_URL || '';
 
 
   return (
@@ -77,6 +78,7 @@ const HomePage = () => {
             error={carouselError ? carouselErrorData : null}
             autoplay={true}
             autoplaySpeed={5000}
+            imageUrl={imageUrl}
           />
         </div>
       </div>
