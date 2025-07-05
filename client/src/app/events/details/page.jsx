@@ -16,6 +16,38 @@ export default function EventDetailsPage() {
   const id = searchParams.get('id');
   const { data: eventData, isLoading, isError } = useGetEventByIdQuery(id);
   const router = useRouter();
+  const imageUrl = process.env.NEXT_PUBLIC_IMAGE_URL;
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const [day, month, year] = dateString.split('/');
+    if (!day || !month || !year) return dateString;
+    const date = new Date(`${year}-${month}-${day}`);
+    return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    });
+  };
+  
+  // Format time for display in 12-hour format
+  const formatTime = (timeString) => {
+    if (!timeString) return '';
+    
+    // Check if the time is already in 24-hour format (HH:MM)
+    const timeParts = timeString.split(':');
+    if (timeParts.length !== 2) return timeString;
+    
+    let hours = parseInt(timeParts[0], 10);
+    const minutes = timeParts[1].padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    
+    // Convert to 12-hour format
+    hours = hours % 12;
+    hours = hours ? hours : 12; // Convert '0' to '12'
+    
+    return `${hours}:${minutes} ${ampm}`;
+  };
 
   const handleBack = () => {
     router.replace('/events');
@@ -56,26 +88,32 @@ export default function EventDetailsPage() {
         </button>
 
         {/* Event Card */}
-        {event.eventCard?.length > 0 && (
-          <div className="shadow-md">
+        {event.eventCard && (
+        <div className="relative w-full h-[300px] rounded-lg overflow-hidden shadow-md">
           <Image
-            src={event.eventCards}
+            src={imageUrl + event.eventCard}
             alt="Event Card"
             fill
-            sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-cover w-full h-full rounded-lg"
+            className="object-cover"
+            sizes="100vw"
+            priority
           />
         </div>
-        )}
+      )}
         
 
         {/* Event Header */}
         <div className="text-center my-8">
           <h1 className="text-4xl font-bold text-primary mb-4">{event.title}</h1>
           <div className="flex justify-center items-center gap-2 text-gray-600 dark:text-gray-400">
-            <span className="bg-green-200 text-green-600 px-2 py-1 rounded-md">{event.status}</span>
-            <span className='border-b-2 border-gray-300'>{eventDate}</span>
-            <span className='border-b-2 border-gray-300'>{event.time}</span>
+            <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+            event.status === 'Upcoming' ? 'bg-amber-400 text-black' :
+            event.status === 'Ongoing' ? 'bg-blue-500 text-white' :
+            event.status === 'Completed' ? 'bg-green-500 text-white' :
+            'bg-red-500 text-white'
+          }`}>{event.status}</span>
+            <span className='border-b-2 border-gray-300'>{formatDate(event.date)}</span>
+            <span className='border-b-2 border-gray-300'>{formatTime(event.time)}</span>
           </div>
         </div>
         {/* Main Content */}
@@ -96,7 +134,7 @@ export default function EventDetailsPage() {
                 <div className="flex items-center text-gray-600 dark:text-gray-300">
                   <FaMapMarkerAlt className="mr-2 text-primary" />
                   <span>
-                    {event.upazila?.name}, {event.district?.name}
+                    {event.upazila}, {event.district}
                   </span>
                 </div>
                 {event.googleMapLink && (
@@ -122,7 +160,7 @@ export default function EventDetailsPage() {
                     <div key={index} className="relative aspect-square rounded-lg overflow-hidden">
                       <Link href={img} target="_blank" rel="noopener noreferrer">
                         <Image
-                          src={img}
+                          src={imageUrl + img}
                           alt={`Event image ${index + 1}`}
                           fill
                           className="object-cover w-full h-full"
@@ -149,7 +187,7 @@ export default function EventDetailsPage() {
                 <div className="relative w-40 h-40 rounded-full border-4 border-white dark:border-gray-800 shadow-lg overflow-hidden">
                   {organizer.logo && (
                     <Image
-                      src={organizer.logo}
+                      src={imageUrl + organizer.logo}
                       alt={organizer.name}
                       fill
                       className="object-cover w-full h-full bg-white dark:bg-gray-100 p-2"
@@ -161,16 +199,16 @@ export default function EventDetailsPage() {
                 {/* Sponsor Type Badge */}
                 {organizer.sponsorType && (
                   <div className={`p-3 rounded-full shadow-md ${
-                    organizer.sponsorType === 'platinum' ? 'bg-purple-500 dark:bg-purple-600' :
-                    organizer.sponsorType === 'gold' ? 'bg-yellow-500 dark:bg-yellow-600' :
-                    organizer.sponsorType === 'silver' ? 'bg-gray-400 dark:bg-gray-500' :
-                    organizer.sponsorType === 'bronze' ? 'bg-orange-700 dark:bg-orange-800' : 
+                    organizer.sponsorType === 'Platinum' ? 'bg-purple-500 dark:bg-purple-600' :
+                    organizer.sponsorType === 'Gold' ? 'bg-yellow-500 dark:bg-yellow-600' :
+                    organizer.sponsorType === 'Silver' ? 'bg-gray-400 dark:bg-gray-500' :
+                    organizer.sponsorType === 'Bronze' ? 'bg-orange-700 dark:bg-orange-800' : 
                     'bg-gray-600 dark:bg-gray-700'
                   }`}>
-                    {organizer.sponsorType === 'platinum' ? <FaGem className="text-white text-xl" /> :
-                    organizer.sponsorType === 'gold' ? <FaCrown className="text-white text-xl" /> :
-                    organizer.sponsorType === 'silver' ? <FaCoins className="text-white text-xl" /> :
-                    organizer.sponsorType === 'bronze' ? <FaMedal className="text-white text-xl" /> :
+                    {organizer.sponsorType === 'Platinum' ? <FaGem className="text-white text-xl" /> :
+                    organizer.sponsorType === 'Gold' ? <FaCrown className="text-white text-xl" /> :
+                    organizer.sponsorType === 'Silver' ? <FaCoins className="text-white text-xl" /> :
+                    organizer.sponsorType === 'Bronze' ? <FaMedal className="text-white text-xl" /> :
                     <FaQuestionCircle className="text-white text-xl" />}
                   </div>
                 )}
@@ -240,16 +278,17 @@ export default function EventDetailsPage() {
             </div>
             {/* Cover Image */}
             {organizer.coverImage && (
-                  <div className="relative h-full w-full rounded-lg overflow-hidden">
-                    <Image
-                      src={organizer.coverImage}
-                      alt={`${organizer.name} cover`}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                    />
-                  </div>
-                )}
+          <div className="relative w-full h-[200px] md:h-[300px] rounded-b-lg overflow-hidden">
+            <Image
+              src={imageUrl + organizer.coverImage}
+              alt={`${organizer.name} cover`}
+              fill
+              className="object-cover"
+              sizes="100vw"
+            />
+          </div>
+        )}
+
           </div>
           )}
         </div>

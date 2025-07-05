@@ -24,13 +24,40 @@ const EventCard = ({ event }) => {
     organizer: event?.organizer || { name: '' }
   };
 
-  // Format the date
-  const formattedDate = safeEvent.date ? format(new Date(safeEvent.date), 'MMMM dd, yyyy') : 'Date TBA';
+// Format date for display
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const [day, month, year] = dateString.split('/');
+  if (!day || !month || !year) return dateString;
+  const date = new Date(`${year}-${month}-${day}`);
+  return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+  });
+};
+
+// Format time for display in 12-hour format
+const formatTime = (timeString) => {
+  if (!timeString) return '';
   
-  // Get the event card image or fallback to first image from image array or default
-  const imageUrl = safeEvent.eventCard || 
-    (safeEvent.image && safeEvent.image.length > 0 ? safeEvent.image[0] : '') ||
-    'https://placehold.co/600x400/8a0303/FFFFFF?text=Event';
+  // Check if the time is already in 24-hour format (HH:MM)
+  const timeParts = timeString.split(':');
+  if (timeParts.length !== 2) return timeString;
+  
+  let hours = parseInt(timeParts[0], 10);
+  const minutes = timeParts[1].padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  
+  // Convert to 12-hour format
+  hours = hours % 12;
+  hours = hours ? hours : 12; // Convert '0' to '12'
+  
+  return `${hours}:${minutes} ${ampm}`;
+};
+  
+  
+  const imageUrl = process.env.NEXT_PUBLIC_IMAGE_URL;
 
   return (
     <div 
@@ -40,8 +67,9 @@ const EventCard = ({ event }) => {
     >
       {/* Image Container */}
       <div className="relative h-48 overflow-hidden">
-        <img
-          src={imageUrl}
+        <Image
+          src={imageUrl + safeEvent.eventCard}
+          fill
           alt={safeEvent.title}
           className={`w-full h-full object-cover transition-transform duration-500 ${
             isHovered ? 'scale-110' : 'scale-100'
@@ -50,10 +78,10 @@ const EventCard = ({ event }) => {
         {/* Status Badge */}
         <div className="absolute top-4 right-4">
           <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-            safeEvent.status === 'upcoming' ? 'bg-yellow-500 text-white' :
-            safeEvent.status === 'ongoing' ? 'bg-blue-500 text-white' :
-            safeEvent.status === 'completed' ? 'bg-green-500 text-white' :
-            'bg-gray-500 text-white'
+            safeEvent.status === 'Upcoming' ? 'bg-amber-400 text-black' :
+            safeEvent.status === 'Ongoing' ? 'bg-blue-500 text-white' :
+            safeEvent.status === 'Completed' ? 'bg-green-500 text-white' :
+            'bg-red-500 text-white'
           }`}>
             {safeEvent.status?.charAt(0).toUpperCase() + safeEvent.status?.slice(1)}
           </span>
@@ -77,11 +105,11 @@ const EventCard = ({ event }) => {
     <div className='border-b-2 border-gray-500 dark:border-gray-400 pb-3 px-6 w-full text-center'>
       <div className="flex justify-center items-center text-gray-600 dark:text-gray-300 mb-2">
         <FaCalendarAlt className="mr-2 text-primary" />
-        <span className="font-medium">{formattedDate}</span>
+        <span className="font-medium">{formatDate(safeEvent.date)}</span>
       </div>
       <div className="flex justify-center items-center text-gray-600 dark:text-gray-300">
         <FaClock className="mr-2 text-primary" />
-        <span className="font-medium">{safeEvent.time || 'Time TBA'}</span>
+        <span className="font-medium">Start at {formatTime(safeEvent.time) || 'Time TBA'}</span>
       </div>
     </div>
   </div>
@@ -90,8 +118,8 @@ const EventCard = ({ event }) => {
   <div className="flex justify-center items-center text-gray-600 dark:text-gray-300 pt-2">
     <FaMapMarkerAlt className="mr-2 text-primary" />
     <span className="line-clamp-1 break-words font-medium">
-      {safeEvent.upazila?.name && safeEvent.district?.name 
-        ? `${safeEvent.upazila.name}, ${safeEvent.district.name}`
+      {safeEvent.upazila && safeEvent.district
+        ? `${safeEvent.upazila}, ${safeEvent.district}`
         : 'Location TBA'}
     </span>
   </div>
@@ -105,9 +133,9 @@ const EventCard = ({ event }) => {
     <div className="flex items-center gap-6">
       {/* Organizer Logo */}
       {safeEvent.organizer.logo && (
-        <Link href={`/sponsors/details?id=${safeEvent.organizer._id}`}  className="min-w-[100px] h-[100px] rounded-full overflow-hidden border-2 border-gray-300 dark:border-gray-500 shadow-md">
+        <Link href={`/sponsors/details?id=${safeEvent.organizer._id}`}  className="min-w-[70px] h-[70px] rounded-full overflow-hidden border-2 border-gray-300 dark:border-gray-500 shadow-md">
           <Image
-            src={safeEvent.organizer.logo}
+            src={imageUrl + safeEvent.organizer.logo}
             alt={safeEvent.organizer.name}
             width={100}
             height={100}

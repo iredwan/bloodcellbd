@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { useRouter } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Head from 'next/head';
 import { useGetUserByIdQuery } from '@/features/users/userApiSlice';
 import NotFound from '@/app/not-found';

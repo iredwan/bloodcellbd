@@ -23,23 +23,15 @@ const eventSchema = new mongoose.Schema({
     trim: true
   },
   date: {
-    type: Date,
+    type: String,
     required: [true, 'Event date is required']
   },
   time: {
     type: String,
     required: [true, 'Event time is required']
   },
-  upazila: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'UpazilaOrPS',
-    required: [true, 'Upazila is required']
-  },
-  district: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'District',
-    required: [true, 'District is required']
-  },
+  upazila: { type: String, required: true },
+  district: { type: String, required: true },
   googleMapLink: {
     type: String,
     default: ''

@@ -9,6 +9,23 @@ const ObjectId = mongoose.Types.ObjectId;
 export const CreateEventService = async (req) => {
   try {
     const eventData = req.body;
+
+    const generateUniqueEventID = async () => {
+      let eventID;
+      let exists = true;
+    
+      while (exists) {
+        eventID = Math.floor(10000 + Math.random() * 90000);
+        // Replace this with actual DB check
+        exists = await Event.exists({ eventID });
+      }
+    
+      return eventID;
+    };
+    
+    // ব্যবহার:
+    eventData.eventID = await generateUniqueEventID();
+    
     
     // Validate required fields
     if (!eventData.title || !eventData.description || !eventData.date || !eventData.time || 
@@ -57,27 +74,59 @@ export const CreateEventService = async (req) => {
 };
 
 // Get all events with filters and pagination
-export const GetAllEventsService = async () => {
+export const GetAllEventsService = async (req = {}) => {
   try {
-    
-    
-    // Get events with filters, pagination, sorting, and populate relations
-    const events = await Event.find()
-      .populate('organizer', '_id name logo website')
-      .populate('district', 'name')
-      .populate('upazila', 'name')
-      .populate('createdBy', 'name role roleSuffix')
-      .populate('updatedBy', 'name role roleSuffix');
+    // Extract pagination parameters from req.query or set defaults
+    const page = parseInt(req.query?.page, 10) > 0 ? parseInt(req.query.page, 10) : 1;
+    const limit = parseInt(req.query?.limit, 10) > 0 ? parseInt(req.query.limit, 10) : 10;
+    const skip = (page - 1) * limit;
+
+    // Build filter object
+    const filter = {};
+
+    // Filter by status if provided
+    if (req.query?.status) {
+      filter.status = req.query.status;
+    }
+
+    // Search by title or description if search query provided
+    if (req.query?.search) {
+      const searchRegex = new RegExp(req.query.search, "i");
+      filter.$or = [
+        { eventID: searchRegex },
+        { title: searchRegex },
+        { description: searchRegex }
+      ];
+    }
+
+    // Get total count for pagination (with filters)
+    const totalCount = await Event.countDocuments(filter);
+
+    // Get events with pagination, sorting, and filters
+    const events = await Event.find(filter)
+    .populate(
+      "organizer",
+      "name logo sponsorType coverImage website description contactPerson"
+    )
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
     if (!events || events.length === 0) {
       return { 
         status: false, 
         message: "No events found matching your criteria." 
       };
     }
-    
+
     return {
       status: true,
       data: events,
+      pagination: {
+        totalPages: Math.ceil(totalCount / limit),
+        currentPage: page,
+        totalCount: totalCount
+      },
       message: "Events retrieved successfully."
     };
   } catch (e) {
@@ -99,11 +148,18 @@ export const GetEventByIdService = async (req) => {
     }
     
     const event = await Event.findById(eventId)
-      .populate('organizer', '_id name logo website description contactPerson sponsorType coverImage')
-      .populate('district', 'name')
-      .populate('upazila', 'name')
-      .populate('createdBy', 'name role roleSuffix')
-      .populate('updatedBy', 'name role roleSuffix');
+      .populate(
+        "organizer",
+        "name logo sponsorType coverImage website description contactPerson"
+      )
+      .populate(
+        "createdBy",
+        "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
+      )
+      .populate(
+        "updatedBy",
+        "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
+      );
     
     if (!event) {
       return { status: false, message: "Event not found." };
@@ -148,11 +204,22 @@ export const UpdateEventService = async (req) => {
       updateData.updatedBy = userId;
     }
     
-    // // If updating image, delete the old one
-    // if (updateData.image && currentEvent.image && updateData.image !== currentEvent.image) {
-    //   const fileName = path.basename(currentEvent.image);
-    //   await deleteFile(fileName);
-    // }
+    // Only check if both old and new image arrays exist
+if (Array.isArray(updateData.image) && Array.isArray(currentEvent.image)) {
+  const removedImages = currentEvent.image.filter(
+    (img) => !updateData.image.includes(img)
+  );
+
+  for (const img of removedImages) {
+    try {
+      const fileName = path.basename(img);
+      await deleteFile(fileName);
+    } catch (err) {
+      console.warn(`Failed to delete image ${img}:`, err.message);
+    }
+  }
+}
+
     
     // Update event
     const updatedEvent = await Event.findByIdAndUpdate(
@@ -203,11 +270,11 @@ export const DeleteEventService = async (req) => {
       };
     }
     
-    // // Delete the image file if it exists
-    // if (event.image) {
-    //   const fileName = path.basename(event.image);
-    //   await deleteFile(fileName);
-    // }
+    // Delete the image file if it exists
+    if (event.image) {
+      const fileName = path.basename(event.image);
+      await deleteFile(fileName);
+    }
     
     // Delete the event
     const deletedEvent = await Event.findByIdAndDelete(eventId);
@@ -237,11 +304,14 @@ export const GetUpcomingEventsService = async () => {
       }
     )
       .sort({ date: 1 })
-      .populate('organizer', 'name logo')
-      .populate('district', 'name')
-      .populate('upazila', 'name')
-      .populate('createdBy', 'name role roleSuffix')
-      .populate('updatedBy', 'name role roleSuffix');
+      .populate(
+        "createdBy",
+        "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
+      )
+      .populate(
+        "updatedBy",
+        "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
+      );
     
     if (!upcomingEvents || upcomingEvents.length === 0) {
       return { 
@@ -270,11 +340,14 @@ export const GetCompletedEventsService = async () => {
     // Get completed events
     const completedEvents = await Event.find({ status: 'completed' }) 
       .sort({ date: -1 })
-      .populate('organizer', '_id name logo website')
-      .populate('district', 'name')
-      .populate('upazila', 'name')
-      .populate('createdBy', 'name role roleSuffix')
-      .populate('updatedBy', 'name role roleSuffix'); 
+      .populate(
+        "createdBy",
+        "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
+      )
+      .populate(
+        "updatedBy",
+        "name phone isVerified bloodGroup lastDonate nextDonationDate role roleSuffix profileImage"
+      );
 
     if (!completedEvents || completedEvents.length === 0) {
       return { 

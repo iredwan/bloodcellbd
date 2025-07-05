@@ -16,15 +16,21 @@ export const CreateRequestService = async (req) => {
 
     const userId = req.headers.user_id;
 
-    function generateNumericRequestId(length = 10) {
-      let requestId = "";
-      for (let i = 0; i < length; i++) {
-        requestId += Math.floor(Math.random() * 10);
+    async function generateUniqueNumericRequestId(length = 10) {
+      let requestId;
+      let exists = true;
+      while (exists) {
+        requestId = "";
+        for (let i = 0; i < length; i++) {
+          requestId += Math.floor(Math.random() * 10);
+        }
+        // Check if this requestId already exists in the database
+        exists = await RequestModel.exists({ requestId });
       }
       return requestId;
     }
 
-    const requestId = generateNumericRequestId(); // e.g. "0394857612"
+    const requestId = await generateUniqueNumericRequestId(); // e.g. "0394857612"
     reqBody.requestId = requestId;
 
     if (!userId) {
