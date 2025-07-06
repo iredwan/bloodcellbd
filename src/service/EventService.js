@@ -89,13 +89,13 @@ export const GetAllEventsService = async (req = {}) => {
       filter.status = req.query.status;
     }
 
-    // Search by title or description if search query provided
+    // Search by title or status if search query provided
     if (req.query?.search) {
       const searchRegex = new RegExp(req.query.search, "i");
       filter.$or = [
         { eventID: searchRegex },
         { title: searchRegex },
-        { description: searchRegex }
+        { status: searchRegex }
       ];
     }
 
@@ -338,7 +338,7 @@ export const GetUpcomingEventsService = async () => {
 export const GetCompletedEventsService = async () => {
   try {
     // Get completed events
-    const completedEvents = await Event.find({ status: 'completed' }) 
+    const completedEvents = await Event.find({ status: 'Completed' }) 
       .sort({ date: -1 })
       .populate(
         "createdBy",

@@ -138,16 +138,21 @@ export default function EventDetailsPage() {
                   </span>
                 </div>
                 {event.googleMapLink && (
-                  <a
-                    href={event.googleMapLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center text-primary hover:underline"
-                  >
-                    <FaGlobe className="mr-2" />
-                    View on Google Maps
-                  </a>
-                )}
+                <div className="my-4">
+                  {/* Embedded Google Map iframe */}
+                  <iframe
+                    src={event.googleMapLink}
+                    width="100%"
+                    height="150"
+                    style={{ border: 0 }}
+                    title={`Google Map location of ${event.title || 'event'}`}
+                    allowFullScreen=""
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  ></iframe>
+                </div>
+              )}
+
               </div>
             </div>
 
@@ -158,7 +163,7 @@ export default function EventDetailsPage() {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {event.image.map((img, index) => (
                     <div key={index} className="relative aspect-square rounded-lg overflow-hidden">
-                      <Link href={img} target="_blank" rel="noopener noreferrer">
+                      <Link href={imageUrl + img} target="_blank" rel="noopener noreferrer">
                         <Image
                           src={imageUrl + img}
                           alt={`Event image ${index + 1}`}

@@ -588,7 +588,7 @@ const EventsPage = () => {
                                         Google Map Link
                                     </label>
                                     <input
-                                        type="url"
+                                        type="text"
                                         name="googleMapLink"
                                         value={formData.googleMapLink}
                                         onChange={handleInputChange}
