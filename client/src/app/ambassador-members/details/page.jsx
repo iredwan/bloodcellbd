@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useGetAmbassadorByIdQuery } from '@/features/goodwillAmbassador/goodwillAmbassadorApiSlice';
-import { FaSpinner, FaFacebook, FaYoutube, FaInstagram, FaLinkedin, FaTiktok, FaTwitter, FaGlobe, FaCalendarAlt } from 'react-icons/fa';
+import { FaSpinner, FaFacebook, FaYoutube, FaInstagram, FaLinkedin, FaTiktok, FaTwitter, FaGlobe, FaCalendarAlt, FaMapMarkerAlt } from 'react-icons/fa';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -15,7 +15,7 @@ const AmbassadorDetails = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
   const { data, isLoading, error } = useGetAmbassadorByIdQuery(id);
-  const profileImageUrl = process.env.NEXT_PUBLIC_IMAGE_URL;
+  const imageUrl = process.env.NEXT_PUBLIC_IMAGE_URL;
 
   if (isLoading) {
     return (
@@ -85,7 +85,7 @@ const AmbassadorDetails = () => {
           <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
             <div className="relative w-60 h-60 rounded-full overflow-hidden border-4 border-white dark:border-gray-800 shadow-lg">
               <Image
-                src={`${profileImageUrl}${ambassador.profileImage}`}
+                src={`${imageUrl}${ambassador.profileImage}`}
                 alt={ambassador.name}
                 fill
                 className="object-cover"
@@ -173,10 +173,10 @@ const AmbassadorDetails = () => {
                     key={event._id} 
                     className="bg-gray-50 dark:bg-gray-700/30 shadow-md rounded-xl p-6 border border-gray-200 dark:border-gray-600 hover:shadow-lg transition-all"
                   >
-                    {event.image && (
+                    {event.eventCard && (
                       <div className="relative w-full aspect-video mb-4 rounded-lg overflow-hidden">
                         <Image
-                          src={event.image}
+                          src={`${imageUrl}${event.eventCard}`}
                           alt={event.title}
                           fill
                           className="object-cover"
@@ -185,14 +185,13 @@ const AmbassadorDetails = () => {
                       </div>
                     )}
                     <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{event.title}</h4>
-                    <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">{event.description}</p>
-                    <div className="flex items-center text-sm text-primary">
-                      <FaCalendarAlt className="mr-2 flex-shrink-0" />
-                      <span>{new Date(event.date).toLocaleDateString('en-US', { 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                      })}</span>
+                    <div className="flex items-center text-sm">
+                      <FaCalendarAlt className="mr-2 flex-shrink-0 text-primary" />
+                      <span className="dark:text-white">{event.date}</span>
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <FaMapMarkerAlt className="mr-2 flex-shrink-0 text-primary" />
+                      <span className="dark:text-white">{event.upazila}, {event.district}</span>
                     </div>
                   </div>
                     </Link>

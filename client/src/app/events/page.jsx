@@ -1,46 +1,54 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGetAllEventsQuery } from '@/features/events/eventApiSlice';
 import EventCard from '@/components/EventCard';
-import { FaSpinner } from 'react-icons/fa';
+import { FaSearch } from 'react-icons/fa';
 import Pagination from '@/components/Pagination';
 import EventCardSkeleton from '@/components/ui/Skeletons/EventCardSkeleton';
+import {useDebounce} from '@/hooks/useDebounce';
 
 export default function EventsPage() {
-  const [selectedFilter, setSelectedFilter] = useState('all');
-  const [currentPage, setCurrentPage] = useState(0);
+  const [selectedFilter, setSelectedFilter] = useState('All');
+  const [currentPage, setCurrentPage] = useState(1); // API pagination is 1-based
+  const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const itemsPerPage = 6;
 
-  const { data: eventsData, isLoading, error } = useGetAllEventsQuery();
-
-  const filterEvents = (events) => {
-    const now = new Date();
-    return events.filter(event => {
-      const eventDate = new Date(event.date);
-      switch(selectedFilter) {
-        case 'upcoming':
-          return eventDate > now;
-        case 'ongoing':
-          const endDate = new Date(event.endDate || event.date);
-          return eventDate <= now && endDate >= now;
-        case 'completed':
-          return eventDate < now;
-        default:
-          return true;
-      }
-    });
+  // Prepare query parameters for the API
+  const queryParams = {
+    page: currentPage,
+    limit: itemsPerPage,
   };
 
-  const events = eventsData?.data || [];
-  const filteredEvents = filterEvents(events);
+  // Add status filter if not 'All'
+  if (selectedFilter !== 'All') {
+    queryParams.status = selectedFilter;
+  }
 
-  const startIndex = currentPage * itemsPerPage;
-  const paginatedEvents = filteredEvents.slice(startIndex, startIndex + itemsPerPage);
-  const pageCount = Math.ceil(filteredEvents.length / itemsPerPage);
+  // Add search term if available
+  if (debouncedSearchTerm) {
+    queryParams.search = debouncedSearchTerm;
+  }
+
+  const { data: eventsData, isLoading, error } = useGetAllEventsQuery(queryParams);
+
+  // Reset to first page when filter or search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedFilter, debouncedSearchTerm]);
+
+  // Extract events and pagination info from the API response
+  const events = eventsData?.data || [];
+  const pagination = eventsData?.pagination || {
+    totalPages: 0,
+    currentPage: 1,
+    totalCount: 0
+  };
 
   const handlePageChange = ({ selected }) => {
-    setCurrentPage(selected);
+    // API pagination is 1-based, but react-paginate is 0-based
+    setCurrentPage(selected + 1);
     window.scrollTo({
       top: 0,
       behavior: 'smooth',
@@ -56,13 +64,26 @@ export default function EventsPage() {
             Blood Donation Events
           </h1>
 
+          {/* Search Bar */}
+          <div className="mb-6 max-w-md mx-auto">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search events..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-2 pl-10 pr-4 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            </div>
+          </div>
+
           <div className="flex flex-wrap justify-center gap-2 mb-6">
-            {['all', 'upcoming', 'ongoing', 'completed'].map((filter) => (
+            {['All', 'Upcoming', 'Ongoing', 'Completed'].map((filter) => (
               <button
                 key={filter}
                 onClick={() => {
                   setSelectedFilter(filter);
-                  setCurrentPage(0); // reset pagination on filter change
                 }}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer
                   ${selectedFilter === filter
@@ -70,15 +91,16 @@ export default function EventsPage() {
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300'}
                 `}
               >
-                {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                {filter}
               </button>
             ))}
           </div>
 
           <p className="text-lg text-gray-600 dark:text-gray-400">
-            {selectedFilter === 'all'
+            {selectedFilter === 'All'
               ? 'Showing all events'
               : `Showing ${selectedFilter} events`}
+            {debouncedSearchTerm && ` matching "${debouncedSearchTerm}"`}
           </p>
         </div>
 
@@ -101,33 +123,36 @@ export default function EventsPage() {
 
         {/* Event Grid */}
         {!isLoading && !error && (
-          filteredEvents.length > 0 ? (
+          events.length > 0 ? (
             <>
               <div className="flex justify-center">
                 <div className={`
                   grid 
-                  ${paginatedEvents.length === 1 ? 'grid-cols-1 max-w-md' : ''}
-                  ${paginatedEvents.length === 2 ? 'grid-cols-1 md:grid-cols-2 max-w-3xl' : ''}
-                  ${paginatedEvents.length >= 3 ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : ''}
+                  ${events.length === 1 ? 'grid-cols-1 max-w-md' : ''}
+                  ${events.length === 2 ? 'grid-cols-1 md:grid-cols-2 max-w-3xl' : ''}
+                  ${events.length >= 3 ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : ''}
                   gap-6 w-full
                 `}>
-                  {paginatedEvents.map((event) => (
+                  {events.map((event) => (
                     <EventCard key={event._id} event={event} />
                   ))}
                 </div>
               </div>
 
               {/* Pagination */}
-              <Pagination
-                pageCount={pageCount}
-                onPageChange={handlePageChange}
-                currentPage={currentPage}
-              />
+              {pagination.totalPages > 1 && (
+                <Pagination
+                  pageCount={pagination.totalPages}
+                  onPageChange={handlePageChange}
+                  currentPage={pagination.currentPage - 1} // Convert 1-based to 0-based for component
+                />
+              )}
             </>
           ) : (
             <div className="text-center py-12">
               <p className="text-xl text-gray-600 dark:text-gray-400">
-                No {selectedFilter} events found
+                No {selectedFilter.toLowerCase()} events found
+                {debouncedSearchTerm && ` matching "${debouncedSearchTerm}"`}
               </p>
             </div>
           )

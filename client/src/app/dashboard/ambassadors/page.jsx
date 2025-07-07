@@ -10,6 +10,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import deleteConfirm from '@/utils/deleteConfirm';
 import CustomSelect from '@/components/CustomSelect';
 import uploadFiles from '@/utils/fileUpload';
+import EventSearch from '@/components/EventSearch';
 
 const AmbassadorsPage = () => {
     const [currentPage, setCurrentPage] = useState(0);
@@ -35,6 +36,7 @@ const AmbassadorsPage = () => {
             website: ''
         },
         achievements: [],
+        events: [],
         order: 0
     });
 
@@ -178,6 +180,7 @@ const AmbassadorsPage = () => {
             active: formData.active,
             socialMedia: formData.socialMedia,
             achievements: formData.achievements,
+            events: formData.events.map(event => event.id), // Convert events to array of IDs
             order: formData.order,
           };
       
@@ -228,6 +231,11 @@ const AmbassadorsPage = () => {
                 website: ''
             },
             achievements: ambassador.achievements || [],
+            events: ambassador.events ? ambassador.events.map(event => ({
+                id: event._id || event,
+                title: event.title || '',
+                eventID: event.eventID || ''
+            })) : [],
             order: ambassador.order || 0
         });
         // Set preview image for existing ambassador
@@ -291,6 +299,7 @@ const AmbassadorsPage = () => {
                 website: ''
             },
             achievements: [],
+            events: [],
             order: 0
         });
         setPreviewImage('');
@@ -328,6 +337,29 @@ const AmbassadorsPage = () => {
         setFormData(prev => ({
             ...prev,
             achievements: prev.achievements.filter((_, index) => index !== indexToRemove)
+        }));
+    };
+
+    const handleEventSelect = (event) => {
+        // Check if the event is already in the events array
+        const eventExists = formData.events.some(e => e.id === event.id);
+        
+        if (!eventExists) {
+            setFormData(prev => ({
+                ...prev,
+                events: [...prev.events, {
+                    id: event.id,
+                    title: event.title,
+                    eventID: event.eventID
+                }]
+            }));
+        }
+    };
+
+    const handleRemoveEvent = (eventId) => {
+        setFormData(prev => ({
+            ...prev,
+            events: prev.events.filter(event => event.id !== eventId)
         }));
     };
 
@@ -803,6 +835,43 @@ const AmbassadorsPage = () => {
                                                         </button>
                                                     </span>
                                                 ))}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Events */}
+                                    <div className="grid grid-cols-1 gap-4">
+                                        <div>
+                                            <EventSearch 
+                                                onEventSelect={handleEventSelect}
+                                                label="Add Event"
+                                                placeholder="Search for an event..."
+                                            />
+                                        </div>
+                                        
+                                        {/* Display selected events */}
+                                        {formData.events.length > 0 && (
+                                            <div className="mt-2">
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                    Associated Events
+                                                </label>
+                                                <div className="space-y-2">
+                                                    {formData.events.map((event) => (
+                                                        <div 
+                                                            key={event.id} 
+                                                            className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700 rounded-md"
+                                                        >
+                                                            <span className="text-sm dark:text-white">{event.title || event.eventID}</span>
+                                                            <button 
+                                                                type="button"
+                                                                onClick={() => handleRemoveEvent(event.id)}
+                                                                className="text-red-500 hover:text-red-700"
+                                                            >
+                                                                <IoMdClose />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
                                             </div>
                                         )}
                                     </div>

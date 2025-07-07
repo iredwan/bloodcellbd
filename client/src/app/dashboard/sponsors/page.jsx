@@ -12,6 +12,7 @@ import Image from 'next/image';
 import ImageUpload from '@/components/ImageUpload';
 import uploadFiles from '@/utils/fileUpload.js';
 import CustomSelect from '@/components/CustomSelect';
+import EventSearch from '@/components/EventSearch';
 
 const SponsorsPage = () => {
     const [currentPage, setCurrentPage] = useState(0);
@@ -29,6 +30,7 @@ const SponsorsPage = () => {
         website: '',
         active: true,
         order: 0,
+        events: [],
         contactPerson: {
             name: '',
             email: '',
@@ -75,12 +77,37 @@ const SponsorsPage = () => {
         }));
     };
 
+    const handleEventSelect = (event) => {
+        // Check if the event is already in the events array
+        const eventExists = formData.events.some(e => e.id === event.id);
+        
+        if (!eventExists) {
+            setFormData(prev => ({
+                ...prev,
+                events: [...prev.events, {
+                    id: event.id,
+                    title: event.title,
+                    eventID: event.eventID
+                }]
+            }));
+        }
+    };
+
+    const handleRemoveEvent = (eventId) => {
+        setFormData(prev => ({
+            ...prev,
+            events: prev.events.filter(event => event.id !== eventId)
+        }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             let sponsorData = { 
                 ...formData,
-                sponsorType: formData.sponsorType
+                sponsorType: formData.sponsorType,
+                // Convert events array to just contain the IDs for the API
+                events: formData.events.map(event => event.id)
             };
 
             // Handle logo upload if new file is selected
@@ -149,6 +176,11 @@ const SponsorsPage = () => {
             website: sponsor.website || '',
             active: sponsor.active ?? true,
             order: sponsor.order || 0,
+            events: sponsor.events ? sponsor.events.map(event => ({
+                id: event._id || event,
+                title: event.title || '',
+                eventID: event.eventID || ''
+            })) : [],
             contactPerson: {
                 name: sponsor.contactPerson?.name || '',
                 email: sponsor.contactPerson?.email || '',
@@ -191,6 +223,7 @@ const SponsorsPage = () => {
             website: '',
             active: true,
             order: 0,
+            events: [],
             contactPerson: {
                 name: '',
                 email: '',
@@ -291,6 +324,11 @@ const SponsorsPage = () => {
                                 >
                                     Visit Website
                                 </a>
+                            )}
+                            {sponsor.events && sponsor.events.length > 0 && (
+                                <div className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                                    <span className="font-medium">Events:</span> {sponsor.events.length}
+                                </div>
                             )}
                             <div className="mt-2">
                                 <span className={`px-2 py-1 text-xs rounded-full ${
@@ -408,6 +446,42 @@ const SponsorsPage = () => {
                                         className="w-full px-4 py-2.5 pr-10 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                                     />
                                 </div>
+                                </div>
+                                
+                                <div className="grid grid-cols-1 gap-4">
+                                    <div>
+                                        <EventSearch 
+                                            onEventSelect={handleEventSelect}
+                                            label="Add Event"
+                                            placeholder="Search for an event..."
+                                        />
+                                    </div>
+                                    
+                                    {/* Display selected events */}
+                                    {formData.events.length > 0 && (
+                                        <div className="mt-2">
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                Sponsored Events
+                                            </label>
+                                            <div className="space-y-2">
+                                                {formData.events.map((event) => (
+                                                    <div 
+                                                        key={event.id} 
+                                                        className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700 rounded-md"
+                                                    >
+                                                        <span className="text-sm">{event.title || event.eventID}</span>
+                                                        <button 
+                                                            type="button"
+                                                            onClick={() => handleRemoveEvent(event.id)}
+                                                            className="text-red-500 hover:text-red-700"
+                                                        >
+                                                            <IoMdClose />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                                 
                                 <div className="grid grid-cols-1 gap-4">

@@ -81,6 +81,10 @@ export const GetAllSponsorsService = async (req) => {
     
     // Get sponsors with filters and pagination
     const sponsors = await Sponsor.find(filter)
+    .populate(
+        "events",
+        "title date upazila district eventID eventCard"
+      )
     .sort({ order: 1 })
     .skip(skip)
     .limit(limit);
@@ -125,7 +129,7 @@ export const GetSponsorByIdService = async (req) => {
     }
     
     const sponsor = await Sponsor.findById(sponsorId)
-      .populate('events', 'title date location posterImage description');
+      .populate('events', 'title date upazila district eventID eventCard');
     
     if (!sponsor) {
       return { status: false, message: "Sponsor not found." };

@@ -77,6 +77,10 @@ export const GetAllGoodwillAmbassadorsService = async (req) => {
     
     // Get all goodwill ambassadors with filters
     const ambassadors = await GoodwillAmbassador.find(filter)
+      .populate({
+        path: 'events',
+        select: 'title date upazila district eventID eventCard'
+      })
       .sort({ order: 1 })
       .skip(skip)
       .limit(limit)
@@ -123,7 +127,7 @@ export const GetGoodwillAmbassadorByIdService = async (req) => {
     const ambassador = await GoodwillAmbassador.findById(ambassadorId)
       .populate({
         path: 'events',
-        select: 'title date location image status'
+        select: 'title date upazila district eventID eventCard'
       })
       .populate('createdBy', 'name role')
       .populate('updatedBy', 'name role');
@@ -183,7 +187,7 @@ export const UpdateGoodwillAmbassadorService = async (req) => {
     )
       .populate({
         path: 'events',
-        select: 'title date location'
+        select: 'title date upazila district eventID eventCard'
       })
       .populate('updatedBy', 'name role');
     

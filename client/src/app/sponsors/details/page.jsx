@@ -235,17 +235,17 @@ export default function SponsorDetailsPage() {
 
             {/* Sponsored Events */}
             {sponsor?.events && sponsor.events.length > 0 && (
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-md">
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-4 md:p-8 shadow-md">
                 <h2 className="text-2xl font-semibold mb-6 dark:text-white">Sponsored Events</h2>
                 <div className="grid grid-cols-1 gap-6">
                   {sponsor.events.map(event => (
                     <div key={event._id} className="border dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                       <Link href={`/events/details?id=${event._id}`} className="group">
                         <div className="flex">
-                          {event.posterImage && (
-                            <div className="w-24 h-24 relative rounded-md overflow-hidden flex-shrink-0 mr-4">
+                          {event.eventCard && (
+                            <div className="w-16 md:w-24 h-16 md:h-24 relative rounded-md overflow-hidden flex-shrink-0 mr-4">
                               <Image
-                                src={event.posterImage}
+                                src={`${imageUrl}${event.eventCard}`}
                                 alt={event.title}
                                 fill
                                 className="object-cover"
@@ -259,18 +259,14 @@ export default function SponsorDetailsPage() {
                               {event.date && (
                                 <div className="flex items-center">
                                   <FaCalendarAlt className="mr-2 text-primary" />
-                                  <span>{new Date(event.date).toLocaleDateString('en-US', { 
-                                    day: 'numeric', 
-                                    month: 'long', 
-                                    year: 'numeric'
-                                  })}</span>
+                                  <span>{event.date}</span>
                                 </div>
                               )}
                               
-                              {event.location && (
+                              {event.upazila && event.district && (
                                 <div className="flex items-center">
                                   <FaMapMarkerAlt className="mr-2 text-primary" />
-                                  <span>{event.location}</span>
+                                  <span>{event.upazila}, {event.district}</span>
                                 </div>
                               )}
                             </div>
