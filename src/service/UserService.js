@@ -327,6 +327,7 @@ export const GetAllUserService = async (req, res) => {
       limit = 10,
       sortBy = "createdAt", 
       sortOrder = -1,
+      role,
     } = req.query;
 
     const skip = (page - 1) * limit;
@@ -344,6 +345,10 @@ export const GetAllUserService = async (req, res) => {
 
     if (bloodGroup) {
       query.bloodGroup = bloodGroup;
+    }
+
+    if (role) {
+      query.role = role;
     }
 
     // Search across multiple fields
@@ -956,7 +961,6 @@ export const GetUserByDistrictService = async (req) => {
   try {
     const district = req.query.district;
     const bloodGroup = req.query.bloodGroup;
-    const limit = 10;
 
     if (!district) {
       return { status: false, message: "District parameter is required." };

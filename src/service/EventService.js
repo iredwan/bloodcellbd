@@ -2,6 +2,8 @@ import Event from "../models/EventModel.js";
 import mongoose from "mongoose";
 import { deleteFile } from "../utility/fileUtils.js";
 import path from "path";
+import Sponsor from "../models/SponsorModel.js";
+import GoodwillAmbassador from "../models/GoodwillAmbassadorModel.js";
 
 const ObjectId = mongoose.Types.ObjectId;
 
@@ -203,22 +205,32 @@ export const UpdateEventService = async (req) => {
     if (userId) {
       updateData.updatedBy = userId;
     }
+
+    // Delete old eventCard if it does not match the new eventCard
+    if (
+      currentEvent.eventCard &&
+      updateData.eventCard &&
+      currentEvent.eventCard !== updateData.eventCard
+    ) {
+      const fileName = path.basename(currentEvent.eventCard);
+      await deleteFile(fileName);
+    }
     
     // Only check if both old and new image arrays exist
-if (Array.isArray(updateData.image) && Array.isArray(currentEvent.image)) {
-  const removedImages = currentEvent.image.filter(
-    (img) => !updateData.image.includes(img)
-  );
+    if (Array.isArray(updateData.image) && Array.isArray(currentEvent.image)) {
+      const removedImages = currentEvent.image.filter(
+        (img) => !updateData.image.includes(img)
+      );
 
-  for (const img of removedImages) {
-    try {
-      const fileName = path.basename(img);
-      await deleteFile(fileName);
-    } catch (err) {
-      console.warn(`Failed to delete image ${img}:`, err.message);
+      for (const img of removedImages) {
+        try {
+          const fileName = path.basename(img);
+          await deleteFile(fileName);
+        } catch (err) {
+          console.warn(`Failed to delete image ${img}:`, err.message);
+        }
+      }
     }
-  }
-}
 
     
     // Update event
@@ -257,7 +269,7 @@ export const DeleteEventService = async (req) => {
       return { status: false, message: "Event not found or already deleted." };
     }
     
-    // Check if user has permission to delete this event
+    // Check permission
     const userId = req.headers.user_id || req.cookies.user_id;
     const userRole = req.headers.role || req.user?.role;
     
@@ -269,15 +281,39 @@ export const DeleteEventService = async (req) => {
         message: "You don't have permission to delete this event." 
       };
     }
-    
-    // Delete the image file if it exists
-    if (event.image) {
-      const fileName = path.basename(event.image);
+
+    // Delete eventCard file if exists
+    if (event.eventCard) {
+      const fileName = path.basename(event.eventCard);
       await deleteFile(fileName);
     }
+
+    // Delete all images in the image array if exists
+    if (Array.isArray(event.image)) {
+      for (const img of event.image) {
+        try {
+          const fileName = path.basename(img);
+          await deleteFile(fileName);
+        } catch (err) {
+          console.warn(`Failed to delete image ${img}:`, err.message);
+        }
+      }
+    }
+
+    // Remove event reference from sponsors and ambassadors BEFORE deletion
+    await Promise.all([
+      Sponsor.updateMany(
+        { events: eventId },
+        { $pull: { events: eventId } }
+      ),
+      GoodwillAmbassador.updateMany(
+        { events: eventId },
+        { $pull: { events: eventId } }
+      )
+    ]);
     
     // Delete the event
-    const deletedEvent = await Event.findByIdAndDelete(eventId);
+    await Event.findByIdAndDelete(eventId);
     
     return {
       status: true,

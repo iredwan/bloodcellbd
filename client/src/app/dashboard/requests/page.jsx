@@ -39,6 +39,7 @@ const RequestsPage = () => {
     userInfoData?.user?.userHaveRequest?.userId?._id || "";
   const requestId = userInfoData?.user?.userHaveRequest?._id;
   const userHaveRequest = userInfoData?.user.userHaveRequest ? true : false;
+  const userBloodGroup = userInfoData?.user.bloodGroup || "";
 
   const [isProcessingRequest, setIsProcessingRequest] =
     useState(processingRequest);
@@ -253,12 +254,13 @@ const RequestsPage = () => {
       });
     }
 
-    // Upazila data filter (pending only)
+    // Upazila data filter (pending only, matching userBloodGroup)
     const upazilaFiltered =
       upazilaRequestsData?.data?.filter(
         (request) =>
           request.upazila?.toLowerCase() === userUpazila.toLowerCase() &&
           request.status === "pending" &&
+          request.bloodGroup?.toLowerCase() === userBloodGroup.toLowerCase() &&
           (searchTerm === "" ||
             request.requestId
               ?.toLowerCase()
@@ -289,12 +291,13 @@ const RequestsPage = () => {
       return upazilaFiltered;
     }
 
-    // Else, fallback to district data filter (pending only)
+    // Else, fallback to district data filter (pending only, matching userBloodGroup)
     const districtFiltered =
       districtRequestsData?.data?.filter(
         (request) =>
           request.district?.toLowerCase() === useDistrict.toLowerCase() &&
           request.status === "pending" &&
+          request.bloodGroup?.toLowerCase() === userBloodGroup.toLowerCase() &&
           (searchTerm === "" ||
             request.requestId
               ?.toLowerCase()
@@ -328,6 +331,7 @@ const RequestsPage = () => {
     useDistrict,
     searchTerm,
     userRequestsData?.data,
+    userBloodGroup,
   ]);
 
   // Pagination for filtered by location data

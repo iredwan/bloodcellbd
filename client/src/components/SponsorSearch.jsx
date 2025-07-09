@@ -31,9 +31,7 @@ const SponsorSearch = ({
   // Log data structure for debugging
   useEffect(() => {
     if (apiResponse) {
-      console.log('Sponsor API response:', apiResponse);
       if (apiResponse.data) {
-        console.log('API response data content:', apiResponse.data);
       }
     }
   }, [apiResponse]);
@@ -46,23 +44,18 @@ const SponsorSearch = ({
       if (Array.isArray(apiResponse.data)) {
         // If data is directly an array
         sponsors = apiResponse.data;
-        console.log('Found sponsors as direct array in data:', sponsors.length);
       } else if (typeof apiResponse.data === 'object') {
         // If data is an object that contains sponsors
         // Check if data has a sponsors property
         if (apiResponse.data.sponsors && Array.isArray(apiResponse.data.sponsors)) {
           sponsors = apiResponse.data.sponsors;
-          console.log('Found sponsors in data.sponsors:', sponsors.length);
         } else if (apiResponse.data.data && Array.isArray(apiResponse.data.data)) {
           sponsors = apiResponse.data.data;
-          console.log('Found sponsors in data.data:', sponsors.length);
         } else if (apiResponse.data.result && Array.isArray(apiResponse.data.result)) {
           sponsors = apiResponse.data.result;
-          console.log('Found sponsors in data.result:', sponsors.length);
         } else if (apiResponse.data.docs && Array.isArray(apiResponse.data.docs)) {
           // Common pagination structure
           sponsors = apiResponse.data.docs;
-          console.log('Found sponsors in data.docs:', sponsors.length);
         } else {
           // If data is an object but doesn't have a clear array property,
           // check if it's an object where each key is a sponsor object
@@ -72,12 +65,10 @@ const SponsorSearch = ({
           
           if (possibleSponsors.length > 0) {
             sponsors = possibleSponsors;
-            console.log('Extracted sponsors from data object:', sponsors.length);
           } else {
             // Last resort: check if the data object itself is a sponsor object
             if (apiResponse.data.name && (apiResponse.data._id || apiResponse.data.id)) {
               sponsors = [apiResponse.data];
-              console.log('Found single sponsor object in data');
             } else {
               console.warn('Could not find sponsors array in data:', apiResponse.data);
             }
@@ -87,11 +78,9 @@ const SponsorSearch = ({
     } else if (Array.isArray(apiResponse)) {
       // Direct array response
       sponsors = apiResponse;
-      console.log('Found sponsors as direct array in response:', sponsors.length);
     } else if (apiResponse.data && Array.isArray(apiResponse.data)) {
       // { data: [...] } structure
       sponsors = apiResponse.data;
-      console.log('Found sponsors in response.data array:', sponsors.length);
     } else {
       console.warn('Unexpected sponsor API response structure:', apiResponse);
     }
@@ -151,7 +140,6 @@ const SponsorSearch = ({
     ? sponsors.filter(sponsor => sponsor.sponsorType === filterByType)
     : sponsors;
 
-  console.log('Filtered sponsors for rendering:', filteredSponsors);
 
   return (
     <div ref={wrapperRef} className="w-full relative">

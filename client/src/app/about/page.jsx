@@ -3,6 +3,7 @@ import {useState} from 'react';
 import { FaUsers,FaHandHoldingWater } from 'react-icons/fa';
 import { useWebsiteConfig } from '@/features/websiteConfig/configApiSlice';
 import { useGetAllSponsorsQuery } from '@/features/sponsors/sponsorApiSlice';
+import { useGetAllBoardTeamMembersQuery } from '@/features/boardTeam/boardTeamApiSlice';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useDivisionalTeams } from '@/features/divisionalTeam/divisionalTeamApiSlice';
@@ -10,6 +11,7 @@ import TeamCard from '@/components/TeamCard';
 import TeamCardSkeleton from '@/components/ui/Skeletons/TeamCardSkeleton';
 import { GiDrop } from 'react-icons/gi';
 import { IoAlertCircle } from 'react-icons/io5';
+import BoardTeamCard from '@/components/BoardTeamCard';
 
 export default function AboutPage() {
   const { config, loading: configLoading } = useWebsiteConfig();
@@ -17,6 +19,10 @@ export default function AboutPage() {
   const sponsors = sponsorsData?.sponsors || [];
 
   const { divisionalTeams, loading, error, refreshDivisionalTeams } = useDivisionalTeams();
+
+  const { data: boardTeamMembers, isLoading } = useGetAllBoardTeamMembersQuery({
+    featured: true,
+});
   
 
   if (!divisionalTeams.length === 0) {
@@ -173,6 +179,31 @@ export default function AboutPage() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* Board members section */}
+      <section className="container mx-auto py-16 bg-gray-50 dark:bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-primary dark:text-red-400 text-center mb-12">Board Members</h2>
+        </div>
+        <div className="flex justify-center items-center">
+                <div className={`
+                  grid 
+                  ${boardTeamMembers?.data?.length === 1 ? 'grid-cols-1 max-w-md' : ''}
+                  ${boardTeamMembers?.data?.length === 2 ? 'grid-cols-1 md:grid-cols-2 max-w-3xl' : ''}
+                  ${boardTeamMembers?.data?.length >= 3 ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : ''}
+                  gap-6 w-full
+                `}>
+                  {
+                    boardTeamMembers?.data?.map((member) => (
+                      <BoardTeamCard
+                        key={member._id}
+                        member={member}
+                      />
+                    ))
+                  }
+                </div>
+              </div>
       </section>
 
       {/* Team section */}

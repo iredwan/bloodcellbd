@@ -2,18 +2,21 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useWebsiteConfig } from '@/features/websiteConfig/configApiSlice';
-import { useGetUsersByDistrictQuery } from '@/features/users/userApiSlice';
+import { useGetAllUsersQuery } from '@/features/users/userApiSlice';
 import { useDistricts } from '@/features/districts/districtApiSlice';
+import {
+  selectIsAuthenticated,
+} from "@/features/userInfo/userInfoSlice";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaSpinner, FaUser,} from 'react-icons/fa';
-import { getCookie } from 'cookies-next';
 import { toast } from 'react-toastify';
 import Toast from '@/utils/toast';
+import { useSelector } from 'react-redux';
 
 export default function ContactPage() {
   const { config, loading } = useWebsiteConfig();
   const { contactInfo } = config;
-  
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -29,6 +32,7 @@ export default function ContactPage() {
   const [districtCoordinators, setDistrictCoordinators] = useState([]);
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const imageUrl = process.env.NEXT_PUBLIC_IMAGE_URL;
   
   // Get districts from Redux
   const { districts, loading: loadingDistricts } = useDistricts();
@@ -52,14 +56,14 @@ export default function ContactPage() {
     isLoading: isLoadingUsers,
     error: usersError,
     refetch
-  } = useGetUsersByDistrictQuery(selectedDistrict, {
-    skip: !selectedDistrict || !getCookie('token'), // Skip the query if no district is selected or no token
+  } = useGetAllUsersQuery({district: selectedDistrict, role: "District Coordinator"}, {
+    skip: !selectedDistrict || !isAuthenticated, // Skip the query if no district is selected or no token
   });
   
-  // Process district users data safely
+  // Process district users data safely (updated to match API response structure)
   const districtUsers = useMemo(() => {
-    // Extract users array from the response
-    const users = districtUsersData?.data || districtUsersData || [];
+    // Extract users array from the response (data.users)
+    const users = districtUsersData?.data?.users || [];
     return Array.isArray(users) ? users : [];
   }, [districtUsersData]);
   
@@ -88,10 +92,7 @@ export default function ContactPage() {
   // Filter district coordinators when district users data is available
   useEffect(() => {
     if (districtUsers.length > 0) {
-      const coordinators = districtUsers.filter(
-        user => user.role === 'District Coordinator' || user.role === 'District Co-coordinator'
-      );
-      setDistrictCoordinators(coordinators);
+      setDistrictCoordinators(districtUsers);
     } else if (districtUsersData && !isLoadingUsers) {
       // Clear coordinators if we got data but no users match
       setDistrictCoordinators([]);
@@ -100,8 +101,7 @@ export default function ContactPage() {
 
   const handleSelectDistrict = (district) => {
      // Check if user is authenticated
-     const token = getCookie('token');
-     if (!token) {
+     if (!isAuthenticated) {
        toast.error('Please log in to search for district coordinators.');
        return;
      }
@@ -249,21 +249,12 @@ export default function ContactPage() {
             <div className="space-y-6">
               <h3 className="text-lg font-medium text-gray-800 dark:text-white  ">Coordinators in {selectedDistrict}</h3>
               
-              {districtCoordinators
-                .sort((a, b) => {
-                  // Sort by role: Coordinator first, then Co-coordinator
-                  if (a.role === "District Coordinator" && b.role !== "District Coordinator") return -1;
-                  if (a.role !== "District Coordinator" && b.role === "District Coordinator") return 1;
-                  if (a.role === "Co-coordinator" && b.role !== "Co-coordinator") return -1;
-                  if (a.role !== "Co-coordinator" && b.role === "Co-coordinator") return 1;
-                  return 0;
-                })
-                .map((coordinator) => (
+              {districtCoordinators.map((coordinator) => (
                 <div key={coordinator._id} className="border border-gray-200 rounded-lg p-4 flex flex-col sm:flex-row items-center gap-4 dark:border-gray-600 dark:bg-gray-800">
                   <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center dark:bg-gray-700">
                     {coordinator.profileImage ? (
                       <img 
-                        src={coordinator.profileImage} 
+                        src={`${imageUrl}${coordinator.profileImage}`} 
                         alt={coordinator.name} 
                         className="w-full h-full object-cover"
                       />

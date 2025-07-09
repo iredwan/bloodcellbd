@@ -261,6 +261,14 @@ export const UpdateRequestService = async (req, res) => {
         };
       }
 
+      const { eligible, reason } = await isEligibleDonor(processingBy);
+      if (!eligible) {
+        return {
+          status: false,
+          message: `Donor is not eligible to process this request. Reason: ${reason}`,
+        };
+      }
+
       const existingProcessing = await RequestModel.findOne({
         processingBy: new ObjectId(processingBy),
         status: "processing",
