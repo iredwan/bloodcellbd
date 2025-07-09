@@ -42,39 +42,100 @@ export const CreateBoardTeamService = async (req) => {
 // Get All Board Team Members
 export const GetAllBoardTeamService = async (req) => {
   try {
-    // Optional query parameters
     const filter = {};
-    
-    if (req.query.active === 'true') {
-      filter.active = true;
-    }
-    
-    if (req.query.featured === 'true') {
+
+    if (req.query.featured === "true") {
       filter.featured = true;
     }
-    
-    // Get all board team members with filters
-    const members = await BoardTeam.find(filter)
-      .populate('userId', 'name email profileImage district upazila phone')
-      .sort({ order: 1 });
-    
+
+    if (req.query.active === "true") {
+      filter.active = true;
+    }
+
+    const search = req.query.search || "";
+
+    const aggregatePipeline = [
+      { $match: filter },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user"
+        }
+      },
+      {
+        $unwind: {
+          path: "$user",
+          preserveNullAndEmptyArrays: true
+        }
+      }
+    ];
+
+    if (search.trim() !== "") {
+      const regex = new RegExp(search, "i");
+      aggregatePipeline.push({
+        $match: {
+          $or: [
+            { "user.name": regex },
+            { "user.email": regex }
+          ]
+        }
+      });
+    }
+
+    aggregatePipeline.push(
+      { $sort: { order: 1 } },
+      {
+        $project: {
+          _id: 1,
+          userId: 1,
+          active: 1,
+          featured: 1,
+          image: 1,
+          order: 1,
+          bio: 1,
+          designation: 1,
+          socialLinks: 1,
+          user: {
+            _id: 1,
+            name: 1,
+            email: 1,
+            profileImage: 1,
+            district: 1,
+            upazila: 1,
+            phone: 1
+          }
+        }
+      }
+    );
+
+    const members = await BoardTeam.aggregate(aggregatePipeline);
+
     if (!members || members.length === 0) {
       return { status: false, message: "No board team members found." };
     }
-    
+
+    const formattedMembers = members.map(member => ({
+      ...member,
+      userId: member.user || null,
+      user: undefined
+    }));
+
     return {
       status: true,
-      data: members,
+      data: formattedMembers,
       message: "Board team members retrieved successfully.",
     };
   } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to retrieve board team members.", 
-      details: e.message 
+    return {
+      status: false,
+      message: "Failed to retrieve board team members.",
+      details: e.message,
     };
   }
 };
+
 
 // Get Board Team Member By ID
 export const GetBoardTeamByIdService = async (req) => {
