@@ -36,9 +36,7 @@ const DistrictTeamDetail = () => {
   // Filter upazila teams based on search term
   const filteredUpazilaTeams =
     districtTeam?.upazilaTeamID?.filter((upazila) =>
-      upazila.upazilaName?.name
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase())
+      upazila.upazilaName?.toLowerCase().includes(searchTerm.toLowerCase())
     ) || [];
 
   return (
@@ -64,7 +62,7 @@ const DistrictTeamDetail = () => {
         {!isLoading && districtTeam && (
           <div className="text-center space-y-3 bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
             <h1 className="text-3xl font-bold text-gray-800 dark:text-white tracking-tight">
-              {districtTeam.districtId?.name} District Team Structure
+              {districtTeam.districtName} District Team Structure
             </h1>
             <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-2 text-gray-600 dark:text-gray-300 text-sm sm:text-base">
               <span className="inline-flex items-center">
@@ -73,7 +71,7 @@ const DistrictTeamDetail = () => {
               </span>
               <span className="inline-flex items-center">
                 <FaMapMarkerAlt className="mr-2 text-primary w-4 h-4" />
-                {districtTeam.districtId?.name} District
+                {districtTeam.districtName} District
               </span>
             </div>
           </div>
@@ -114,30 +112,30 @@ const DistrictTeamDetail = () => {
               }
             />
 
-            {/* District Sub Coordinator */}
-            {districtTeam.districtSubCoordinatorID && (
+            {/* District Co-Coordinator */}
+            {districtTeam.districtCoCoordinatorID && (
               <ProfileCard
                 id={
-                  districtTeam.districtSubCoordinatorID?._id || "Not assigned"
+                  districtTeam.districtCoCoordinatorID?._id || "Not assigned"
                 }
                 imageUrl={
-                  districtTeam.districtSubCoordinatorID?.profileImage || ""
+                  districtTeam.districtCoCoordinatorID?.profileImage || ""
                 }
                 name={
-                  districtTeam.districtSubCoordinatorID?.name || "Not assigned"
+                  districtTeam.districtCoCoordinatorID?.name || "Not assigned"
                 }
                 isVerified={
-                  districtTeam.districtSubCoordinatorID?.isVerified || false
+                  districtTeam.districtCoCoordinatorID?.isVerified || false
                 }
-                role="District Sub Coordinator"
+                role="District Co-Coordinator"
                 roleSuffix={
-                  districtTeam.districtSubCoordinatorID?.roleSuffix || ""
+                  districtTeam.districtCoCoordinatorID?.roleSuffix || ""
                 }
                 bloodGroup={
-                  districtTeam.districtSubCoordinatorID?.bloodGroup || "N/A"
+                  districtTeam.districtCoCoordinatorID?.bloodGroup || "N/A"
                 }
                 phone={
-                  districtTeam.districtSubCoordinatorID?.phone || "Not assigned"
+                  districtTeam.districtCoCoordinatorID?.phone || "Not assigned"
                 }
               />
             )}
@@ -234,7 +232,7 @@ const DistrictTeamDetail = () => {
         {districtTeam && (
           <div className="py-10 rounded-lg bg-gray-100 dark:bg-gray-800 mb-10">
             <h1 className="text-2xl font-bold text-center text-gray-800 dark:text-white tracking-tight">
-              Upazila/Thana Teams of {districtTeam.districtId?.name} District
+              Upazila/Thana Teams of {districtTeam.districtName} District
             </h1>
 
             {/* Upazila Search Filter */}
@@ -314,7 +312,7 @@ const DistrictTeamDetail = () => {
                   <div key={upazila._id} className="space-y-4">
                     <TeamCard
                       detailPageLink={`/about/upazila-or-thana-team-detail?id=${upazila._id}`}
-                      teamName={upazila.upazilaName?.name || "Unknown Upazila"}
+                      teamName={upazila.upazilaName || "Unknown Upazila"}
                       name={upazila.upazilaCoordinator?.name || "Not assigned"}
                       role={
                         upazila.upazilaCoordinator?.role || ""

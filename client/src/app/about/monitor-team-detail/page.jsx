@@ -40,7 +40,7 @@ const MonitorTeamDetail = () => {
   // Filter moderator teams based on search term
   const filteredModeratorTeams =
     monitorTeam?.moderatorTeamID?.filter((moderator) =>
-      moderator.moderatorName?.name
+      moderator.moderatorTeamName
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase())
     ) || [];

@@ -29,7 +29,7 @@ export const CreateDistrictTeam = async (req, res) => {
 // Get All District Teams
 export const GetAllDistrictTeams = async (req, res) => {
   try {
-    const result = await GetAllDistrictTeamsService();
+    const result = await GetAllDistrictTeamsService(req);
     
     if (result.status) {
       return res.status(200).json(result);

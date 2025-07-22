@@ -149,6 +149,7 @@ export default function Sidebar() {
         'Monitor'] },
         { label: 'Moderator Team', href: '/dashboard/moderator-team', icon: <RiTeamFill />, roles: [
           ...admin, 
+          ...upazilaCoordinators,
           ...allowedRoles,
         'user'] },
       ],

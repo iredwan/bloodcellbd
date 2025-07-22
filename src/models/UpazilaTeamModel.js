@@ -1,9 +1,12 @@
 import mongoose from "mongoose";
 
 const upazilaTeamSchema = new mongoose.Schema({
+  districtName: {
+    type: String,
+    required: [true, "District is required"]
+  },
   upazilaName: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "UpazilaOrPS",
+    type: String,
     required: [true, "Upazila is required"]
   },
   upazilaCoordinator: {
@@ -11,7 +14,7 @@ const upazilaTeamSchema = new mongoose.Schema({
     ref: "User",
     required: [true, "Upazila Coordinator is required"]
   },
-  upazilaSubCoordinator: {
+  upazilaCoCoordinator: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },

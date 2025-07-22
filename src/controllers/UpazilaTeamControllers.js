@@ -29,7 +29,7 @@ export const CreateUpazilaTeam = async (req, res) => {
 // Get All Upazila Teams
 export const GetAllUpazilaTeams = async (req, res) => {
   try {
-    const result = await GetAllUpazilaTeamsService();
+    const result = await GetAllUpazilaTeamsService(req);
     
     if (result.status) {
       return res.status(200).json(result);

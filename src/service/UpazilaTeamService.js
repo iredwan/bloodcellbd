@@ -1,15 +1,39 @@
 import UpazilaTeam from "../models/UpazilaTeamModel.js";
 import mongoose from "mongoose";
+import userModel from './../models/UserModel.js';
 const ObjectId = mongoose.Types.ObjectId;
 
 // Create UpazilaTeam Service
 export const CreateUpazilaTeamService = async (req) => {
   try {
     const reqBody = req.body;
+    
+    const upazilaCoordinator = await userModel.findById(reqBody.upazilaCoordinator);
+    if (reqBody.upazilaCoordinator) {
+      if (upazilaCoordinator.role !== "Upazila Coordinator") {
+        return { status: false, message: "You have to set user role as Upazila Coordinator" };
+      }
+    }
 
-    //check if user role is not set upazila coordinator, Co-coordinator, it-media coordinator, logistics coordinator
-    if (req.user.role !== "Upazila Coordinator" && req.user.role !== "Upazila Co-coordinator" && req.user.role !== "Upazila IT & Media Coordinator" && req.user.role !== "Upazila Logistics Coordinator") {
-      return { status: false, message: "You have to set user role as Upazila Coordinator, Upazila Co-coordinator, Upazila IT & Media Coordinator, Upazila Logistics Coordinator" };
+    const upazilaCoCoordinator = await userModel.findById(reqBody.upazilaCoCoordinator);
+    if (reqBody.upazilaCoCoordinator) {
+      if (upazilaCoCoordinator.role !== "Upazila Co-coordinator") {
+        return { status: false, message: "You have to set user role as Upazila Co-coordinator" };
+      }
+    }
+
+    const upazilaITMediaCoordinator = await userModel.findById(reqBody.upazilaITMediaCoordinator);
+    if (reqBody.upazilaITMediaCoordinator) {
+      if (upazilaITMediaCoordinator.role !== "Upazila IT & Media Coordinator") {
+        return { status: false, message: "You have to set user role as Upazila IT & Media Coordinator" };
+      }
+    }
+
+    const upazilaLogisticsCoordinator = await userModel.findById(reqBody.upazilaLogisticsCoordinator);
+    if (reqBody.upazilaLogisticsCoordinator) {
+      if (upazilaLogisticsCoordinator.role !== "Upazila Logistics Coordinator") {
+        return { status: false, message: "You have to set user role as Upazila Logistics Coordinator" };
+      }
     }
 
     // Check if the team already exists for this upazila
@@ -22,7 +46,7 @@ export const CreateUpazilaTeamService = async (req) => {
     const coordinatorInOtherTeam = await UpazilaTeam.findOne({
          $or: [
         { upazilaCoordinator: reqBody.upazilaCoordinator },
-        { upazilaSubCoordinator: reqBody.upazilaSubCoordinator },
+        { upazilaCoCoordinator: reqBody.upazilaCoCoordinator },
         { upazilaITMediaCoordinator: reqBody.upazilaITMediaCoordinator },
         { upazilaLogisticsCoordinator: reqBody.upazilaLogisticsCoordinator }
       ]
@@ -57,40 +81,74 @@ export const CreateUpazilaTeamService = async (req) => {
 };
 
 // Get All UpazilaTeams Service
-export const GetAllUpazilaTeamsService = async () => {
+export const GetAllUpazilaTeamsService = async (req) => {
   try {
-    const upazilaTeams = await UpazilaTeam.find()
-      .populate("upazilaName", "name")
+    const districtName = req.query.districtName;
+    const upazilaName = req.query.upazilaName;
+
+    const limit = parseInt(req.query.limit) || 10;
+    const page = parseInt(req.query.page) || 1;
+    const skip = (page - 1) * limit;
+
+    let query = {};
+    if (upazilaName) {
+      query.upazilaName = { $regex: upazilaName, $options: "i" };
+    }
+    if (districtName) {
+      query.districtName = { $regex: districtName, $options: "i" };
+    }
+
+    const total = await UpazilaTeam.countDocuments(query); // ✅ Total count
+
+    const upazilaTeams = await UpazilaTeam.find(query)
+      .skip(skip)       // ✅ Pagination skip
+      .limit(limit)     // ✅ Pagination limit
       .populate("upazilaCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
-      .populate("upazilaSubCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
+      .populate("upazilaCoCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
       .populate("upazilaITMediaCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
       .populate("upazilaLogisticsCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
+      .populate("monitorTeams", "teamName")
       .populate({
         path: "createdBy",
         select: "name bloodGroup isVerified phone profileImage role roleSuffix"
       })
       .populate({
-        path: "updatedBy", 
+        path: "updatedBy",
         select: "name bloodGroup isVerified phone profileImage role roleSuffix"
       });
-    
+
     if (!upazilaTeams || upazilaTeams.length === 0) {
       return { status: false, message: "No upazila teams found" };
     }
 
-    // // Count total monitor teams
+    // Count total monitor teams from result
     const totalMonitorTeams = upazilaTeams.reduce((acc, team) => {
       return acc + (team.monitorTeams ? team.monitorTeams.length : 0);
     }, 0);
-    
-    return { status: true, message: "Upazila teams retrieved successfully", data: {
-      upazilaTeams,
-      totalMonitorTeams
-    } };
+
+    return {
+      status: true,
+      message: "Upazila teams retrieved successfully",
+      data: {
+        upazilaTeams,
+        totalMonitorTeams,
+        pagination: {
+          totalItems: total,
+          currentPage: page,
+          itemsPerPage: limit,
+          totalPages: Math.ceil(total / limit),
+        },
+      },
+    };
   } catch (error) {
-    return { status: false, message: "Error retrieving upazila team", error: error.message };
+    return {
+      status: false,
+      message: "Error retrieving upazila team",
+      error: error.message,
+    };
   }
 };
+
 
 // Get UpazilaTeam By ID Service
 export const GetUpazilaTeamByIdService = async (req) => {
@@ -98,9 +156,8 @@ export const GetUpazilaTeamByIdService = async (req) => {
     const teamId = new ObjectId(req.params.id);
     
     const upazilaTeam = await UpazilaTeam.findById(teamId)
-      .populate("upazilaName", "name")
       .populate("upazilaCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
-      .populate("upazilaSubCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
+      .populate("upazilaCoCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
       .populate("upazilaITMediaCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
       .populate("upazilaLogisticsCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
       .populate({
@@ -147,21 +204,16 @@ export const GetUpazilaTeamByUpazilaCoordinatorsUserIdService = async (req) => {
   try {
     const userId = req.headers.user_id || req.cookies.user_id;
 
-    //check if user role is not set upazila coordinator, Co-coordinator, it-media coordinator, logistics coordinator
-    if (req.user.role !== "Upazila Coordinator" && req.user.role !== "Upazila Co-coordinator" && req.user.role !== "Upazila IT & Media Coordinator" && req.user.role !== "Upazila Logistics Coordinator") {
-      return { status: false, message: "You are not authorized to access this resource" };
-    }
-
     const upazilaTeam = await UpazilaTeam.find({
       $or: [
         { upazilaCoordinator: userId },
-        { upazilaSubCoordinator: userId },
+        { upazilaCoCoordinator: userId },
         { upazilaITMediaCoordinator: userId },
         { upazilaLogisticsCoordinator: userId }
       ]
-    }).populate("upazilaName", "name")
+    })
     .populate("upazilaCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
-    .populate("upazilaSubCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
+    .populate("upazilaCoCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
     .populate("upazilaITMediaCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix")
     .populate("upazilaLogisticsCoordinator", "name bloodGroup isVerified phone profileImage role roleSuffix");
       return { status: true, message: "Upazila team retrieved successfully", data: upazilaTeam };
@@ -175,55 +227,115 @@ export const UpdateUpazilaTeamService = async (req) => {
   try {
     const teamId = new ObjectId(req.params.id);
     const reqBody = req.body;
-    
-    // Add updated by from header or cookie
+
+    const upazilaCoordinator = reqBody.upazilaCoordinator
+      ? new ObjectId(reqBody.upazilaCoordinator)
+      : null;
+    const upazilaCoCoordinator = reqBody.upazilaCoCoordinator
+      ? new ObjectId(reqBody.upazilaCoCoordinator)
+      : null;
+    const upazilaITMediaCoordinator = reqBody.upazilaITMediaCoordinator
+      ? new ObjectId(reqBody.upazilaITMediaCoordinator)
+      : null;
+    const upazilaLogisticsCoordinator = reqBody.upazilaLogisticsCoordinator
+      ? new ObjectId(reqBody.upazilaLogisticsCoordinator)
+      : null;
+
     const updatedBy = req.headers.user_id || req.cookies.user_id;
     if (!updatedBy) {
       return { status: false, message: "Unauthorized" };
     }
     reqBody.updatedBy = updatedBy;
 
-    //check if new user role is not set upazila coordinator, Co-coordinator, it-media coordinator, logistics coordinator
-    if (reqBody.upazilaCoordinator && reqBody.upazilaCoordinator.role !== "Upazila Coordinator" && reqBody.upazilaCoordinator.role !== "Upazila Co-coordinator" && reqBody.upazilaCoordinator.role !== "Upazila IT & Media Coordinator" && reqBody.upazilaCoordinator.role !== "Upazila Logistics Coordinator") {
-      return { status: false, message: "You have to set user role as Upazila Coordinator, Upazila Co-coordinator, Upazila IT & Media Coordinator, Upazila Logistics Coordinator" };
+    // ✅ Dynamic role validation (if role object sent)
+    const allowedRoles = [
+      "Upazila Coordinator",
+      "Upazila CoCoordinator",
+      "Upazila IT & Media Coordinator",
+      "Upazila Logistics Coordinator",
+    ];
+
+    if (
+      reqBody?.upazilaCoordinatorDetails &&
+      !allowedRoles.includes(reqBody.upazilaCoordinatorDetails?.role)
+    ) {
+      return {
+        status: false,
+        message:
+          "You must assign a valid role: Upazila Coordinator, CoCoordinator, IT & Media Coordinator or Logistics Coordinator.",
+      };
     }
 
-    //check if coordinator is already in other team
-    const coordinatorInOtherTeam = await UpazilaTeam.findOne({
-      _id: { $ne: teamId },
-      $or: [
-        { upazilaCoordinator: reqBody.upazilaCoordinator },
-        { upazilaSubCoordinator: reqBody.upazilaSubCoordinator },
-        { upazilaITMediaCoordinator: reqBody.upazilaITMediaCoordinator },
-        { upazilaLogisticsCoordinator: reqBody.upazilaLogisticsCoordinator }
-      ]
-    });
-    if (coordinatorInOtherTeam) {
-      return { status: false, message: "Coordinator already in other team" };
+    // ✅ Check if coordinator is already in other team
+    const orConditions = [];
+
+    if (upazilaCoordinator) {
+      orConditions.push({ upazilaCoordinator });
+    }
+    if (upazilaCoCoordinator) {
+      orConditions.push({ upazilaCoCoordinator });
+    }
+    if (upazilaITMediaCoordinator) {
+      orConditions.push({ upazilaITMediaCoordinator });
+    }
+    if (upazilaLogisticsCoordinator) {
+      orConditions.push({ upazilaLogisticsCoordinator });
     }
 
-    //check if monitor team is already in other team
-    const monitorTeamInOtherTeam = await UpazilaTeam.findOne({
-      monitorTeams: { $in: [reqBody.monitorTeamId] }
-    });
-    if (monitorTeamInOtherTeam) {
-      return { status: false, message: "Monitor team already in other team" };
+    let coordinatorInOtherTeam = [];
+
+    if (orConditions.length > 0) {
+      coordinatorInOtherTeam = await UpazilaTeam.find({
+        _id: { $ne: teamId },
+        $or: orConditions,
+      });
+
+      if (coordinatorInOtherTeam.length > 0) {
+        return {
+          status: false,
+          message: "Coordinator already exists in another Upazila team.",
+          data: coordinatorInOtherTeam,
+        };
+      }
     }
-    
-    
+
+    // ✅ Check monitor team conflict
+    if (reqBody.monitorTeamId) {
+      const monitorTeamInOtherTeam = await UpazilaTeam.findOne({
+        _id: { $ne: teamId },
+        monitorTeams: { $in: [reqBody.monitorTeamId] },
+      });
+
+      if (monitorTeamInOtherTeam) {
+        return {
+          status: false,
+          message: "Monitor team already assigned to another Upazila team.",
+        };
+      }
+    }
+
+    // ✅ Final update
     const updatedUpazilaTeam = await UpazilaTeam.findByIdAndUpdate(
       teamId,
       { $set: reqBody },
       { new: true }
-    )
-    
+    );
+
     if (!updatedUpazilaTeam) {
       return { status: false, message: "Upazila team not found" };
     }
-    
-    return { status: true, message: "Upazila team updated successfully" };
+
+    return {
+      status: true,
+      message: "Upazila team updated successfully",
+      data: updatedUpazilaTeam,
+    };
   } catch (error) {
-    return { status: false, message: "Error updating upazila team", error: error.message };
+    return {
+      status: false,
+      message: "Error updating Upazila team",
+      error: error.message,
+    };
   }
 };
 

@@ -2,17 +2,16 @@ import mongoose from "mongoose";
 
 const districtTeamSchema = new mongoose.Schema(
   {
-    districtId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "District",
-      required: [true, "District is required"]
+    districtName: {
+      type: String,
+      required: [true, "District name is required"]
     },
     districtCoordinatorID: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: [true, "District Coordinator is required"]
     },
-    districtSubCoordinatorID: {
+    districtCoCoordinatorID: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },

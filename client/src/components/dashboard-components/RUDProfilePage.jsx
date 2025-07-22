@@ -56,6 +56,7 @@ const CRUDProfilePage = () => {
   const { data: userInfoData, isLoading: isLoadingUserInfo } =
     useGetUserInfoQuery();
   const editorRole = userInfoData?.user.role || "";
+  const isEditorId = userInfoData?.user.id === userId;
   const roleApi = (userInfoData?.user.role || "").toLowerCase();
 
   const roleHierarchy = {
@@ -243,11 +244,6 @@ const CRUDProfilePage = () => {
     "Head of Logistics": 16,
     "Admin": 17
   };
-  
-
-  
-
-
 
   // Form state
   const [formData, setFormData] = useState({
@@ -1298,7 +1294,8 @@ const CRUDProfilePage = () => {
             </div>
 
             {/* Role and Access Control Section */}
-            {roleLevels[editorRole] >= roleLevels[formData.role] && (
+            {editorRole !== formData?.role &&
+              (!formData?.role || roleLevels[editorRole] >= roleLevels[formData.role]) && (
             <div className="bg-white dark:bg-gray-800 rounded-lg mt-6">
             {isRoleAndAccessControlEditMode ? (
               <div>
@@ -1713,32 +1710,35 @@ const CRUDProfilePage = () => {
             </div>
 
             {/* Reference and UpdateBy Section */}
+            {reference && typeof reference === 'object' || updateBy && typeof updateBy === 'object' && (
+             <>
             <div className="bg-white dark:bg-gray-800 rounded-lg mt-6">
               <div className="flex justify-between p-5 rounded-t-lg bg-gray-200 dark:bg-gray-700">
                 <h1 className="flex items-center text-lg font-semibold text-gray-800 dark:text-white">
                   <FaUserFriends className="mr-3 text-primary"/> Reference Information
                 </h1>
               </div>
-              <div className="shadow-lg bg-white dark:bg-gray-800 rounded-b-lg">
+            <div className="shadow-lg bg-white dark:bg-gray-800 rounded-b-lg">
               {reference && typeof reference === 'object' && (
                 <>
-              <h2 className="text-center text-md font-semibold text-gray-700 dark:text-gray-300 my-4">Reference Details</h2>
-                <div className="form-group pb-8 md:flex md:justify-center border-b border-gray-300 dark:border-gray-600 rounded-lg">
-                    <ProfileCard
-                      id={reference._id}
-                      imageUrl={reference.profileImage}
-                      name={reference.name}
-                      isVerified={reference.isVerified}
-                      role={reference.role}
-                      roleSuffix={reference.roleSuffix}
-                      bloodGroup={reference.bloodGroup}
-                      phone={reference.phone}
-                      lastDonate={reference.lastDonate}
-                      nextDonationDate={reference.nextDonationDate}
-                    />
-                </div>
-                </>
-                  )}
+               <h2 className="text-center text-md font-semibold text-gray-700 dark:text-gray-300 my-4">Reference Details</h2>
+               <div className="form-group pb-8 md:flex md:justify-center border-b border-gray-300 dark:border-gray-600 rounded-lg">
+                   <ProfileCard
+                     id={reference._id}
+                     imageUrl={reference.profileImage}
+                     name={reference.name}
+                     isVerified={reference.isVerified}
+                     role={reference.role}
+                     roleSuffix={reference.roleSuffix}
+                     bloodGroup={reference.bloodGroup}
+                     phone={reference.phone}
+                     lastDonate={reference.lastDonate}
+                     nextDonationDate={reference.nextDonationDate}
+                   />
+               </div> 
+               </>
+              )}
+                
                 
 
                 {updateBy &&
@@ -1765,8 +1765,10 @@ const CRUDProfilePage = () => {
                 }
               </div>
             </div>
+            </>
+            )}
 
-            {(editorRole === "Admin" || editorRole === "District Coordinator") && (
+            {(editorRole === "Admin" || editorRole === "District Coordinator") && !isEditorId && (
               <div className="mt-6 flex justify-end">
                 <button
                   type="button"

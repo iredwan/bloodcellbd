@@ -38,7 +38,7 @@ const UpazilaOrThanaTeamDetail = () => {
   // Filter monitor teams based on search term
   const filteredMonitorTeams =
     upazilaTeam?.monitorTeams?.filter((monitor) =>
-      monitor.teamMonitor?.name
+      monitor.teamName
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase())
     ) || [];
@@ -66,7 +66,7 @@ const UpazilaOrThanaTeamDetail = () => {
         {!isLoading && upazilaTeam && (
           <div className="text-center space-y-3 bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
             <h1 className="text-3xl font-bold text-gray-800 dark:text-white tracking-tight">
-              {upazilaTeam.upazilaName?.name} Upazila/Thana Team Structure
+              {upazilaTeam.upazilaName} Upazila/Thana Team Structure
             </h1>
             <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-2 text-gray-600 dark:text-gray-300 text-sm sm:text-base">
               <span className="inline-flex items-center">
@@ -79,7 +79,7 @@ const UpazilaOrThanaTeamDetail = () => {
               </span>
               <span className="inline-flex items-center">
                 <FaMapMarkerAlt className="mr-2 text-primary w-4 h-4" />
-                {upazilaTeam.upazilaName?.name} Upazila/Thana
+                {upazilaTeam.upazilaName} Upazila/Thana
               </span>
             </div>
           </div>
@@ -114,22 +114,22 @@ const UpazilaOrThanaTeamDetail = () => {
               phone={upazilaTeam.upazilaCoordinator?.phone || "Not assigned"}
             />
 
-            {/* Upazila Sub Coordinator */}
-            {upazilaTeam.upazilaSubCoordinator && (
+            {/* Upazila Co-Coordinator */}
+            {upazilaTeam.upazilaCoCoordinator && (
               <ProfileCard
-                id={upazilaTeam.upazilaSubCoordinator?._id || "Not assigned"}
-                imageUrl={upazilaTeam.upazilaSubCoordinator?.profileImage || ""}
-                name={upazilaTeam.upazilaSubCoordinator?.name || "Not assigned"}
+                id={upazilaTeam.upazilaCoCoordinator?._id || "Not assigned"}
+                imageUrl={upazilaTeam.upazilaCoCoordinator?.profileImage || ""}
+                name={upazilaTeam.upazilaCoCoordinator?.name || "Not assigned"}
                 isVerified={
-                  upazilaTeam.upazilaSubCoordinator?.isVerified || false
+                  upazilaTeam.upazilaCoCoordinator?.isVerified || false
                 }
-                role="Upazila Sub Coordinator"
-                roleSuffix={upazilaTeam.upazilaSubCoordinator?.roleSuffix || ""}
+                role="Upazila Co-Coordinator"
+                roleSuffix={upazilaTeam.upazilaCoCoordinator?.roleSuffix || ""}
                 bloodGroup={
-                  upazilaTeam.upazilaSubCoordinator?.bloodGroup || "N/A"
+                  upazilaTeam.upazilaCoCoordinator?.bloodGroup || "N/A"
                 }
                 phone={
-                  upazilaTeam.upazilaSubCoordinator?.phone || "Not assigned"
+                  upazilaTeam.upazilaCoCoordinator?.phone || "Not assigned"
                 }
               />
             )}
@@ -219,7 +219,7 @@ const UpazilaOrThanaTeamDetail = () => {
         {upazilaTeam && (
           <div className="py-10 rounded-lg bg-gray-100 dark:bg-gray-800 mb-10">
             <h1 className="text-2xl font-bold text-center text-gray-800 dark:text-white tracking-tight">
-              Monitor Teams of {upazilaTeam.upazilaName?.name} Upazila/Thana
+              Monitor Teams of {upazilaTeam.upazilaName} Upazila/Thana
             </h1>
 
             {/* Monitor Teams Search Filter */}
@@ -365,7 +365,7 @@ const UpazilaOrThanaTeamDetail = () => {
                 icon={<FaPhone className="w-6 h-6 text-primary" />}
               />
               <StatBlock
-                value={upazilaTeam.upazilaName?.name || "Unknown"}
+                value={upazilaTeam.upazilaName || "Unknown"}
                 label="Upazila/Thana"
                 icon={<FaMapMarkerAlt className="w-6 h-6 text-primary" />}
               />

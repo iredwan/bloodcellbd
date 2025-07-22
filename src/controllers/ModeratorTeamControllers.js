@@ -6,7 +6,9 @@ import {
   DeleteModeratorTeamService,
   AddTeamMemberService,
   RemoveTeamMemberService,
-  GetModeratorTeamByModeratorUserIdService
+  GetModeratorTeamByModeratorUserIdService,
+  GetAllModeratorTeamsByMonitorUserIdService,
+  GetAllModeratorTeamsByMemberUserIdService
 } from '../service/ModeratorTeamService.js';
 
 // Create Moderator Team
@@ -31,7 +33,7 @@ export const CreateModeratorTeam = async (req, res) => {
 // Get All Moderator Teams
 export const GetAllModeratorTeams = async (req, res) => {
   try {
-    const result = await GetAllModeratorTeamsService();
+    const result = await GetAllModeratorTeamsService(req);
     
     if (result.status) {
       return res.status(200).json(result);
@@ -158,3 +160,39 @@ export const RemoveTeamMember = async (req, res) => {
     });
   }
 }; 
+
+// Get All Moderator Teams By Monitor User ID
+export const GetAllModeratorTeamsByMonitorUserId = async (req, res) => {
+  try {
+    const result = await GetAllModeratorTeamsByMonitorUserIdService(req);
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Error retrieving moderator teams",
+      error: error.message
+    });
+  }
+};
+
+// Get Moderator Team By Member User ID
+export const GetModeratorTeamByMemberUserId = async (req, res) => {
+  try {
+    const result = await GetAllModeratorTeamsByMemberUserIdService(req);
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Error retrieving moderator teams",
+      error: error.message
+    });
+  }
+}

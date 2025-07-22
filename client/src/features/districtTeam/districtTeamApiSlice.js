@@ -16,45 +16,11 @@ import {
 export const districtTeamApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getAllDistrictTeams: builder.query({
-      query: () => 'district-teams/all',
+      query: (params) => ({
+        url: 'district-teams/all',
+        params: params,
+      }),
       providesTags: ['DistrictTeam'],
-      transformResponse: (response) => {
-        // Handle API success response format
-        if (response.status && response.data) {
-          return response;
-        }
-        
-        // Direct data format
-        if (Array.isArray(response)) {
-          return { status: true, data: response };
-        }
-        
-        console.warn('Unexpected districtTeam API response format:', response);
-        return { status: false, data: [] };
-      },
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
-        try {
-          dispatch(setLoading(true));
-          const { data } = await queryFulfilled;
-          
-          // Store district teams in Redux state
-          if (data.status && data.data && data.data.districtTeams) {
-            dispatch(setDistrictTeams(data.data.districtTeams));
-          } else if (Array.isArray(data)) {
-            dispatch(setDistrictTeams(data));
-          } else if (data.data) {
-            dispatch(setDistrictTeams(data.data));
-          } else {
-            dispatch(setDistrictTeams([]));
-          }
-        } catch (error) {
-          console.error('Error fetching district teams:', error);
-          dispatch(setError(error.message || 'Failed to fetch district teams'));
-          dispatch(setDistrictTeams([]));
-        } finally {
-          dispatch(setLoading(false));
-        }
-      },
     }),
     
     getDistrictTeamById: builder.query({

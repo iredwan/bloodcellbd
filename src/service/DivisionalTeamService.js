@@ -11,7 +11,7 @@ export const CreateDivisionalTeamService = async (req) => {
     const coordinatorInOtherTeam = await DivisionalTeam.findOne({
       $or: [
         { divisionalCoordinatorID: reqBody.divisionalCoordinatorID },
-        { divisionalSubCoordinatorID: reqBody.divisionalSubCoordinatorID }
+        { divisionalCoCoordinatorID: reqBody.divisionalCoCoordinatorID }
       ]
     });
     if (coordinatorInOtherTeam) {
@@ -51,6 +51,8 @@ export const GetAllDivisionalTeamsService = async () => {
     const divisionalTeams = await DivisionalTeam.find()
       .populate("divisionID", "name")
       .populate("divisionalCoordinatorID", "name isVerified bloodGroup phone profileImage role roleSuffix")
+      .populate("divisionalCoCoordinatorID", "name isVerified bloodGroup phone profileImage role roleSuffix")
+      .populate("districtTeamID", "districtName")
       .populate("createdBy", "name bloodGroup phone profileImage role roleSuffix")
       .populate("updatedBy", "name bloodGroup phone profileImage role roleSuffix");
     
@@ -84,21 +86,16 @@ export const GetDivisionalTeamByIdService = async (req) => {
     const divisionalTeam = await DivisionalTeam.findById(teamId)
       .populate("divisionID", "name")
       .populate("divisionalCoordinatorID", "name isVerified bloodGroup phone profileImage role roleSuffix")
-      .populate("divisionalSubCoordinatorID", "name isVerified bloodGroup phone profileImage role roleSuffix")
+      .populate("divisionalCoCoordinatorID", "name isVerified bloodGroup phone profileImage role roleSuffix")
       .populate({
         path: "districtTeamID",
         populate: [
-          {
-            path: "districtId",
-            select: "name"
-            
-          },
           {
             path: "districtCoordinatorID",
             select: "name isVerified bloodGroup phone profileImage role roleSuffix"
           },
           {
-            path: "districtSubCoordinatorID",
+            path: "districtCoCoordinatorID",
             select: "name isVerified bloodGroup phone profileImage role roleSuffix"
           },
           {
@@ -151,7 +148,7 @@ export const GetDivisionalTeamByDivisionalCoordinatorsUserIdService = async (req
     const divisionalTeam = await DivisionalTeam.find({
       $or: [
         { divisionalCoordinatorID: userId },
-        { divisionalSubCoordinatorID: userId }
+        { divisionalCoCoordinatorID: userId }
       ]
     });
     return { status: true, message: "Divisional team retrieved successfully", data: divisionalTeam };
@@ -175,12 +172,12 @@ export const UpdateDivisionalTeamService = async (req) => {
     reqBody.updatedBy = updatedBy;
 
     // Check if coordinator is already in other team
-    if (reqBody.divisionalCoordinatorID || reqBody.divisionalSubCoordinatorID) {
+    if (reqBody.divisionalCoordinatorID || reqBody.divisionalCoCoordinatorID) {
       const coordinatorInOtherTeam = await DivisionalTeam.findOne({
         _id: { $ne: teamId },
         $or: [
           { divisionalCoordinatorID: reqBody.divisionalCoordinatorID },
-          { divisionalSubCoordinatorID: reqBody.divisionalSubCoordinatorID }
+          { divisionalCoCoordinatorID: reqBody.divisionalCoCoordinatorID }
         ]
       });
       if (coordinatorInOtherTeam) {

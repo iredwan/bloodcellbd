@@ -16,49 +16,15 @@ import {
 export const monitorTeamApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getAllMonitorTeams: builder.query({
-      query: () => 'monitor-team/all',
+      query: (params) => ({
+        url: 'monitor-teams/all',
+        params: params,
+      }),
       providesTags: ['MonitorTeam'],
-      transformResponse: (response) => {
-        // Handle API success response format
-        if (response.status && response.data) {
-          return response;
-        }
-        
-        // Direct data format
-        if (Array.isArray(response)) {
-          return { status: true, data: response };
-        }
-        
-        console.warn('Unexpected monitorTeam API response format:', response);
-        return { status: false, data: [] };
-      },
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
-        try {
-          dispatch(setLoading(true));
-          const { data } = await queryFulfilled;
-          
-          // Store monitor teams in Redux state
-          if (data.status && data.data && data.data.teams) {
-            dispatch(setMonitorTeams(data.data.teams));
-          } else if (Array.isArray(data)) {
-            dispatch(setMonitorTeams(data));
-          } else if (data.data) {
-            dispatch(setMonitorTeams(data.data));
-          } else {
-            dispatch(setMonitorTeams([]));
-          }
-        } catch (error) {
-          console.error('Error fetching monitor teams:', error);
-          dispatch(setError(error.message || 'Failed to fetch monitor teams'));
-          dispatch(setMonitorTeams([]));
-        } finally {
-          dispatch(setLoading(false));
-        }
-      },
     }),
     
     getMonitorTeamById: builder.query({
-      query: (id) => `monitor-team/get/${id}`,
+      query: (id) => `monitor-teams/get/${id}`,
       providesTags: ['MonitorTeam'],
       transformResponse: (response) => {
         if (response.status && response.data) {
@@ -90,7 +56,7 @@ export const monitorTeamApiSlice = apiSlice.injectEndpoints({
     }),
     
     getMonitorTeamByMonitorUserId: builder.query({
-      query: () => 'monitor-team/get-by-monitor-user-id',
+      query: () => 'monitor-teams/get-by-monitor-user-id',
       providesTags: ['MonitorTeam'],
     }),
     
@@ -105,7 +71,7 @@ export const monitorTeamApiSlice = apiSlice.injectEndpoints({
     
     updateMonitorTeam: builder.mutation({
       query: ({ id, ...monitorTeamData }) => ({
-        url: `monitor-team/update/${id}`,
+        url: `monitor-teams/update/${id}`,
         method: 'PUT',
         body: monitorTeamData,
       }),
@@ -114,7 +80,7 @@ export const monitorTeamApiSlice = apiSlice.injectEndpoints({
     
     deleteMonitorTeam: builder.mutation({
       query: (id) => ({
-        url: `monitor-team/delete/${id}`,
+        url: `monitor-teams/delete/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['MonitorTeam'],

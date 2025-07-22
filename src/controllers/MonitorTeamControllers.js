@@ -15,7 +15,7 @@ export const CreateMonitorTeam = async (req, res) => {
     if (result.status) {
       return res.status(201).json(result);
     } else {
-      return res.status(400).json(result);
+      return res.status(404).json(result);
     }
   } catch (error) {
     return res.status(500).json({
@@ -29,7 +29,7 @@ export const CreateMonitorTeam = async (req, res) => {
 // Get All Monitor Teams
 export const GetAllMonitorTeams = async (req, res) => {
   try {
-    const result = await GetAllMonitorTeamsService();
+    const result = await GetAllMonitorTeamsService(req);
     
     if (result.status) {
       return res.status(200).json(result);

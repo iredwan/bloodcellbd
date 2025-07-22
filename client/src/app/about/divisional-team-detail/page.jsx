@@ -36,9 +36,9 @@ const DivisionalTeamDetail = () => {
 
   // Filter district teams based on search term
   const filteredDistrictTeams =
-    divisionalTeam?.districtTeamID.filter((district) =>
-      district.districtId.name.toLowerCase().includes(searchTerm.toLowerCase())
-    ) || [];
+  divisionalTeam?.districtTeamID.filter((district) =>
+    district.districtName.toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
 
   return (
     <div className="dark:bg-gray-900 dark:text-white min-h-screen">
@@ -123,28 +123,28 @@ const DivisionalTeamDetail = () => {
 
             <ProfileCard
               id={
-                divisionalTeam.divisionalSubCoordinatorID._id || "Not assigned"
+                divisionalTeam.divisionalCoCoordinatorID._id || "Not assigned"
               }
               imageUrl={
-                divisionalTeam.divisionalSubCoordinatorID.profileImage || ""
+                divisionalTeam.divisionalCoCoordinatorID.profileImage || ""
               }
               name={
-                divisionalTeam.divisionalSubCoordinatorID.name || "Not assigned"
+                divisionalTeam.divisionalCoCoordinatorID.name || "Not assigned"
               }
               isVerified={
-                divisionalTeam.divisionalSubCoordinatorID.isVerified || false
+                divisionalTeam.divisionalCoCoordinatorID.isVerified || false
               }
               role={
-                divisionalTeam.divisionalSubCoordinatorID.role || "Not assigned"
+                divisionalTeam.divisionalCoCoordinatorID.role || "Not assigned"
               }
               roleSuffix={
-                divisionalTeam.divisionalSubCoordinatorID.roleSuffix ||
+                divisionalTeam.divisionalCoCoordinatorID.roleSuffix ||
                 ""
               }
               bloodGroup={
-                divisionalTeam.divisionalSubCoordinatorID.bloodGroup || "N/A"
+                divisionalTeam.divisionalCoCoordinatorID.bloodGroup || "N/A"
               }
-              phone={divisionalTeam.divisionalSubCoordinatorID.phone}
+              phone={divisionalTeam.divisionalCoCoordinatorID.phone}
             />
           </div>
         )}
@@ -264,7 +264,7 @@ const DivisionalTeamDetail = () => {
                     phone={
                       district.districtCoordinatorID.phone || "Not assigned"
                     }
-                    teamName={district.districtId.name}
+                    teamName={district.districtName}
                     subTeamNumber={`Manages ${district.upazilaTeamID.length} Upazilas Teams`}
                   />
                 </div>

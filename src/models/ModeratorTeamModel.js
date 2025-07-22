@@ -1,8 +1,19 @@
 import mongoose from "mongoose";
 
 const moderatorTeamSchema = new mongoose.Schema({
+    districtName: {
+        type: String,
+    },
+    upazilaName: {
+        type: String,
+    },
     moderatorTeamName: {
         type: String,
+    },
+    monitor: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: [true, "Monitor userID is required"]
     },
     moderatorName: {
         type: mongoose.Schema.Types.ObjectId,

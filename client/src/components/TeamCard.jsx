@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { FaPhone } from "react-icons/fa";
@@ -15,36 +16,34 @@ const TeamCard = ({
   teamName,
   subTeamNumber,
 }) => {
+  const profileImageUrl = process.env.NEXT_PUBLIC_IMAGE_URL + imageUrl;
   const CardContent = (
-    <div className="relative max-w-2xl w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-[18px] shadow-md p-6 hover:shadow-xl transition-all duration-300">
+    <div className="relative max-w-2xl w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-[18px] shadow-md p-3 pt-6 md:pt-4 hover:shadow-xl transition-all duration-300">
       {/* Header */}
       {teamName && (
         <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary px-4 py-1 rounded-full shadow text-white text-sm font-semibold">
-          {teamName}
-        </div>
+        {teamName.length > 18 ? `${teamName.slice(0, 15)}...` : teamName}
+      </div>
+      
       )}
 
       {/* Content */}
-      <div className="flex flex-col md:flex-row items-center gap-6">
+      <div className="flex flex-col md:flex-row items-center md:gap-3">
         {/* Image */}
-        <div className="w-28 h-28 aspect-square rounded-full overflow-hidden border border-gray-400 dark:border-gray-600">
-          <img
-            src={imageUrl}
-            alt={name}
-            className="w-full h-full object-cover"
-          />
-        </div>
+        <div className="relative w-36 h-36 md:w-24 md:h-24 rounded-full overflow-hidden border border-gray-400 dark:border-gray-600">
+        <Image
+          src={profileImageUrl}
+          alt={name}
+          fill
+          className="object-cover"
+        />
+      </div>
+
 
         {/* Info */}
         <div className="text-center md:text-left space-y-2">
           <h3 className="text-xl font-semibold text-gray-800 dark:text-white line-clamp-2">
-            {id ? (
-              <Link href={`/profile-detail?id=${id}`}>
-                {name}
-              </Link>
-            ) : (
-              name
-            )}
+            {name}
             {isVerified && (
               <span className="text-primary ml-1 inline-block align-middle">
                 <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -59,13 +58,12 @@ const TeamCard = ({
               {bloodGroup}
             </p>
           </div>
-          <a
-            href={`tel:${phone}`}
+          <p
             className="flex items-center justify-center md:justify-start text-gray-600 dark:text-gray-300"
           >
             <FaPhone className="mr-2 text-primary" />
-            <span>{phone}</span>
-          </a>
+            <span>{phone ? phone : 'N/A'}</span>
+          </p>
         </div>
       </div>
 

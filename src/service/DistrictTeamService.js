@@ -8,7 +8,7 @@ export const CreateDistrictTeamService = async (req) => {
     const reqBody = req.body;
 
     // Check if the team already exists for this district
-    const existingTeam = await DistrictTeam.findOne({ districtId: reqBody.districtId });
+    const existingTeam = await DistrictTeam.findOne({ districtName: reqBody.districtName });
     if (existingTeam) {
       return { status: false, message: "Team already exists for this district" };
     }
@@ -17,7 +17,7 @@ export const CreateDistrictTeamService = async (req) => {
     const coordinatorInOtherTeam = await DistrictTeam.findOne({
       $or: [
         { districtCoordinatorID: reqBody.districtCoordinatorID },
-        { districtSubCoordinatorID: reqBody.districtSubCoordinatorID },
+        { districtCoCoordinatorID: reqBody.districtCoCoordinatorID },
         { districtITMediaCoordinatorID: reqBody.districtITMediaCoordinatorID },
         { districtLogisticsCoordinatorID: reqBody.districtLogisticsCoordinatorID }
       ]
@@ -54,36 +54,59 @@ export const CreateDistrictTeamService = async (req) => {
 };
 
 // Get All DistrictTeams Service
-export const GetAllDistrictTeamsService = async () => {
+export const GetAllDistrictTeamsService = async (req) => {
+  const districtName = req?.query?.districtName;
+  const limit = parseInt(req?.query?.limit) || 10;
+  const page = parseInt(req?.query?.page) || 1;
+
+  let query = {};
+  if (districtName) {
+    query.districtName = { $regex: districtName, $options: "i" };
+  }
+
   try {
-    const districtTeams = await DistrictTeam.find()
-      .populate("districtId", "name")
+    const total = await DistrictTeam.countDocuments(query); // ✅ Total count for pagination
+
+    const districtTeams = await DistrictTeam.find(query)
+      .skip((page - 1) * limit) // ✅ Skip for pagination
+      .limit(limit)             // ✅ Limit for pagination
       .populate("districtCoordinatorID", "name isVerified bloodGroup phone profileImage role roleSuffix")
-      .populate("districtSubCoordinatorID", "name isVerified bloodGroup phone profileImage role roleSuffix")
+      .populate("districtCoCoordinatorID", "name isVerified bloodGroup phone profileImage role roleSuffix")
       .populate("districtITMediaCoordinatorID", "name isVerified bloodGroup phone profileImage role roleSuffix")
       .populate("districtLogisticsCoordinatorID", "name isVerified bloodGroup phone profileImage role roleSuffix")
+      .populate("upazilaTeamID", "upazilaName")
       .populate("createdBy", "name email phone profileImage role roleSuffix")
       .populate("updatedBy", "name email phone profileImage role roleSuffix");
-    
+
     if (!districtTeams || districtTeams.length === 0) {
       return { status: false, message: "No district teams found" };
     }
 
-    // Count total upazila teams
+    // Count total upazila teams inside returned items
     const totalUpazilaTeams = districtTeams.reduce((acc, team) => {
       return acc + (team.upazilaTeamID ? team.upazilaTeamID.length : 0);
     }, 0);
-    
-    return { 
-      status: true, 
-      message: "District teams retrieved successfully", 
+
+    return {
+      status: true,
+      message: "District teams retrieved successfully",
       data: {
         districtTeams,
-        totalUpazilaTeams
-      } 
+        pagination: {
+          totalItems: total,
+          currentPage: page,
+          itemsPerPage: limit,
+          totalPages: Math.ceil(total / limit),
+        },
+        totalUpazilaTeams,
+      },
     };
   } catch (error) {
-    return { status: false, message: "Error retrieving district teams", error: error.message };
+    return {
+      status: false,
+      message: "Error retrieving district teams",
+      error: error.message,
+    };
   }
 };
 
@@ -93,9 +116,8 @@ export const GetDistrictTeamByIdService = async (req) => {
     const teamId = new ObjectId(req.params.id);
     
     const districtTeam = await DistrictTeam.findById(teamId)
-      .populate("districtId", "name")
       .populate("districtCoordinatorID", "name isVerified bloodGroup phone profileImage role roleSuffix")
-      .populate("districtSubCoordinatorID", "name isVerified bloodGroup phone profileImage role roleSuffix")
+      .populate("districtCoCoordinatorID", "name isVerified bloodGroup phone profileImage role roleSuffix")
       .populate("districtITMediaCoordinatorID", "name isVerified bloodGroup phone profileImage role roleSuffix")
       .populate("districtLogisticsCoordinatorID", "name isVerified bloodGroup phone profileImage role roleSuffix")
       .populate({
@@ -110,7 +132,7 @@ export const GetDistrictTeamByIdService = async (req) => {
             select: "name isVerified bloodGroup phone profileImage role roleSuffix"
           },
           {
-            path: "upazilaSubCoordinator",
+            path: "upazilaCoCoordinator",
             select: "name isVerified bloodGroup phone profileImage role roleSuffix"
           },
           {
@@ -148,19 +170,19 @@ export const GetDistrictTeamByIdService = async (req) => {
 // Get DistrictTeam By District Coordinators User ID Service
 export const GetDistrictTeamByDistrictCoordinatorsUserIdService = async (req, res) => {
   try {
-    const userId = req.headers.user_id || req.cookies.user_id;
+    const userId = new ObjectId(req.headers.user_id || req.cookies.user_id);
     const districtTeam = await DistrictTeam.find({
       $or: [
         { districtCoordinatorID: userId },
-        { districtSubCoordinatorID: userId },
+        { districtCoCoordinatorID: userId },
         { districtITMediaCoordinatorID: userId },
         { districtLogisticsCoordinatorID: userId }
-      ] 
-    }).populate("districtId", "name")
-    .populate("districtCoordinatorID", "name email phone profileImage role roleSuffix")
-    .populate("districtSubCoordinatorID", "name email phone profileImage role roleSuffix")
-    .populate("districtITMediaCoordinatorID", "name email phone profileImage role roleSuffix")
-    .populate("districtLogisticsCoordinatorID", "name email phone profileImage role roleSuffix");
+      ]
+    })
+    .populate("districtCoordinatorID", "name phone profileImage role bloodGroup roleSuffix")
+    .populate("districtCoCoordinatorID", "name phone profileImage role bloodGroup roleSuffix")
+    .populate("districtITMediaCoordinatorID", "name phone profileImage role bloodGroup roleSuffix")
+    .populate("districtLogisticsCoordinatorID", "name phone profileImage role bloodGroup roleSuffix");
     return { status: true, message: "District team retrieved successfully", data: districtTeam };
   } catch (error) {
     return { status: false, message: "Error retrieving district team", error: error.message };
@@ -172,6 +194,10 @@ export const UpdateDistrictTeamService = async (req) => {
   try {
     const teamId = new ObjectId(req.params.id);
     const reqBody = req.body;
+    const districtCoordinatorID = reqBody.districtCoordinatorID ? new ObjectId(reqBody.districtCoordinatorID) : null;
+    const districtCoCoordinatorID = reqBody.districtCoCoordinatorID ? new ObjectId(reqBody.districtCoCoordinatorID) : null;
+    const districtITMediaCoordinatorID = reqBody.districtITMediaCoordinatorID ? new ObjectId(reqBody.districtITMediaCoordinatorID) : null;
+    const districtLogisticsCoordinatorID = reqBody.districtLogisticsCoordinatorID ? new ObjectId(reqBody.districtLogisticsCoordinatorID) : null;
     
     // Add updated by from header or cookie
     const updatedBy = req.headers.user_id || req.cookies.user_id;
@@ -181,19 +207,30 @@ export const UpdateDistrictTeamService = async (req) => {
     reqBody.updatedBy = updatedBy;
 
     // Check if coordinator is already in other team
-    if (reqBody.districtCoordinatorID || reqBody.districtSubCoordinatorID || 
-        reqBody.districtITMediaCoordinatorID || reqBody.districtLogisticsCoordinatorID) {
-      const coordinatorInOtherTeam = await DistrictTeam.findOne({
-        _id: { $ne: teamId },
-        $or: [
-          { districtCoordinatorID: reqBody.districtCoordinatorID },
-          { districtSubCoordinatorID: reqBody.districtSubCoordinatorID },
-          { districtITMediaCoordinatorID: reqBody.districtITMediaCoordinatorID },
-          { districtLogisticsCoordinatorID: reqBody.districtLogisticsCoordinatorID }
-        ]
-      });
+    const orConditions = [];
+
+        if (districtCoordinatorID) {
+          orConditions.push({ districtCoordinatorID });
+        }
+        if (districtCoCoordinatorID) {
+          orConditions.push({ districtCoCoordinatorID });
+        }
+        if (districtITMediaCoordinatorID) {
+          orConditions.push({ districtITMediaCoordinatorID });
+        }
+        if (districtLogisticsCoordinatorID) {
+          orConditions.push({ districtLogisticsCoordinatorID });
+        }
+
+        let coordinatorInOtherTeam = [];
+
+        if (orConditions.length > 0) {
+          coordinatorInOtherTeam = await DistrictTeam.find({
+            _id: { $ne: teamId },
+            $or: orConditions,
+          });
       if (coordinatorInOtherTeam) {
-        return { status: false, message: "Coordinator already in other team" };
+        return { status: false, message: "Coordinator already in other team", data: coordinatorInOtherTeam };
       }
     }
 

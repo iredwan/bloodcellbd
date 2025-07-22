@@ -16,45 +16,11 @@ import {
 export const upazilaTeamApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getAllUpazilaTeams: builder.query({
-      query: () => 'upazila-team/all',
+      query: (params) => ({
+        url: 'upazila-team/all',
+        params: params,
+      }),
       providesTags: ['UpazilaTeam'],
-      transformResponse: (response) => {
-        // Handle API success response format
-        if (response.status && response.data) {
-          return response;
-        }
-        
-        // Direct data format
-        if (Array.isArray(response)) {
-          return { status: true, data: response };
-        }
-        
-        console.warn('Unexpected upazilaTeam API response format:', response);
-        return { status: false, data: [] };
-      },
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
-        try {
-          dispatch(setLoading(true));
-          const { data } = await queryFulfilled;
-          
-          // Store upazila teams in Redux state
-          if (data.status && data.data && data.data.upazilaTeams) {
-            dispatch(setUpazilaTeams(data.data.upazilaTeams));
-          } else if (Array.isArray(data)) {
-            dispatch(setUpazilaTeams(data));
-          } else if (data.data) {
-            dispatch(setUpazilaTeams(data.data));
-          } else {
-            dispatch(setUpazilaTeams([]));
-          }
-        } catch (error) {
-          console.error('Error fetching upazila teams:', error);
-          dispatch(setError(error.message || 'Failed to fetch upazila teams'));
-          dispatch(setUpazilaTeams([]));
-        } finally {
-          dispatch(setLoading(false));
-        }
-      },
     }),
     
     getUpazilaTeamById: builder.query({

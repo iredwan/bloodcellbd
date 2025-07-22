@@ -11,7 +11,7 @@ const divisionalTeamSchema = new mongoose.Schema({
     ref: "User",
     required: [true, "User is required"]
   },
-  divisionalSubCoordinatorID: {
+  divisionalCoCoordinatorID: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User"
   },

@@ -19,6 +19,7 @@ export const CreateModeratorTeamService = async (req) => {
     }
 
     const reqBody = req.body;
+    const monitorId = reqBody.monitor;
     const moderatorName = reqBody.moderatorName;
     let { moderatorTeamMembers } = reqBody;
     const user = await UserModel.findById(moderatorName);
@@ -38,6 +39,21 @@ export const CreateModeratorTeamService = async (req) => {
         message: "You have to set this user as a moderator first.",
       };
     }
+
+    if (monitorId) {
+      reqBody.monitor = new ObjectId(monitorId);
+    } else {
+      const monitor = await UserModel.findById(createdById);
+      if (monitor && monitor.role === "Monitor") {
+        reqBody.monitor = new ObjectId(monitor._id);
+      } else {
+        return {
+          status: false,
+          message: "You have to select a monitor first.",
+        };
+      }
+    }    
+    
 
     // Check if moderator team name is provided
     const moderatorTeamName =
@@ -99,7 +115,7 @@ export const CreateModeratorTeamService = async (req) => {
         { _id: { $in: membersToUpdate } },
         { $set: { role: "Member" } }
       );
-    }
+    
 
     // Check user have role as Member
     const userRole = await UserModel.findOne({ _id: moderatorTeamMembers });
@@ -108,6 +124,8 @@ export const CreateModeratorTeamService = async (req) => {
         status: false,
         message: `You can't add a ${userRole.role} to a moderator team. You can add only a "Member" to a moderator team.`,
       };
+    }
+
     }
 
     // Check if added members are already in a team
@@ -125,6 +143,7 @@ export const CreateModeratorTeamService = async (req) => {
     const newModeratorTeam = await ModeratorTeamModel.create({
       moderatorTeamName,
       moderatorName,
+      monitor: reqBody.monitor,
       moderatorTeamMembers: moderatorTeamMembers || [],
       createdBy: createdById,
     });
@@ -144,45 +163,46 @@ export const CreateModeratorTeamService = async (req) => {
 };
 
 // Get All Moderator Teams
-export const GetAllModeratorTeamsService = async () => {
+export const GetAllModeratorTeamsService = async (req) => {
   try {
-    const moderatorTeams = await ModeratorTeamModel.find()
+    const limit = parseInt(req.query.limit) || 10;
+    const page = parseInt(req.query.page) || 1;
+    const skip = (page - 1) * limit;
+
+    const districtName = req.query.districtName;
+    const upazilaName = req.query.upazilaName;
+
+    let query = {};
+    if (districtName) {
+      query.districtName = { $regex: districtName, $options: "i" };
+    }
+    if (upazilaName) {
+      query.upazilaName = { $regex: upazilaName, $options: "i" };
+    }
+
+    // ✅ Count total documents (before pagination)
+    const totalItems = await ModeratorTeamModel.countDocuments(query);
+
+    // ✅ Find paginated data
+    const moderatorTeams = await ModeratorTeamModel.find(query)
+      .skip(skip)
+      .limit(limit)
       .populate(
         "moderatorName",
-        "name email phone role roleSuffix profileImage"
+        "name phone role roleSuffix profileImage isVerified bloodGroup lastDonate nextDonationDate"
       )
       .populate(
         "moderatorTeamMembers",
-        "name email phone eligibility nextDonationDate alternatePhone         whatsappNumber role roleSuffix profileImage"
+        "name phone nextDonationDate alternatePhone role roleSuffix profileImage isVerified bloodGroup lastDonate"
       )
       .populate({
         path: "createdBy",
-        select: "name email phone profileImage role roleSuffix",
+        select: "name phone profileImage role roleSuffix isVerified bloodGroup lastDonate nextDonationDate",
       })
       .populate({
         path: "updatedBy",
-        select: "name email phone profileImage role roleSuffix",
+        select: "name phone profileImage role roleSuffix isVerified bloodGroup lastDonate nextDonationDate",
       });
-
-    // Count total moderator teams
-    const totalTeams = moderatorTeams.length;
-
-    // Count total team members
-    const totalTeamMembers = moderatorTeams.reduce((total, team) => {
-      // Count team members plus the moderator (team leader)
-      const teamMembersCount = team.moderatorTeamMembers
-        ? team.moderatorTeamMembers.length
-        : 0;
-      // Add 1 for the moderator (team leader)
-      return total + teamMembersCount + 1;
-    }, 0);
-
-    // Add counts to the moderator teams data
-    const moderatorTeamsWithCounts = {
-      teams: moderatorTeams,
-      totalTeams,
-      totalTeamMembers,
-    };
 
     if (!moderatorTeams || moderatorTeams.length === 0) {
       return {
@@ -191,10 +211,25 @@ export const GetAllModeratorTeamsService = async () => {
       };
     }
 
+    // ✅ Count team members
+    const totalTeamMembers = moderatorTeams.reduce((total, team) => {
+      const teamMembersCount = team.moderatorTeamMembers?.length || 0;
+      return total + teamMembersCount + 1; // +1 for moderator
+    }, 0);
+
     return {
       status: true,
       message: "All moderator teams retrieved successfully.",
-      data: moderatorTeamsWithCounts,
+      data: {
+        moderatorTeams,
+        totalTeamMembers,
+        pagination: {
+          totalItems,
+          currentPage: page,
+          itemsPerPage: limit,
+          totalPages: Math.ceil(totalItems / limit),
+        },
+      },
     };
   } catch (e) {
     return {
@@ -219,14 +254,14 @@ export const GetModeratorTeamByIdService = async (req) => {
     const moderatorTeam = await ModeratorTeamModel.findById(id)
       .populate(
         "moderatorName",
-        "name email phone role roleSuffix profileImage"
+        "name phone role roleSuffix profileImage isVerified bloodGroup lastDonate nextDonationDate"
       )
       .populate(
         "moderatorTeamMembers",
-        "name email phone eligibility nextDonationDate alternatePhone whatsappNumber role roleSuffix profileImage"
+        "name phone nextDonationDate alternatePhone role roleSuffix profileImage isVerified bloodGroup lastDonate"
       )
-      .populate("createdBy", "name email phone role roleSuffix profileImage")
-      .populate("updatedBy", "name email phone role roleSuffix profileImage");
+      .populate("createdBy", "name phone profileImage role roleSuffix isVerified bloodGroup lastDonate nextDonationDate")
+      .populate("updatedBy", "name phone profileImage role roleSuffix isVerified bloodGroup lastDonate nextDonationDate");
 
     // Count total team members
     const totalTeamMembers = moderatorTeam.moderatorTeamMembers
@@ -261,17 +296,16 @@ export const GetModeratorTeamByIdService = async (req) => {
 export const GetModeratorTeamByModeratorUserIdService = async (req) => {
   try {
     const userId = req.headers.user_id || req.cookies.user_id;
-    console.log(userId);
     const moderatorTeam = await ModeratorTeamModel.find({ moderatorName: userId }).populate(
       "moderatorName",
-      "name email phone role roleSuffix profileImage"
+      "name phone role roleSuffix profileImage isVerified bloodGroup lastDonate nextDonationDate"
     )
     .populate(
       "moderatorTeamMembers",
-      "name email phone eligibility nextDonationDate alternatePhone whatsappNumber role roleSuffix profileImage"
+      "name phone nextDonationDate alternatePhone role roleSuffix profileImage isVerified bloodGroup lastDonate"
     )
-    .populate("createdBy", "name email phone role roleSuffix profileImage")
-    .populate("updatedBy", "name email phone role roleSuffix profileImage");
+    .populate("createdBy", "name phone profileImage role roleSuffix isVerified bloodGroup lastDonate nextDonationDate")
+    .populate("updatedBy", "name phone profileImage role roleSuffix isVerified bloodGroup lastDonate nextDonationDate");
     return {
       status: true,
       message: "Moderator team retrieved successfully.",
@@ -351,8 +385,8 @@ export const UpdateModeratorTeamService = async (req) => {
       { $set: updatedData },
       { new: true, runValidators: true }
     )
-      .populate("moderatorName", "name email phone")
-      .populate("moderatorTeamMembers", "name email phone");
+      .populate("moderatorName", "name phone role roleSuffix profileImage isVerified bloodGroup lastDonate nextDonationDate")
+      .populate("moderatorTeamMembers", "name phone nextDonationDate alternatePhone role roleSuffix profileImage isVerified bloodGroup lastDonate");
 
     return {
       status: true,
@@ -529,6 +563,57 @@ export const RemoveTeamMemberService = async (req) => {
     return {
       status: false,
       message: "Failed to remove member from team.",
+      details: e.message,
+    };
+  }
+};
+
+// Get All Moderator Teams By Monitor User ID
+export const GetAllModeratorTeamsByMonitorUserIdService = async (req) => {
+  try {
+    const userId = req.headers.user_id || req.cookies.user_id;
+    const moderatorTeams = await ModeratorTeamModel.find({ monitor: userId }).populate("moderatorName", "name phone role roleSuffix profileImage isVerified bloodGroup lastDonate nextDonationDate")
+      .populate("moderatorTeamMembers", "name phone nextDonationDate alternatePhone role roleSuffix profileImage isVerified bloodGroup lastDonate");
+    return {
+      status: true,
+      message: "All moderator teams retrieved successfully.",
+      data: moderatorTeams,
+    };
+  } catch (e) {
+    return {
+      status: false,
+      message: "Failed to retrieve moderator teams.",
+      details: e.message,
+    };
+  }
+}
+
+// Get Moderator Team By Member User ID
+export const GetAllModeratorTeamsByMemberUserIdService = async (req) => {
+  try {
+    const userId = req.headers.user_id || req.cookies.user_id;
+
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return {
+        status: false,
+        message: "Valid user ID is required.",
+      };
+    }
+
+    const moderatorTeams = await ModeratorTeamModel.find({ moderatorTeamMembers: userId })
+      .populate("moderatorName", "name phone role roleSuffix profileImage isVerified bloodGroup lastDonate nextDonationDate")
+      .populate("moderatorTeamMembers", "name phone nextDonationDate alternatePhone role roleSuffix profileImage isVerified bloodGroup lastDonate")
+      .lean();
+
+    return {
+      status: true,
+      message: "All moderator teams retrieved successfully.",
+      data: moderatorTeams,
+    };
+  } catch (e) {
+    return {
+      status: false,
+      message: "Failed to retrieve moderator teams.",
       details: e.message,
     };
   }
