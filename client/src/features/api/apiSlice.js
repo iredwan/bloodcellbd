@@ -28,11 +28,13 @@ export const apiSlice = createApi({
     'DistrictTeam',
     'UpazilaTeam',
     'MonitorTeam',
+    'ModeratorTeam',
     'UserInfo',
     'WantToDonate',
     'Review',
     'Hospital',
     'BoardTeam',
+    'Divisions',
   ],
   endpoints: () => ({}),
 });
