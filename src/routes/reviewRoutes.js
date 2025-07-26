@@ -17,7 +17,7 @@ const router = express.Router();
 router.post('/create', protect, createReview);
 
 // Get all reviews
-router.get('/all', getReviews);
+router.get('/all', protect, getReviews);
 
 // Get a single review by ID
 router.get('/get/:id', getReviewById);

@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import ReviewsModel from '../models/ReviewsModel.js';
 
 // Create a new review
@@ -5,7 +6,7 @@ export const createReviewService = async (req) => {
   try {
     const reviewData = {
       ...req.body,
-      user: req.headers.user_id || req.cookies.user_id
+      user: req.headers.user_id || req.cookies.user_id,
     };
     
     const review = new ReviewsModel(reviewData);
@@ -27,28 +28,141 @@ export const createReviewService = async (req) => {
 
 // Get all reviews
 export const getReviewsService = async (req) => {
+  const { page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
+  const search = req.query.search?.trim() || '';
+  const district = req.query.district?.trim() || '';
+  const status = req.query.status?.trim() || '';
+
+  const isAdmin = [
+    "Divisional Coordinator", "Divisional Co-coordinator", "Head of IT & Media", "Head of Logistics", "Admin"
+  ]
+
+  const isDistrictCoordinator = [
+    "District Coordinator", "District Co-coordinator", "District IT & Media Coordinator", "District Logistics Coordinator"
+  ]
+
+  // ✅ Use from req.user (set by protect middleware)
+  const userRole = req.user?.role;
+  const userId = req.user?.id;
+
+  const andConditions = [];
+
+  // 🔍 Search
+  if (search) {
+    andConditions.push({
+      $or: [
+        { review: { $regex: search, $options: 'i' } },
+        { 'user.name': { $regex: search, $options: 'i' } },
+        { 'user.email': { $regex: search, $options: 'i' } },
+        { 'user.phone': { $regex: search, $options: 'i' } }
+      ]
+    });
+  }
+
+  // 🌍 District
+  if (district) {
+    andConditions.push({ 'user.district': district });
+  }
+
+  // 📦 Status
+  if (status) {
+    andConditions.push({ status });
+  }
+
+  // 🔐 Role-based restriction
+  if (!isAdmin.includes(userRole) && !isDistrictCoordinator.includes(userRole)) {
+    andConditions.push({
+      $or: [
+        { status: 'approved' }, // Show approved reviews
+      ]
+    });
+  }
+
+  const matchStage = andConditions.length > 0 ? { $and: andConditions } : {};
+
   try {
-    const reviews = await ReviewsModel.find({})
-      .populate('user', 'name phone profileImage isVerified')
-      .sort({ createdAt: -1 });
-    
-    if (!reviews || reviews.length === 0) {
-      return { status: false, message: "No reviews found" };
-    }
-    
+    // 🎯 Filtered Reviews
+    const reviews = await ReviewsModel.aggregate([
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      { $unwind: '$user' },
+      { $match: matchStage },
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: parseInt(limit) },
+      {
+        $project: {
+          rating: 1,
+          review: 1,
+          status: 1,
+          createdAt: 1,
+          user: {
+            _id: 1,
+            name: 1,
+            email: 1,
+            phone: 1,
+            district: 1,
+            profileImage: 1,
+            isVerified: 1
+          }
+        }
+      }
+    ]);
+
+    let approvedReviewsFiltered = {}; // এটা হবে object
+
+if (!isAdmin.includes(userRole)) {
+  approvedReviewsFiltered.status = 'approved';
+}
+
+// 📊 Filtered Count
+const totalReviews = await ReviewsModel.countDocuments(approvedReviewsFiltered);
+
+
+    // 🔢 Status Counts (all, not filtered)
+    const approvedReviews = await ReviewsModel.countDocuments({ status: 'approved' });
+    const pendingReviews = await ReviewsModel.countDocuments({ status: 'pending' });
+    const rejectedReviews = await ReviewsModel.countDocuments({ status: 'rejected' });
+
+    // ⭐ Average Rating (only from approved)
+    const avgRatingResult = await ReviewsModel.aggregate([
+      { $match: { status: 'approved' } },
+      { $group: { _id: null, averageRating: { $avg: '$rating' } } }
+    ]);
+    const averageRating = avgRatingResult[0]?.averageRating || 0;
+
     return {
       status: true,
-      message: "Reviews retrieved successfully",
-      data: reviews
+      message: 'Reviews retrieved successfully',
+      data: {
+        reviews,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalReviews,
+        approvedReviews,
+        pendingReviews,
+        rejectedReviews,
+        averageRating
+      }
     };
   } catch (e) {
-    return { 
-      status: false, 
-      message: "Failed to retrieve reviews", 
-      details: e.message 
+    return {
+      status: false,
+      message: 'Failed to retrieve reviews',
+      details: e.message
     };
   }
 };
+
+
+
 
 // Get a single review by ID
 export const getReviewByIdService = async (req) => {
