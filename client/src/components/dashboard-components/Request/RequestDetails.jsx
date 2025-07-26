@@ -57,7 +57,7 @@ import {
   WhatsappIcon,
   XIcon,
 } from "react-share";
-
+import CustomDatePicker from '@/components/DatePicker';
 function requestDetailsPage(requestParamsId) {
   const id = requestParamsId.requestParamsId;
   const imageUrl = process.env.NEXT_PUBLIC_IMAGE_URL;
@@ -185,6 +185,7 @@ function requestDetailsPage(requestParamsId) {
   const [formData, setFormData] = useState({
     bloodGroup: "",
     bloodUnit: 1,
+    date: "",
     hospitalName: "",
     hospitalId: "",
     upazila: "",
@@ -202,6 +203,7 @@ function requestDetailsPage(requestParamsId) {
       setFormData({
         bloodGroup: requestData.bloodGroup || "",
         bloodUnit: requestData.bloodUnit || 1,
+        date: requestData.date || "",
         hospitalName: requestData.hospitalName || "",
         hospitalId: requestData.hospitalId || "",
         upazila: requestData.upazila || "",
@@ -244,6 +246,7 @@ function requestDetailsPage(requestParamsId) {
     setFormData({
       bloodGroup: requestData.bloodGroup || "",
       bloodUnit: requestData.bloodUnit || 1,
+      date: requestData.date || "",
       hospitalName: requestData.hospitalName || "",
       hospitalId: requestData.hospitalId || "",
       upazila: requestData.upazila || "",
@@ -631,6 +634,19 @@ function requestDetailsPage(requestParamsId) {
               </div>
 
               <div>
+                <CustomDatePicker
+                  label="Blood Need Date"
+                  name="date"
+                  formData={formData}
+                  setFormData={setFormData}
+                  showMonthDropdown={true}
+                  required={true}
+                  maxDate={new Date(Date.now() + 45 * 24 * 60 * 60 * 1000)}
+                  minDate={new Date()}
+                />
+              </div>
+
+              <div>
                 <HospitalSearch
                   onHospitalSelect={handleHospitalSelect}
                   initialHospital={
@@ -899,6 +915,15 @@ function requestDetailsPage(requestParamsId) {
                 </label>
                 <p className="w-full px-4 py-2.5 rounded-lg transition-all bg-gray-100 dark:bg-gray-700 dark:text-white">
                   {requestData?.bloodUnit}
+                </p>
+              </div>
+
+              <div className="form-group">
+                <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Blood Need Date
+                </label>
+                <p className="w-full px-4 py-2.5 rounded-lg transition-all bg-gray-100 dark:bg-gray-700 dark:text-white">
+                  {requestData?.date}
                 </p>
               </div>
 

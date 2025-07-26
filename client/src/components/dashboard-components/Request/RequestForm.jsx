@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { FaCheck, FaTimes } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import CustomSelect from '@/components/CustomSelect';
 import HospitalSearch from '@/components/HospitalSearch';
 import { validateContactNumber, validateWhatsAppNumber } from '@/utils/validations';
+import CustomDatePicker from '@/components/DatePicker';
 
 const RequestForm = ({ 
   onSubmit, 
@@ -24,6 +24,7 @@ const RequestForm = ({
     whatsappNumber: '',
     contactRelation: '',
     description: '',
+    date: '',
   });
 
   const [validationErrors, setValidationErrors] = useState({
@@ -44,6 +45,7 @@ const RequestForm = ({
         whatsappNumber: initialData.whatsappNumber || '',
         contactRelation: initialData.contactRelation || '',
         description: initialData.description || '',
+        date: initialData.date || '',
       });
     }
   }, [initialData]);
@@ -134,6 +136,17 @@ const RequestForm = ({
           />
         </div>
 
+        <CustomDatePicker
+                    label="Blood Need Date"
+                    name="date"
+                    formData={formData}
+                    setFormData={setFormData}
+                    showMonthDropdown={true}
+                    required={true}
+                    maxDate={new Date(Date.now() + 45 * 24 * 60 * 60 * 1000)}
+                    minDate={new Date()}
+                  />
+
         <div>
           <HospitalSearch
             onHospitalSelect={handleHospitalSelect}
@@ -219,7 +232,8 @@ const RequestForm = ({
               "Sister-in-law",
               "Son",
               "Son-in-law",
-              "Uncle"
+              "Uncle",
+              "Volunteer"
             ]
             }
             selected={formData.contactRelation}

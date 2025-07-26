@@ -5,6 +5,7 @@ const RequestSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   bloodGroup: { type: String, required: true },
   bloodUnit: { type: Number, required: true },
+  date: { type: String, required: true },
   hospitalName: { type: String, required: true },
   upazila: { type: String, required: true },
   district: { type: String, required: true },
