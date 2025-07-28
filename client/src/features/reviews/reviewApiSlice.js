@@ -12,7 +12,15 @@ export const reviewApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: ['Review'],
     }),
-    
+
+    // Get all reviews for public
+    getReviewsForPublic: builder.query({
+      query: (params) => ({
+        url: 'reviews/public',
+        params: params
+      }),
+      providesTags: ['Review'],
+    }),
     // Get review by ID
     getReviewById: builder.query({
       query: (id) => ({
@@ -39,10 +47,10 @@ export const reviewApiSlice = apiSlice.injectEndpoints({
     
     // Create a review
     createReview: builder.mutation({
-      query: (reviewData) => ({
-        url: 'reviews/create',
-        method: 'POST',
-        body: reviewData
+      query: (data) => ({
+        url: "reviews/create",
+        method: "POST",
+        body: data,
       }),
       invalidatesTags: ['Review'],
     }),
@@ -80,6 +88,7 @@ export const reviewApiSlice = apiSlice.injectEndpoints({
 
 export const {
   useGetAllReviewsQuery,
+  useGetReviewsForPublicQuery,
   useGetReviewByIdQuery,
   useGetUserReviewsQuery,
   useGetApprovedReviewsQuery,

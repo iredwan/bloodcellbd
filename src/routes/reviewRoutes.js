@@ -8,7 +8,8 @@ import {
   deleteReview,
   updateReviewStatus,
   getApprovedReviews,
-  getReviewsByUserId
+  getReviewsByUserId,
+  getReviewsForPublic
 } from '../controllers/ReviewsController.js';
 
 const router = express.Router();
@@ -18,6 +19,9 @@ router.post('/create', protect, createReview);
 
 // Get all reviews
 router.get('/all', protect, getReviews);
+
+// Get all reviews for public
+router.get('/public', getReviewsForPublic);
 
 // Get a single review by ID
 router.get('/get/:id', getReviewById);

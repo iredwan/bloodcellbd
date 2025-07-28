@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useEffect } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
 import { toast } from "react-toastify";
 import {
   FaEdit,
@@ -19,6 +20,7 @@ import {
   useDeleteReviewMutation,
   useUpdateReviewStatusMutation,
   useCreateReviewMutation,
+  useGetReviewsForPublicQuery,
 } from "@/features/reviews/reviewApiSlice";
 import Pagination from "@/components/Pagination";
 import deleteConfirm from "@/utils/deleteConfirm";
@@ -29,6 +31,10 @@ import CustomSelect from "@/components/CustomSelect";
 const ReviewsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [userReviewsPage, setUserReviewsPage] = useState(1);
+  const [districtReviewsPage, setDistrictReviewsPage] = useState(1);
+  const [publicReviewsSearch, setPublicReviewsSearch] = useState('');
+  const debouncedPublicSearch = useDebounce(publicReviewsSearch, 500);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     rating: 0,
@@ -72,6 +78,12 @@ const ReviewsPage = () => {
     setCurrentPage(1); // Reset to first page on new filter
   };
 
+  // Handle public reviews search
+  const handlePublicReviewsSearch = (e) => {
+    setPublicReviewsSearch(e.target.value);
+    setDistrictReviewsPage(1); // Reset to first page on new search
+  };
+
   // Handle modal status change
   const handleModalStatusChange = (selectedStatus) => {
     const index = modalStatusDisplayOptions.indexOf(selectedStatus);
@@ -89,6 +101,22 @@ const ReviewsPage = () => {
   const userId = userInfoData?.user?._id || "";
   const userDistrict = userInfoData?.user?.district || "";
   const isAuthenticated = userInfoData ? true : false;
+
+  // Get public reviews
+  const {
+    data: publicReviewsData,
+    isLoading: isPublicReviewsLoading,
+    isError: isPublicReviewsError
+  } = useGetReviewsForPublicQuery({
+    page: districtReviewsPage,
+    limit: 10,
+    search: debouncedPublicSearch
+  });
+
+  // Extract public reviews data
+  const publicReviews = publicReviewsData?.data?.reviews || [];
+  const publicTotalReviews = publicReviewsData?.data?.totalReviews || 0;
+  const publicAverageRating = publicReviewsData?.data?.averageRating || 0;
 
   // Determine if user has admin privileges
   const hasAdminPrivileges = [
@@ -117,8 +145,15 @@ const ReviewsPage = () => {
     ...(searchQuery && { search: searchQuery }),
     ...(statusFilter && { status: statusFilter }),
     ...(!canSeeAllReviews && userDistrict && { district: userDistrict }),
-    ...(districtNameSearch && { district: districtNameSearch }),
+    ...(districtNameSearch && { district: districtNameSearch })
   };
+
+  // Set districtReviewsPage to currentPage when userDistrict changes
+  useEffect(() => {
+    if (userDistrict) {
+      setDistrictReviewsPage(currentPage);
+    }
+  }, [userDistrict, currentPage]);
 
   // Fetch reviews data - wait for user info to load first
   const {
@@ -131,17 +166,35 @@ const ReviewsPage = () => {
     skip: isUserInfoLoading, // Skip this query until user info is loaded
   });
 
-  // Fetch user's own reviews if not admin
+  // Query parameters for user's own reviews
+  const userReviewsQueryParams = {
+    limit: itemsPerPage,
+    page: currentPage
+  };
+
+  // Query parameters for district reviews
+  const districtReviewsQueryParams = {
+    limit: itemsPerPage,
+    page: currentPage,
+    district: userDistrict
+  };
+
+  // Fetch user's own reviews
   const {
     data: userReviewsData,
     isLoading: isUserReviewsLoading,
     error: userReviewsError,
-    refetch: refetchUserReviews,
-  } = useGetUserReviewsQuery(undefined, {
-    skip: isUserInfoLoading || hasAdminPrivileges,
+    refetch: refetchUserReviews
+  } = useGetUserReviewsQuery(userReviewsQueryParams, { 
+    skip: isUserInfoLoading 
   });
 
-  // Extract reviews and stats from response with safer access
+  // Calculate total pages for user reviews
+  const userReviewsTotalPages = userReviewsData?.data?.totalReviews 
+    ? Math.ceil(userReviewsData.data.totalReviews / itemsPerPage) 
+    : 1;
+
+  // Extract reviews from response with safer access
   const reviews = reviewsData?.data?.reviews || [];
   const totalReviews = reviewsData?.data?.totalReviews || 0;
   const approvedReviews = reviewsData?.data?.approvedReviews || 0;
@@ -149,14 +202,13 @@ const ReviewsPage = () => {
   const rejectedReviews = reviewsData?.data?.rejectedReviews || 0;
   const averageRating = reviewsData?.data?.averageRating || 0;
 
-  // Update total pages from API response
+  // Update total pages calculation based on API response
   useEffect(() => {
     if (reviewsData?.data) {
-      const totalPages = Math.ceil(
-        reviewsData.data.totalReviews / itemsPerPage
-      );
-      setTotalPages(totalPages || 1);
-      setTotalItems(reviewsData.data.totalReviews || 0);
+      const totalItems = reviewsData.data.totalReviews;
+      const calculatedTotalPages = Math.ceil(totalItems / itemsPerPage);
+      setTotalPages(calculatedTotalPages || 1);
+      setTotalItems(totalItems || 0);
     }
   }, [reviewsData, itemsPerPage]);
 
@@ -200,6 +252,21 @@ const ReviewsPage = () => {
     setCurrentPage(1); // Reset to first page on new search
   };
 
+  // Handle page change for pagination
+  const handlePageChange = (selectedItem) => {
+    const newPage = selectedItem.selected + 1;
+    setCurrentPage(newPage);
+    // Scroll to top when page changes
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+
+  const handleDistrictReviewsPageChange = (selectedItem) => {
+    const newPage = selectedItem.selected + 1;
+    setDistrictReviewsPage(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Check if user can edit/delete a review
   const canModifyReview = (review) => {
     // Admin, divisional coordinator, divisional co-coordinator and district coordinator can modify any review
@@ -219,11 +286,19 @@ const ReviewsPage = () => {
     return review.user?._id === userId;
   };
 
+  // Check if user has already submitted a review
+  const hasUserSubmittedReview = userReviewsData?.data?.length > 0;
+
   // Handle add new review
   const handleAddNew = (e) => {
-    e.preventDefault(); // Prevent any default behavior
-    e.stopPropagation(); // Stop event propagation
-    console.log("Add New Review clicked");
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (hasUserSubmittedReview) {
+      toast.error("You can only submit one review.");
+      return;
+    }
+
     setFormData({
       rating: 0,
       review: "",
@@ -309,13 +384,6 @@ const ReviewsPage = () => {
           updateData: formData,
         }).unwrap();
       } else {
-        // Log the data being sent to the API for debugging
-        console.log("Creating review with data:", {
-          rating: formData.rating,
-          review: formData.review,
-          status: formData.status || "pending",
-        });
-
         // Create the review
         result = await createReview({
           rating: formData.rating,
@@ -323,8 +391,6 @@ const ReviewsPage = () => {
           status: formData.status || "pending",
         }).unwrap();
       }
-
-      console.log("API response:", result);
 
       if (result && result.status === true) {
         toast.success(
@@ -382,11 +448,6 @@ const ReviewsPage = () => {
     setEditId(null);
   };
 
-  // Add modal state monitoring
-  useEffect(() => {
-    console.log("Modal state:", showModal);
-  }, [showModal]);
-
   // Render star rating
   const renderStars = (rating) => {
     return (
@@ -430,10 +491,20 @@ const ReviewsPage = () => {
 
   // Handle row click to show details modal
   const handleRowClick = (review, e) => {
-    // Check if e exists and if the click was on a button
-    if (e && (e.target.closest('button') || e.target.tagName.toLowerCase() === 'button')) {
+    // If there's no event object, return early
+    if (!e) return;
+
+    // Check if the click was on or inside a button
+    const isButtonClick = e.target.closest('button') || 
+                         e.target.tagName.toLowerCase() === 'button' ||
+                         e.target.closest('.button') ||
+                         e.target.parentElement.tagName.toLowerCase() === 'button';
+
+    if (isButtonClick) {
+      e.stopPropagation();
       return;
     }
+
     setSelectedReview(review);
     setShowDetailsModal(true);
   };
@@ -493,13 +564,15 @@ const ReviewsPage = () => {
                   placeholder="Select status..."
                 />
               </div>
-              <button
-                onClick={handleAddNew}
-                className="button mt-2 md:mt-0"
-                type="button"
-              >
-                Add New Review
-              </button>
+              {!hasUserSubmittedReview && (
+                <button
+                  onClick={handleAddNew}
+                  className="button mt-2 md:mt-0"
+                  type="button"
+                >
+                  Add New Review
+                </button>
+              )}
             </div>
           </div>
 
@@ -716,9 +789,11 @@ const ReviewsPage = () => {
         <>
           <div className="flex flex-col md:flex-row justify-between items-center mb-6">
             <h1 className="text-2xl font-bold text-center">Your Reviews</h1>
-            <button onClick={handleAddNew} className="button mt-4 md:mt-0">
-              Add New Review
-            </button>
+            {!hasUserSubmittedReview && (
+              <button onClick={handleAddNew} className="button mt-4 md:mt-0">
+                Add New Review
+              </button>
+            )}
           </div>
 
           {userReviewsData?.data && userReviewsData.data.length > 0 ? (
@@ -731,10 +806,10 @@ const ReviewsPage = () => {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Review
                         </th>
-                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="hidden md:table-cell px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Rating
                         </th>
-                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="hidden md:table-cell px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Status
                         </th>
                         <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -746,7 +821,7 @@ const ReviewsPage = () => {
                       {userReviewsData.data.map((review) => (
                         <tr
                           key={review._id}
-                          onClick={() => handleRowClick(review, null)}
+                          onClick={(e) => handleRowClick(review, e)}
                           className="cursor-pointer hover:bg-gray-50 transition-colors"
                         >
                           <td className="px-6 py-4">
@@ -756,11 +831,20 @@ const ReviewsPage = () => {
                             <div className="text-xs text-gray-500">
                               {new Date(review.createdAt).toLocaleDateString()}
                             </div>
+                            <div className="md:hidden text-xs text-gray-500 dark:text-gray-400 mt-2">
+                            <span
+                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeColor(
+                                review.status
+                              )}`}
+                            >
+                              {review.status}
+                            </span>
+                          </div>
                           </td>
-                          <td className="px-6 py-4 flex justify-center">
+                          <td className="hidden md:table-cell px-3 sm:px-4 py-4 whitespace-nowrap flex justify-center">
                             {renderStars(review.rating)}
                           </td>
-                          <td className="px-6 py-4 text-center">
+                          <td className="hidden md:table-cell px-3 sm:px-4 py-4 whitespace-nowrap text-center">
                             <span
                               className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeColor(
                                 review.status
@@ -803,92 +887,140 @@ const ReviewsPage = () => {
               <p className="text-gray-500 mb-4">
                 You haven't submitted any reviews yet.
               </p>
-              <button onClick={handleAddNew} className="button">
-                Create Your First Review
-              </button>
+              {!hasUserSubmittedReview && (
+                <button onClick={handleAddNew} className="button">
+                  Create Your First Review
+                </button>
+              )}
             </div>
           )}
 
-          {reviews.length > 0 && (
-            <div className="bg-white rounded-lg shadow overflow-hidden mt-10">
-              <div className="overflow-x-auto">
-                <table className="min-w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Profile
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Review
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Rating
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {reviews.map((review) => (
-                      <tr
-                        key={review._id}
-                        onClick={() => handleRowClick(review, null)}
-                        className="cursor-pointer hover:bg-gray-50 transition-colors"
-                      >
-                        <td className="px-6 py-4">
-                          <div className="flex items-center">
-                            {review.user?.profileImage ? (
-                              <img
-                                src={`${imageUrl}${review.user.profileImage}`}
-                                alt={review.user?.name}
-                                className="h-10 w-10 rounded-full mr-3 object-cover"
-                              />
-                            ) : (
-                              <div className="h-10 w-10 rounded-full bg-gray-200 mr-3 flex items-center justify-center">
-                                {review.user?.name?.charAt(0) || "U"}
-                              </div>
-                            )}
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">
-                                {review.user?.name || "Unknown User"}
-                              </div>
-                              <div className="text-xs text-gray-500">
-                                {review.user?.phone || "No phone"}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900">
-                            {review.review}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 flex  justify-center">
-                          {renderStars(review.rating)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+          {/* Search box for public reviews */}
+
+          <h1 className="text-2xl font-bold text-center m-4 mt-10">Other Reviews</h1>
+
+          <div className="mb-4 flex justify-center">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search by name, email, or phone..."
+                value={publicReviewsSearch}
+                onChange={handlePublicReviewsSearch}
+                className="w-sm px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
+              />
+              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            </div>
+          </div>
+          {/* public reviews table */}
+          {isPublicReviewsLoading ? (
+            <div className="mt-10">
+              <div className="animate-pulse space-y-4">
+                <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-20 bg-gray-200 rounded"></div>
+                  ))}
+                </div>
               </div>
             </div>
+          ) : isPublicReviewsError ? (
+            <div className="mt-10 text-center text-red-600">
+              Error loading public reviews. Please try again later.
+            </div>
+          ) : publicReviews.length > 0 ? (
+            <>
+              <div className="bg-white rounded-lg shadow overflow-hidden mt-10">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Profile
+                        </th>
+                        <th className="hidden md:table-cell px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Review
+                        </th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Rating
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {publicReviews.map((review) => (
+                        <tr
+                          key={review._id}
+                          onClick={(e) => handleRowClick(review, e)}
+                          className="cursor-pointer hover:bg-gray-50 transition-colors"
+                        >
+                          <td className="px-6 py-4">
+                            <div className="flex items-center">
+                              {review.user?.profileImage ? (
+                                <img
+                                  src={`${imageUrl}${review.user.profileImage}`}
+                                  alt={review.user?.name}
+                                  className="h-10 w-10 rounded-full mr-3 object-cover"
+                                />
+                              ) : (
+                                <div className="h-10 w-10 rounded-full bg-gray-200 mr-3 flex items-center justify-center">
+                                  {review.user?.name?.charAt(0) || "U"}
+                                </div>
+                              )}
+                              <div>
+                                <div className="text-sm font-medium text-gray-900">
+                                  {review.user?.name || "Unknown User"}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  {review.user?.phone || "No phone"}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="hidden md:table-cell px-3 sm:px-4 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900">
+                              {review.review}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 flex justify-center">
+                            {renderStars(review.rating)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              {/* Pagination for public reviews */}
+              <div className="mt-4">
+                <Pagination
+                  pageCount={Math.ceil(publicTotalReviews / 10)}
+                  onPageChange={handleDistrictReviewsPageChange}
+                  currentPage={districtReviewsPage - 1}
+                />
+              </div>
+            </>
+          ) : (
+            <div className="text-center mt-10">
+              <p className="text-gray-600 mb-4">No public reviews available yet.</p>
+            </div>
           )}
 
-          {reviews && reviews.length > 0 && (
+          {publicReviews.length > 0 && (
             <div className="flex justify-center">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 mt-16">
                 <div className="bg-white p-4 rounded-lg shadow">
                   <h3 className="text-lg font-semibold text-center">
-                    Total Reviews
+                    Total Public Reviews
                   </h3>
-                  <p className="text-2xl text-center">{totalReviews}</p>
+                  <p className="text-2xl text-center">{publicTotalReviews}</p>
                 </div>
 
                 <div className="bg-white p-4 rounded-lg shadow">
                   <h3 className="text-lg font-semibold text-center">
-                    Average Rating
+                    Average Public Rating
                   </h3>
                   <div className="flex flex-col items-center">
-                    <p className="text-2xl">{averageRating.toFixed(1)}</p>
-                    {renderStars(averageRating)}
+                    <p className="text-2xl">{publicAverageRating.toFixed(1)}</p>
+                    {renderStars(publicAverageRating)}
                   </div>
                 </div>
               </div>

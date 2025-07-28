@@ -4,6 +4,12 @@ import ReviewsModel from '../models/ReviewsModel.js';
 // Create a new review
 export const createReviewService = async (req) => {
   try {
+    // Check if user already has a review
+    const existingReview = await ReviewsModel.findOne({ user: req.headers.user_id || req.cookies.user_id });
+    if (existingReview) {
+      return { status: false, message: "You have already submitted a review" };
+    }
+
     const reviewData = {
       ...req.body,
       user: req.headers.user_id || req.cookies.user_id,
@@ -116,7 +122,7 @@ export const getReviewsService = async (req) => {
       }
     ]);
 
-    let approvedReviewsFiltered = {}; // এটা হবে object
+    let approvedReviewsFiltered = {};
 
 if (!isAdmin.includes(userRole)) {
   approvedReviewsFiltered.status = 'approved';
@@ -136,7 +142,10 @@ const totalReviews = await ReviewsModel.countDocuments(approvedReviewsFiltered);
       { $match: { status: 'approved' } },
       { $group: { _id: null, averageRating: { $avg: '$rating' } } }
     ]);
-    const averageRating = avgRatingResult[0]?.averageRating || 0;
+    
+    const averageRatingRaw = avgRatingResult[0]?.averageRating || 0;
+    const averageRating = Math.round(averageRatingRaw * 10) / 10;
+    
 
     return {
       status: true,
@@ -149,13 +158,123 @@ const totalReviews = await ReviewsModel.countDocuments(approvedReviewsFiltered);
         approvedReviews,
         pendingReviews,
         rejectedReviews,
-        averageRating
+        averageRating,
       }
     };
   } catch (e) {
     return {
       status: false,
       message: 'Failed to retrieve reviews',
+      details: e.message
+    };
+  }
+};
+
+export const getReviewsForPublicService = async (req) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search?.trim() || '';
+    const skip = (page - 1) * limit;
+
+    const matchConditions = [{ status: 'approved' }];
+
+    if (search) {
+      matchConditions.push({
+        $or: [
+          { 'user.name': { $regex: search, $options: 'i' } },
+          { 'user.email': { $regex: search, $options: 'i' } },
+          { 'user.phone': { $regex: search, $options: 'i' } }
+        ]
+      });
+    }
+
+    const pipeline = [
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      { $unwind: '$user' },
+      { $match: { $and: matchConditions } },
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $project: {
+          rating: 1,
+          review: 1,
+          status: 1,
+          createdAt: 1,
+          user: {
+            _id: 1,
+            name: 1,
+            email: 1,
+            phone: 1,
+            isVerified: 1,
+            bloodGroup: 1,
+            lastDonate: 1,
+            nextDonationDate: 1,
+            role: 1,
+            roleSuffix: 1,
+            profileImage: 1
+          }
+        }
+      }
+    ];
+
+    const reviews = await ReviewsModel.aggregate(pipeline);
+
+    // Count for pagination
+    const totalCountAgg = await ReviewsModel.aggregate([
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      { $unwind: '$user' },
+      { $match: { $and: matchConditions } },
+      { $count: 'total' }
+    ]);
+
+    const totalReviews = totalCountAgg[0]?.total || 0;
+
+    // Average rating (approved only)
+    const avgRatingResult = await ReviewsModel.aggregate([
+      {
+        $match: { status: 'approved' }
+      },
+      {
+        $group: {
+          _id: null,
+          averageRating: { $avg: '$rating' }
+        }
+      }
+    ]);
+    const averageRatingRaw = avgRatingResult[0]?.averageRating || 0;
+    const averageRating = Math.round(averageRatingRaw * 10) / 10;
+
+    return {
+      status: true,
+      message: "Reviews retrieved successfully",
+      data: {
+        reviews,
+        page,
+        limit,
+        totalReviews,
+        averageRating
+      }
+    };
+  } catch (e) {
+    return {
+      status: false,
+      message: "Failed to retrieve reviews",
       details: e.message
     };
   }

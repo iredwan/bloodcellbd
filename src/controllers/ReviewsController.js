@@ -6,7 +6,8 @@ import {
   deleteReviewService,
   updateReviewStatusService,
   getApprovedReviewsService,
-  getReviewsByUserIdService
+  getReviewsByUserIdService,
+  getReviewsForPublicService
 } from '../service/ReviewService.js';
 
 // Create a new review
@@ -46,6 +47,25 @@ export const getReviews = async (req, res) => {
     });
   }
 };
+
+// Get all reviews for public
+export const getReviewsForPublic = async (req, res) => {
+  try {
+    const result = await getReviewsForPublicService(req);
+
+    if (result.status) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(404).json(result);
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Error retrieving reviews for public",
+      error: error.message
+    });
+  }
+}
 
 // Get a single review by ID
 export const getReviewById = async (req, res) => {
