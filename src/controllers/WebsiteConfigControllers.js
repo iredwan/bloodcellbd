@@ -1,6 +1,7 @@
 import { 
   UpsertWebsiteConfigService, 
-  GetWebsiteConfigService
+  GetWebsiteConfigService,
+  deleteTopBannerService
 } from "../service/WebsiteConfigService.js";
 
 
@@ -40,4 +41,18 @@ export const GetWebsiteConfig = async (req, res) => {
     });
   }
 };
+
+export const deleteTopBanner = async (req, res) => {
+  try {
+    const result = await deleteTopBannerService();
+    res.status(200).json(result);
+  } catch (e) { 
+    res.status(500).json({
+      status: false,
+      message: "Failed to delete top banner.",
+      details: e.message
+    });
+  }
+};
+
  

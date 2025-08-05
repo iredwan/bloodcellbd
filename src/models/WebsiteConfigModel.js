@@ -2,6 +2,14 @@ import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const websiteConfigSchema = new Schema({
+  marqueeText: [{
+    type: String,
+    default: ''
+  }],
+  topBanner: {
+    type: String,
+    default: ''
+  },
   logo: {
     type: String,
     required: [true, 'Logo is required'],

@@ -68,7 +68,7 @@ export default function ProfileCard({
                 )}
               </span>
             </h3>
-            <p className="text-gray-600 dark:text-gray-300">{role} {roleSuffix}</p>
+            <p className="text-gray-600 dark:text-gray-300">{role}, {roleSuffix}</p>
             <a 
                 href={`tel:${phone}`} 
                 className="flex items-center justify-center md:justify-start text-gray-600 dark:text-gray-300"

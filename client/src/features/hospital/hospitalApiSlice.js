@@ -17,43 +17,11 @@ export const hospitalApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // Get all hospitals
     getAllHospitals: builder.query({
-      query: ({ page = 1, limit = 10, search = '' }) => {
-        const params = new URLSearchParams({ page, limit, search });
-        return `hospital/all?${params.toString()}`;
-      },
-      providesTags: ['Hospital'],
-      transformResponse: (response) => {
-        if (response.status && response.data) {
-          return response;
-        }
-    
-        if (Array.isArray(response)) {
-          return { status: true, data: response };
-        }
-    
-        console.warn('Unexpected hospital API response format:', response);
-        return { status: false, data: [] };
-      },
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
-        try {
-          dispatch(setLoading(true));
-          const { data } = await queryFulfilled;
-    
-          if (data.status && data.data) {
-            dispatch(setHospitals(data.data));
-          } else if (Array.isArray(data)) {
-            dispatch(setHospitals(data));
-          } else {
-            dispatch(setHospitals([]));
-          }
-        } catch (error) {
-          console.error('Error fetching hospitals:', error);
-          dispatch(setError(error.message || 'Failed to fetch hospitals'));
-          dispatch(setHospitals([]));
-        } finally {
-          dispatch(setLoading(false));
-        }
-      },
+      query: (params) => ({
+        url: 'hospital/all',
+        params: params,
+      }),
+      providesTags: ['MonitorTeam'],
     }),
     
     

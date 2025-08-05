@@ -35,6 +35,7 @@ export default function UsersManagementPage() {
   const { data: userInfoData, isLoading: isLoadingUserInfo } =
     useGetUserInfoQuery();
   const editorRole = userInfoData?.user.role || "";
+  const editorId = userInfoData?.user.id;
   const editorUpazila = userInfoData?.user.upazila;
   const editorDistrict = userInfoData?.user.district;
 
@@ -66,6 +67,7 @@ export default function UsersManagementPage() {
   const isUpazilaCoordinator = upazilaCoordinators.includes(editorRole);
   const isDistrictCoordinator = districtCoordinators.includes(editorRole);
   const isAdmin = admin.includes(editorRole);
+  const isEditorRole = isAllowed || isUpazilaCoordinator || isDistrictCoordinator || isAdmin;
 
   const router = useRouter();
 
@@ -332,7 +334,7 @@ export default function UsersManagementPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full px-4 py-2.5 pl-10 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
               />
-              <FaSearch className="absolute left-3 top-4 text-gray-400" />
+              <FaSearch className="absolute left-3 top-4 text-gray-400" />                                                     
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400 pt-2">
               Total Filter {totalFilteredUsers}{" "}
@@ -424,7 +426,7 @@ export default function UsersManagementPage() {
                     >
                       <FaEye />
                     </button>
-                    {editorRole === "Admin" && (
+                    {(editorRole === "Admin" || editorRole === "District Coordinator") && editorId !== user._id && (
                       <button
                         onClick={() => handleDeleteUser(user._id, user.name)}
                         className="text-red-600 hover:text-red-900"
@@ -464,7 +466,7 @@ export default function UsersManagementPage() {
                     {usersData.data.users.map((user) => (
                       <tr
                         key={user._id}
-                        className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                        className={`hover:bg-gray-50 dark:hover:bg-gray-700 ${editorId === user._id ? "bg-red-100 text-white" : ""}`}
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
@@ -528,11 +530,9 @@ export default function UsersManagementPage() {
                             >
                               <FaEye />
                             </button>
-                            {editorRole === "Admin" && (
+                            {(editorRole === "Admin" || editorRole === "District Coordinator") && editorId !== user._id && (
                               <button
-                                onClick={() =>
-                                  handleDeleteUser(user._id, user.name)
-                                }
+                                onClick={() => handleDeleteUser(user._id, user.name)}
                                 className="text-red-600 hover:text-red-900"
                                 title="Delete User"
                               >

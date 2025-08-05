@@ -71,7 +71,6 @@ export default function Sidebar() {
           ...districtCoordinators, 
           ...upazilaCoordinators, 
           ...allowedRoles,
-          'user'
         ] },
         { label: 'Users', href: '/dashboard/users', icon: <FaUsers />, roles: [
           ...admin, 
@@ -89,13 +88,13 @@ export default function Sidebar() {
           ...allowedRoles,
           'user'
         ] },
-        { label: 'WTD', href: '/dashboard/wtd', icon: <BiDonateBlood />, roles: [
-          ...admin, 
-          ...divisionalCoordinators, 
-          ...districtCoordinators, 
-          ...upazilaCoordinators,
-          'user'
-        ] },
+        // { label: 'WTD', href: '/dashboard/wtd', icon: <BiDonateBlood />, roles: [
+        //   ...admin, 
+        //   ...divisionalCoordinators, 
+        //   ...districtCoordinators, 
+        //   ...upazilaCoordinators,
+        //   'user'
+        // ] },
         { label: 'Ambassadors', href: '/dashboard/ambassadors', icon: <RiUserStarLine />, roles: [
           ...admin
         ] },
@@ -150,8 +149,7 @@ export default function Sidebar() {
         { label: 'Moderator Team', href: '/dashboard/moderator-team', icon: <RiTeamFill />, roles: [
           ...admin, 
           ...upazilaCoordinators,
-          ...allowedRoles,
-        'user'] },
+          ...allowedRoles,] },
       ],
     },
     {
@@ -182,7 +180,7 @@ export default function Sidebar() {
       {isMobile && (
         <button
           onClick={toggleSidebar}
-          className="fixed top-20 left-4 z-40 p-2 bg-white rounded-full shadow-md hover:scale-105 transition-transform duration-200"
+          className="fixed top-22 left-4 z-40 p-2 bg-white rounded-full shadow-md hover:scale-105 transition-transform duration-200"
         >
           <FiMenu className="text-xl" />
         </button>

@@ -7,6 +7,8 @@ const initialState = {
   config: {
     logo: '',
     favicon: '',
+    marqueeText: [],
+    topBanner: '',
     contactInfo: {
       email: 'info@bloodcellbd.org',
       phone: '+880 1234-567890',

@@ -33,6 +33,12 @@ export const UpsertWebsiteConfigService = async (req) => {
         await deleteFile(fileName);
       }
       
+      // Handle topBanner update
+      if (reqBody.topBanner && config.topBanner && reqBody.topBanner !== config.topBanner) {
+        const fileName = path.basename(config.topBanner);
+        await deleteFile(fileName);
+      }
+      
       // Handle meta tag image update
       if (reqBody.metaTags?.image && config.metaTags?.image && 
           reqBody.metaTags.image !== config.metaTags.image) {
@@ -126,6 +132,23 @@ export const GetWebsiteConfigService = async () => {
     return {
       status: false,
       message: "Failed to retrieve website configuration.",
+      details: e.message
+    };
+  }
+};
+
+export const deleteTopBannerService = async () => {
+  try {
+    const config = await WebsiteConfig.findOne();
+    if (config.topBanner) {
+      await deleteFile(path.basename(config.topBanner));
+      config.topBanner = null;
+      await config.save();
+    }
+  } catch (e) {
+    return {
+      status: false,
+      message: "Failed to delete top banner.",
       details: e.message
     };
   }

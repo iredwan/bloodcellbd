@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useGetAllHospitalsQuery, useCreateHospitalMutation, useUpdateHospitalMutation, useDeleteHospitalMutation } from '@/features/hospital/hospitalApiSlice';
+import { useGetUserInfoQuery } from '@/features/userInfo/userInfoApiSlice'
 import { FaEdit, FaTrash, FaPlus, FaSearch } from 'react-icons/fa';
 import { IoMdClose } from 'react-icons/io';
 import { toast } from 'react-toastify';
@@ -10,7 +11,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import deleteConfirm from '@/utils/deleteConfirm';
 import LocationSelector from '@/components/LocationSelector';
 
-const HospitalsPage = () => {
+const HospitalsPage = () => {;
     const [currentPage, setCurrentPage] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
     const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -29,16 +30,28 @@ const HospitalsPage = () => {
         specialties: ''
     });
 
-    const { data: hospitalsData, isLoading, error } = useGetAllHospitalsQuery({
-        page: currentPage + 1,
+    const { data: userInfoData, isLoading: userLoading } = useGetUserInfoQuery();
+    const user = userInfoData?.user;
+    const userRole = user?.role;
+    
+    const shouldSkip = !userRole
+    const isAdmin = userRole === "Admin"
+    const userDistrict = user?.district || "";
+
+    const queryParam = {
+        page: currentPage + 1, 
         limit: itemsPerPage,
-        search: debouncedSearchTerm
-    });
+        search: debouncedSearchTerm,
+        ...(isAdmin ? {} : { district: userDistrict })
+    };
+
+    const { data: hospitalsData, isLoading, error } = useGetAllHospitalsQuery(queryParam, {skip: shouldSkip,});
 
     // Reset to first page when search term or items per page changes
     useEffect(() => {
         setCurrentPage(0);
     }, [debouncedSearchTerm, itemsPerPage]);
+
 
     const [createHospital] = useCreateHospitalMutation();
     const [updateHospital] = useUpdateHospitalMutation();

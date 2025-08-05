@@ -160,15 +160,15 @@ const ReviewsPage = () => {
           <table className="min-w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  User
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Review
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Rating
-                </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Profile
+                        </th>
+                        <th className="hidden md:table-cell px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Review
+                        </th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Rating
+                        </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -179,39 +179,37 @@ const ReviewsPage = () => {
                     onClick={(e) => handleRowClick(review, e)}
                     className="cursor-pointer hover:bg-gray-50 transition-colors"
                   >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        {review.user?.profileImage ? (
-                          <img
-                            src={`${imageUrl}${review.user.profileImage}`}
-                            alt={review.user?.name}
-                            className="h-10 w-10 rounded-full mr-3 object-cover"
-                          />
-                        ) : (
-                          <div className="h-10 w-10 rounded-full bg-gray-200 mr-3 flex items-center justify-center">
-                            {review.user?.name?.charAt(0) || "U"}
-                          </div>
-                        )}
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">
-                            {review.user?.name || "Unknown User"}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {review.user?.phone || "No phone"}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 max-w-xl truncate">
-                        {review.review}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex justify-center">
-                        {renderStars(review.rating)}
-                      </div>
-                    </td>
+                            <div className="flex items-center">
+                              {review.user?.profileImage ? (
+                                <img
+                                  src={`${imageUrl}${review.user.profileImage}`}
+                                  alt={review.user?.name}
+                                  className="h-10 w-10 rounded-full mr-3 object-cover"
+                                />
+                              ) : (
+                                <div className="h-10 w-10 rounded-full bg-gray-200 mr-3 flex items-center justify-center">
+                                  {review.user?.name?.charAt(0) || "U"}
+                                </div>
+                              )}
+                              <div>
+                                <div className="text-sm font-medium text-gray-900">
+                                  {review.user?.name || "Unknown User"}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  {review.user?.phone || "No phone"}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="hidden md:table-cell px-3 sm:px-4 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900">
+                              {review.review}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 flex justify-center">
+                            {renderStars(review.rating)}
+                          </td>
                   </tr>
                 ))
               ) : (
@@ -279,7 +277,7 @@ const ReviewsPage = () => {
                   <h3 className="text-xl font-semibold text-gray-800 flex items-center">
                     <Link
                       href={`/profile-detail?id=${selectedReview.user._id}`}
-                      className="hover:text-primary transition-colors"
+                      className="hover:text-primary transition-colors line-clamp-2 md:line-clamp-none break-all"
                     >
                       {selectedReview.user?.name || "Unknown User"}
                     </Link>
@@ -303,7 +301,7 @@ const ReviewsPage = () => {
                     )}
                   </h3>
                   <p className="text-gray-600">{selectedReview.user?.phone || "No phone"}</p>
-                  <p className="text-gray-600">{selectedReview.user?.email || "No email"}</p>
+                  <p className="text-gray-600 line-clamp-2 md:line-clamp-none break-all">{selectedReview.user?.email || "No email"}</p>
                 </div>
               </div>
 

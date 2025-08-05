@@ -8,6 +8,8 @@ import { setConfig, setLoading, setError, selectWebsiteConfig, selectConfigLoadi
 const defaultConfig = {
   logo: '',
   favicon: '',
+  marqueeText: [],
+  topBanner: '',
   contactInfo: {
     email: 'info@bloodcellbd.org',
     phone: '+880 1234-567890',
@@ -40,6 +42,8 @@ const ensureCompleteConfig = (config) => {
   return {
     logo: config.logo || defaultConfig.logo,
     favicon: config.favicon || defaultConfig.favicon,
+    marqueeText: config.marqueeText || defaultConfig.marqueeText,
+    topBanner: config.topBanner || defaultConfig.topBanner,
     contactInfo: {
       email: config.contactInfo?.email || defaultConfig.contactInfo.email,
       phone: config.contactInfo?.phone || defaultConfig.contactInfo.phone,
@@ -72,9 +76,7 @@ export const configApiSlice = apiSlice.injectEndpoints({
       query: () => 'config/get',
       providesTags: ['WebsiteConfig'],
       transformResponse: (response) => {
-        // Get the data from the API response
         const apiData = response.data || response;
-        // Ensure all properties exist by merging with defaults
         return ensureCompleteConfig(apiData);
       },
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
@@ -89,7 +91,7 @@ export const configApiSlice = apiSlice.injectEndpoints({
         }
       },
     }),
-    
+
     updateWebsiteConfig: builder.mutation({
       query: (configData) => ({
         url: 'config/upsert',
@@ -98,8 +100,18 @@ export const configApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['WebsiteConfig'],
     }),
+
+    deleteTopBanner: builder.mutation({
+      query: () => ({
+        url: 'config/delete-top-banner',
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['WebsiteConfig'],
+    }),
   }),
 });
+
+
 
 // Custom hook that combines Redux state and RTK Query for website config
 export const useWebsiteConfig = () => {
@@ -135,4 +147,5 @@ export const useWebsiteConfig = () => {
 export const {
   useGetWebsiteConfigQuery,
   useUpdateWebsiteConfigMutation,
+  useDeleteTopBannerMutation
 } = configApiSlice; 

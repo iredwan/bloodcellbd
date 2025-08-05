@@ -8,6 +8,7 @@ import { ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
+import BottomMenuBar from '@/components/BottomMenuBar';
 
 const poppins = Poppins({ 
   subsets: ['latin'],
@@ -31,6 +32,7 @@ export default function RootLayout({ children }) {
             <main className="min-h-screen">
               {children}
             </main>
+            <BottomMenuBar />
             <Footer />
         </Provider>
       </body>

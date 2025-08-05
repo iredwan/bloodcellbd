@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useGetDistrictTeamByIdQuery } from "../../../features/districtTeam/districtTeamApiSlice";
 import {
@@ -17,7 +17,8 @@ import ProfileCard from "@/components/ProfileCard";
 import TeamCardSkeleton from "@/components/ui/Skeletons/TeamCardSkeleton";
 import ProfileCardSkeleton from "@/components/ui/Skeletons/ProfileCardSkeleton";
 
-const DistrictTeamDetail = () => {
+// Separate component that uses useSearchParams
+const DistrictTeamDetailContent = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const [searchTerm, setSearchTerm] = useState("");
@@ -408,6 +409,25 @@ const DistrictTeamDetail = () => {
         )}
       </section>
     </div>
+  );
+};
+
+// Loading fallback component
+const DistrictTeamDetailFallback = () => (
+  <div className="dark:bg-gray-900 dark:text-white min-h-screen flex items-center justify-center">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+      <p className="text-gray-600 dark:text-gray-400">Loading district team details...</p>
+    </div>
+  </div>
+);
+
+// Main component with Suspense boundary
+const DistrictTeamDetail = () => {
+  return (
+    <Suspense fallback={<DistrictTeamDetailFallback />}>
+      <DistrictTeamDetailContent />
+    </Suspense>
   );
 };
 

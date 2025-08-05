@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useWebsiteConfig, useUpdateWebsiteConfigMutation } from '@/features/websiteConfig/configApiSlice';
-import { FaImage, FaPhone, FaGlobe, FaTags, FaChartBar, FaEdit, FaCheck, FaTimes, FaSpinner } from 'react-icons/fa';
+import { useWebsiteConfig, useUpdateWebsiteConfigMutation, useDeleteTopBannerMutation } from '@/features/websiteConfig/configApiSlice';
+import { FaImage, FaPhone, FaGlobe, FaTags, FaChartBar, FaEdit, FaCheck, FaTimes, FaSpinner, FaScroll, FaAd } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import ImageUpload from '@/components/ImageUpload';
 import uploadFiles from '@/utils/fileUpload';
@@ -16,13 +16,17 @@ const ConfigPage = () => {
   const [editSocial, setEditSocial] = useState(false);
   const [editMeta, setEditMeta] = useState(false);
   const [editLogo, setEditLogo] = useState(false);
+  const [editMarquee, setEditMarquee] = useState(false);
+  const [editBanner, setEditBanner] = useState(false);
   const [localError, setLocalError] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [imageUrl] = useState(process.env.NEXT_PUBLIC_IMAGE_URL || '');
+  const [deleteTopBanner, { isLoading: isDeleting }] = useDeleteTopBannerMutation();
   
-  // Preview states for logo and favicon
+  // Preview states for logo, favicon, and topBanner
   const [logoPreview, setLogoPreview] = useState(null);
   const [faviconPreview, setFaviconPreview] = useState(null);
+  const [bannerPreview, setBannerPreview] = useState(null);
 
   useEffect(() => {
     setForm(config);
@@ -30,10 +34,13 @@ const ConfigPage = () => {
     setEditSocial(false);
     setEditMeta(false);
     setEditLogo(false);
+    setEditMarquee(false);
+    setEditBanner(false);
     
     // Reset previews when config changes
     setLogoPreview(config.logo ? `${imageUrl}${config.logo}` : null);
     setFaviconPreview(config.favicon ? `${imageUrl}${config.favicon}` : null);
+    setBannerPreview(config.topBanner ? `${imageUrl}${config.topBanner}` : null);
   }, [config, imageUrl]);
 
   // Handlers for section edit toggles
@@ -42,6 +49,8 @@ const ConfigPage = () => {
     setEditSocial(section === 'social');
     setEditMeta(section === 'meta');
     setEditLogo(section === 'logo');
+    setEditMarquee(section === 'marquee');
+    setEditBanner(section === 'banner');
     setLocalError('');
   };
   
@@ -51,11 +60,14 @@ const ConfigPage = () => {
     setEditSocial(false);
     setEditMeta(false);
     setEditLogo(false);
+    setEditMarquee(false);
+    setEditBanner(false);
     setLocalError('');
     
     // Reset previews when canceling
     setLogoPreview(config.logo ? `${imageUrl}${config.logo}` : null);
     setFaviconPreview(config.favicon ? `${imageUrl}${config.favicon}` : null);
+    setBannerPreview(config.topBanner ? `${imageUrl}${config.topBanner}` : null);
   };
 
   const handleChange = (e) => {
@@ -77,6 +89,31 @@ const ConfigPage = () => {
     }
   };
 
+  const handleMarqueeTextChange = (index, value) => {
+    setForm(prev => {
+      const newMarqueeText = [...(prev.marqueeText || [])];
+      newMarqueeText[index] = value;
+      return {
+        ...prev,
+        marqueeText: newMarqueeText
+      };
+    });
+  };
+
+  const addMarqueeText = () => {
+    setForm(prev => ({
+      ...prev,
+      marqueeText: [...(prev.marqueeText || []), '']
+    }));
+  };
+
+  const removeMarqueeText = (index) => {
+    setForm(prev => ({
+      ...prev,
+      marqueeText: prev.marqueeText.filter((_, i) => i !== index)
+    }));
+  };
+
   const handleFileChange = (name, file) => {
     // Create object URL for preview
     if (file) {
@@ -86,6 +123,8 @@ const ConfigPage = () => {
         setLogoPreview(previewUrl);
       } else if (name === 'favicon') {
         setFaviconPreview(previewUrl);
+      } else if (name === 'topBanner') {
+        setBannerPreview(previewUrl);
       }
     }
     
@@ -138,18 +177,52 @@ const ConfigPage = () => {
         }
       }
 
+      // Handle topBanner upload
+      if (form.topBanner instanceof File) {
+        try {
+          const bannerUploadResult = await uploadFiles([form.topBanner], {
+            maxFiles: 1,
+            onError: (error) => {
+              throw new Error(error);
+            }
+          });
+          configData.topBanner = bannerUploadResult[0].filename;
+        } catch (error) {
+          toast.error(`Failed to upload banner: ${error.message || error}`);
+          setIsUploading(false);
+          return;
+        }
+      }
+
       await updateConfig(configData).unwrap();
       toast.success('Configuration updated successfully!');
       setEditContact(false);
       setEditSocial(false);
       setEditMeta(false);
       setEditLogo(false);
+      setEditMarquee(false);
+      setEditBanner(false);
       refreshConfig();
     } catch (err) {
       setLocalError(err?.data?.message || err?.message || 'Failed to update configuration');
       toast.error(err?.data?.message || err?.message || 'Failed to update configuration');
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  // handle delete top banner
+  const handleDeleteTopBanner = async () => {
+    try {
+      const result = await deleteTopBanner().unwrap();
+      if (result.status) {
+        toast.success(result.message);
+        refreshConfig();
+      } else {
+        toast.error(result.message);
+      }
+    } catch (err) {
+      toast.error(err?.data?.message || err?.message || 'Failed to delete top banner');
     }
   };
 
@@ -165,6 +238,104 @@ const ConfigPage = () => {
             <h1 className="text-2xl font-bold flex items-center gap-2 text-gray-900 dark:text-gray-100">
               <FaTags className="text-primary" /> Website Configuration
             </h1>
+          </div>
+
+          {/* Marquee Text Section */}
+          <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-2 mx-6">
+            <div className="flex flex-col gap-2 md:flex-row md:gap-0 items-center justify-between mb-4 text-lg font-semibold">
+              <span className="flex items-center gap-2 text-gray-900 dark:text-gray-100"><FaScroll className="text-primary" /> Marquee Text</span>
+              {editMarquee ? (
+                <div className="flex gap-2">
+                  <button type="button" onClick={handleSectionSave} className="bg-green-500 text-white px-3 py-1 rounded flex items-center gap-1 hover:bg-green-600 disabled:opacity-70 text-sm" disabled={isUpdating}><FaCheck /> Save</button>
+                  <button type="button" onClick={handleCancel} className="bg-red-500 text-white px-3 py-1 rounded flex items-center gap-1 hover:bg-red-600 text-sm"><FaTimes /> Cancel</button>
+                </div>
+              ) : (
+                <button type="button" onClick={() => handleEdit('marquee')} className="bg-blue-500 text-white px-3 py-1 rounded flex items-center gap-1 hover:bg-blue-600 text-sm"><FaEdit /> Edit</button>
+              )}
+            </div>
+            {editMarquee ? (
+              <div className="space-y-4">
+                {(form.marqueeText || []).map((text, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={text}
+                      onChange={(e) => handleMarqueeTextChange(index, e.target.value)}
+                      placeholder="Enter marquee text"
+                      className="flex-1 px-4 py-2.5 w-full border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeMarqueeText(index)}
+                      className="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600"
+                    >
+                      <FaTimes />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={addMarqueeText}
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                >
+                  Add Marquee Text
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {form.marqueeText && form.marqueeText.length > 0 ? (
+                  form.marqueeText.map((text, index) => (
+                    <div key={index} className="text-gray-700 dark:text-gray-100">
+                      {text}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-gray-400">No marquee text configured</div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Top Banner Section */}
+          <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-6 mx-6">
+            <div className="flex flex-col gap-2 md:flex-row md:gap-0 items-center justify-between mb-4 text-lg font-semibold">
+              <span className="flex items-center gap-2 text-gray-900 dark:text-gray-100"><FaAd className="text-primary" /> Top Banner</span>
+              {editBanner ? (
+                <div className="flex gap-2">
+                  <button type="button" onClick={handleSectionSave} className="bg-green-500 text-white px-3 py-1 rounded flex items-center gap-1 hover:bg-green-600 disabled:opacity-70 text-sm" disabled={isUpdating || isUploading}><FaCheck /> Save</button>
+                  <button type="button" onClick={handleCancel} className="bg-red-500 text-white px-3 py-1 rounded flex items-center gap-1 hover:bg-red-600 text-sm"><FaTimes /> Cancel</button>
+                </div>
+              ) : (
+                <button type="button" onClick={() => handleEdit('banner')} className="bg-blue-500 text-white px-3 py-1 rounded flex items-center gap-1 hover:bg-blue-600 text-sm"><FaEdit /> Edit</button>
+              )}
+            </div>
+            <div className="flex justify-center">
+              {editBanner ? (
+                <ImageUpload
+                  label="Top Banner"
+                  name="topBanner"
+                  onChange={(file) => handleFileChange('topBanner', file)}
+                  height={64}
+                  rounded="md"
+                  defaultImage={bannerPreview}
+                />
+              ) : (
+                <div className="flex flex-col items-center">
+                  <div className="flex items-center gap-2 mb-2 text-lg font-semibold dark:text-white">
+                    <FaAd className="text-primary" /> Top Banner
+                  </div>
+                  {form.topBanner ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <img src={`${imageUrl}${form.topBanner}`} alt="Top Banner" className="h-[64px] object-contain rounded-md shadow" />
+                      <button type="button" onClick={handleDeleteTopBanner} className="bg-red-500 text-white px-3 py-1 rounded flex items-center gap-1 hover:bg-red-600 text-sm"><FaTimes /> Delete</button>
+                    </div>
+
+                  ) : (
+                    <div className="text-gray-400">No banner uploaded</div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Logo & Favicon */}

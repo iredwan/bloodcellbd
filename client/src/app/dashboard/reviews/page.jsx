@@ -454,13 +454,14 @@ const ReviewsPage = () => {
       <div className="flex items-center gap-1 text-yellow-400">
         {Array.from({ length: 5 }, (_, i) => {
           const index = i + 1;
-
+  
           if (index <= Math.floor(rating)) {
             return <FaStar key={index} className="w-5 h-5 sm:w-6 sm:h-6" />;
-          } else if (index - rating <= 0.5) {
-            return (
-              <FaStarHalfAlt key={index} className="w-5 h-5 sm:w-6 sm:h-6" />
-            );
+          } else if (
+            index === Math.ceil(rating) &&
+            rating % 1 >= 0.1 
+          ) {
+            return <FaStarHalfAlt key={index} className="w-5 h-5 sm:w-6 sm:h-6" />;
           } else {
             return (
               <FaRegStar
@@ -854,12 +855,14 @@ const ReviewsPage = () => {
                             </span>
                           </td>
                           <td className="px-6 py-4 text-center whitespace-nowrap">
-                            <button
+                            {review.status !== 'approved' &&(
+                              <button
                               onClick={() => handleEdit(review)}
                               className="text-blue-600 hover:text-blue-900 mr-4"
                             >
                               <FaEdit className="inline" />
                             </button>
+                            )}
                             <button
                               onClick={() => handleDelete(review._id)}
                               className="text-red-600 hover:text-red-900"

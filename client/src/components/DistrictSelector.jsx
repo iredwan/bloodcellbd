@@ -3,8 +3,9 @@ import { useDistrictUtils } from '../utils/locationUtils';
 
 const DistrictSelector = ({
   onDistrictChange,
-  initialDistrictId = '',
+  initialDistrict = '',
   required = false,
+  label = 'Select District',
   className = ''
 }) => {
   const isInitialRender = useRef(true);
@@ -16,20 +17,23 @@ const DistrictSelector = ({
     filterDistricts,
   } = useDistrictUtils();
 
-  const [selectedDistrictId, setSelectedDistrictId] = useState(initialDistrictId);
+  const [selectedDistrictId, setSelectedDistrictId] = useState(initialDistrict);
   const [districtSearchTerm, setDistrictSearchTerm] = useState('');
   const [showDistrictDropdown, setShowDistrictDropdown] = useState(false);
 
   // Set initial value
   useEffect(() => {
-    if (isInitialRender.current && districts.length > 0 && initialDistrictId) {
-      const district = districts.find((d) => d._id === initialDistrictId);
+    if (isInitialRender.current && districts.length > 0 && initialDistrict) {
+      const district = districts.find((d) => d.name === initialDistrict);
       if (district) {
         setDistrictSearchTerm(district.name || '');
+        setSelectedDistrictId(district._id);
+        if (onDistrictChange) onDistrictChange(district); // Optional initial trigger
       }
       isInitialRender.current = false;
     }
-  }, [districts, initialDistrictId]);
+  }, [districts, initialDistrict, onDistrictChange]);
+  
 
   const filteredDistricts = districtSearchTerm
     ? filterDistricts(districtSearchTerm)
@@ -48,8 +52,8 @@ const DistrictSelector = ({
   return (
     <div className={`district-selector ${className}`}>
       <div className="form-group mb-3">
-        <label htmlFor="district" className="block text-sm font-medium text-neutral-700 mb-1 dark:text-white">
-          District
+        <label htmlFor="district" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          {label}{required && <span className="text-red-500"> *</span>}
         </label>
         <div className="relative">
           <input

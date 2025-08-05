@@ -79,8 +79,8 @@ app.use('/api/hospital', hospitalRoutes)
 app.use('/api/config', websiteConfigRoutes);
 app.use('/api/districts', districtRoutes);
 app.use('/api/upazilas-or-ps', upazilaOrPSRoutes);
-app.use('/api/moderator-team', moderatorTeamRoutes);
-app.use('/api/monitor-team', monitorTeamRoutes);
+app.use('/api/moderator-teams', moderatorTeamRoutes);
+app.use('/api/monitor-teams', monitorTeamRoutes);
 app.use('/api/divisions', divisionRoutes);
 app.use('/api/want-to-donate', wantToDonateBloodRoutes);
 app.use('/api/reviews', reviewRoutes);

@@ -19,53 +19,69 @@ function useDebounce(value, delay = 200) {
   return debouncedValue
 }
 
-const PersonSelector = ({ onSelect, label, initialValue }) => {
+const PersonSelector = ({ onSelect, label, initialValue, required }) => {
   const [inputValue, setInputValue] = useState("")
   const [selectedUser, setSelectedUser] = useState(null)
   const [triggerSearch, setTriggerSearch] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isManuallyCleared, setIsManuallyCleared] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
   const wrapperRef = useRef(null)
   const imageUrl = process.env.NEXT_PUBLIC_IMAGE_URL
 
   const debouncedInput = useDebounce(inputValue, 500)
 
   const { data, isFetching } = useGetUsersByNidOrBirthRegQuery(debouncedInput, {
-    skip: !debouncedInput || !triggerSearch,
-  })
+    skip:
+      !debouncedInput ||
+      !triggerSearch ||
+      !/^\d+$/.test(debouncedInput),
+  });
+  
 
   const responseData = data?.data
 
-  // Initial value handling
-  useEffect(() => {
-    if (initialValue && !selectedUser) {
-      setSelectedUser({ name: initialValue })
-      setInputValue(initialValue)
-    }
-  }, [initialValue, selectedUser])
+  // Initial value handle
+useEffect(() => {
+  if (initialValue && !hasInitialized) {
+    setSelectedUser({ name: initialValue });
+    setInputValue(initialValue);
+    setHasInitialized(true);
+  }
+}, [initialValue, hasInitialized]);
 
-  // Close dropdown on outside click
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
-        setIsDropdownOpen(false)
-      }
+// Outside click close
+useEffect(() => {
+  const handleClickOutside = (e) => {
+    if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+      setIsDropdownOpen(false);
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+  };
+  document.addEventListener('mousedown', handleClickOutside);
+  return () => document.removeEventListener('mousedown', handleClickOutside);
+}, []);
 
-  useEffect(() => {
-    if (debouncedInput.trim()) {
-      setTriggerSearch(true)
-      setIsDropdownOpen(true)
-    }
-    if (!inputValue) {
-      setTriggerSearch(false)
-      setIsDropdownOpen(false)
-      setSelectedUser(null)
-      onSelect(null) // Clear selection when input is empty
-    }
-  }, [debouncedInput, inputValue, onSelect])
+// Input clear হলে onSelect(null)
+useEffect(() => {
+  if (inputValue === "" && hasInitialized) {
+    setSelectedUser(null);
+    setTriggerSearch(false);
+    setIsDropdownOpen(false);
+    onSelect(null);
+  }
+}, [inputValue, hasInitialized, onSelect]);
+
+// Debounced input trigger
+useEffect(() => {
+  if (selectedUser) return
+
+  if (debouncedInput.trim()) {
+    setTriggerSearch(true)
+    setIsDropdownOpen(true)
+  }
+}, [debouncedInput, selectedUser])
+  
+  
 
   const handleSelect = () => {
     if (responseData && responseData._id) {
@@ -78,11 +94,14 @@ const PersonSelector = ({ onSelect, label, initialValue }) => {
   }
 
   const handleInputChange = (e) => {
-    setInputValue(e.target.value)
+    const val = e.target.value;
+    setInputValue(val);
+    setIsManuallyCleared(val === "");
     if (selectedUser) {
-      setSelectedUser(null)
+      setSelectedUser(null);
     }
-  }
+  };
+  
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
@@ -93,14 +112,19 @@ const PersonSelector = ({ onSelect, label, initialValue }) => {
 
   return (
     <div className="relative" ref={wrapperRef}>
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{label}</label>
+      <label 
+      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{label} {required && <span className="text-red-500">*</span>}</label>
+      {isFetching &&(
+        <label className="block text-sm font-medium text-green-500 dark:text-gray-300 mb-2">Searching...</label>
+      )}
       <input
         type="text"
         value={inputValue}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
         onFocus={() => setIsDropdownOpen(true)}
-        placeholder="Enter NID or Birth Registration"
+        required={required}
+        placeholder="Enter NID/Birth Registration Number"
         className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all dark:bg-gray-700 dark:text-white"
       />
 
